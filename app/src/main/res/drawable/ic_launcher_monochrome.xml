@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single-colour Frizzy for Android 13 themed icons (only the alpha channel is used). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="3.5"
+        android:strokeLineJoin="round"
+        android:pathData="M44,24H64A9,9 0,0 1,73 33V75A9,9 0,0 1,64 84H44A9,9 0,0 1,35 75V33A9,9 0,0 1,44 24Z M35,45H73" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M65,30h2.6v9h-2.6z M65,50h2.6v10h-2.6z M45.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z M57.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z M40,38C40,32 46,30.5 49,31.5C49,36 45.5,39.5 40,38Z" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M50,66Q54,70.5 58,66" />
+</vector>

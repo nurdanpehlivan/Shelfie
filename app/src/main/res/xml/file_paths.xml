@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Shelfie photos; keep in sync with LocalPhotoStorage.PHOTO_DIR. -->
+    <files-path
+        name="shelfies"
+        path="shelfies/" />
+</paths>

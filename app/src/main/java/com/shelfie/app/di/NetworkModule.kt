@@ -1,0 +1,111 @@
+package com.shelfie.app.di
+
+import com.shelfie.app.BuildConfig
+import com.shelfie.app.data.remote.gemini.GeminiApiService
+import com.shelfie.app.data.remote.gemini.GeminiConfig
+import com.shelfie.app.data.remote.openfoodfacts.OpenFoodFactsApi
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkModule {
+
+    private const val CONNECT_TIMEOUT_SECONDS = 15L
+
+    /** Vision requests with thinking models can take a while to respond. */
+    private const val GEMINI_READ_TIMEOUT_SECONDS = 90L
+
+    @Provides
+    @Singleton
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeminiConfig(): GeminiConfig = GeminiConfig(
+        apiKey = BuildConfig.GEMINI_API_KEY,
+        models = (listOf(BuildConfig.GEMINI_MODEL) + BuildConfig.GEMINI_FALLBACK_MODELS.split(','))
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct(),
+    )
+
+    /** Shared base client; API-specific clients derive from it via [OkHttpClient.newBuilder]. */
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .apply {
+            if (BuildConfig.DEBUG) {
+                // HEADERS, not BODY: bodies carry base64 photos (huge) and pantry content.
+                addInterceptor(
+                    HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.HEADERS
+                        redactHeader(GeminiApiService.API_KEY_HEADER)
+                    },
+                )
+            }
+        }
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideGeminiApiService(
+        okHttpClient: OkHttpClient,
+        json: Json,
+        config: GeminiConfig,
+    ): GeminiApiService {
+        val geminiClient = okHttpClient.newBuilder()
+            .readTimeout(GEMINI_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(GEMINI_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                chain.proceed(
+                    chain.request().newBuilder()
+                        .header(GeminiApiService.API_KEY_HEADER, config.apiKey)
+                        .build(),
+                )
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(GeminiApiService.BASE_URL)
+            .client(geminiClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(GeminiApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOpenFoodFactsApi(okHttpClient: OkHttpClient, json: Json): OpenFoodFactsApi {
+        val client = okHttpClient.newBuilder()
+            .addInterceptor { chain ->
+                chain.proceed(
+                    chain.request().newBuilder()
+                        .header("User-Agent", OpenFoodFactsApi.USER_AGENT)
+                        .build(),
+                )
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(OpenFoodFactsApi.BASE_URL)
+            .client(client)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(OpenFoodFactsApi::class.java)
+    }
+}

@@ -1,0 +1,308 @@
+<resources>
+    <!-- Typographic apostrophes (’) throughout: correct French, and no escaping needed. -->
+    <string name="action_cancel">Annuler</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_undo">Annuler</string>
+    <string name="action_navigate_up">Retour</string>
+    <string name="action_delete">Supprimer</string>
+
+    <!-- Freshness groups -->
+    <string name="freshness_critical">Critique</string>
+    <string name="freshness_warning">Attention</string>
+    <string name="freshness_fresh">Frais</string>
+    <string name="freshness_critical_range">0–%1$d jours</string>
+    <string name="freshness_warning_range">%1$d–%2$d jours</string>
+    <string name="freshness_fresh_range">%1$d+ jours</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Mon garde-manger</string>
+    <plurals name="dashboard_summary_title">
+        <item quantity="one">%d produit bientôt périmé</item>
+        <item quantity="other">%d produits bientôt périmés</item>
+    </plurals>
+    <string name="dashboard_summary_ring_caption">à consommer</string>
+    <string name="dashboard_filter_all">Tous %1$d</string>
+    <string name="dashboard_swipe_hint">Balaie vers la droite si c’est mangé, vers la gauche si c’est jeté.</string>
+    <string name="dashboard_group_empty">Rien dans ce groupe.</string>
+    <string name="dashboard_item_summary">%1$s %2$s · %3$s</string>
+    <string name="dashboard_badge_urgent">URGENT</string>
+    <string name="dashboard_expires_today">Dernier jour aujourd’hui</string>
+    <string name="dashboard_expires_tomorrow">Demain</string>
+    <plurals name="dashboard_days_left">
+        <item quantity="one">Encore %d jour</item>
+        <item quantity="other">Encore %d jours</item>
+    </plurals>
+    <plurals name="dashboard_expired_days_ago">
+        <item quantity="one">Périmé depuis %d jour</item>
+        <item quantity="other">Périmé depuis %d jours</item>
+    </plurals>
+    <string name="dashboard_action_consumed">Mangé</string>
+    <string name="dashboard_action_wasted">Jeté</string>
+    <string name="dashboard_removed_consumed">%1$s marqué comme mangé</string>
+    <string name="dashboard_removed_wasted">%1$s marqué comme jeté</string>
+    <string name="dashboard_action_scan">Scanner</string>
+    <string name="dashboard_empty_title">Ton garde-manger est vide</string>
+    <string name="dashboard_empty_subtitle">Scanne ton frigo ou tes placards pour suivre ce qui va bientôt périmer.</string>
+    <string name="dashboard_error_update_failed">Impossible de mettre à jour le produit. Réessaie.</string>
+    <string name="dashboard_rescue_title">Transforme-les en repas</string>
+    <string name="dashboard_rescue_subtitle">Une recette de 15 minutes avec ce qui va bientôt périmer</string>
+    <string name="dashboard_rescue_action">Voir la recette</string>
+
+    <!-- Scanner -->
+    <string name="scanner_title">Scanne ton étagère</string>
+    <string name="scanner_idle_title">Qu’y a-t-il sur ton étagère ?</string>
+    <string name="scanner_idle_subtitle">Prends en photo ton frigo, tes placards ou ton ticket de caisse et nous listerons les aliments pour toi.</string>
+    <string name="scanner_action_take_photo">Prendre une photo</string>
+    <string name="scanner_action_pick_photo">Choisir dans la galerie</string>
+    <string name="scanner_analyzing">Détection des produits…</string>
+    <string name="scanner_photo_description">Photo de l’étagère</string>
+    <plurals name="scanner_items_found">
+        <item quantity="one">%d produit trouvé</item>
+        <item quantity="other">%d produits trouvés</item>
+    </plurals>
+    <string name="scanner_review_hint">Touche un produit pour le modifier, supprime ce qui ne va pas.</string>
+    <string name="scanner_review_empty">Plus aucun produit à enregistrer. Essaie une autre photo.</string>
+    <string name="scanner_item_summary">%1$s %2$s · %3$s</string>
+    <string name="scanner_item_expiry">À consommer avant le %1$s</string>
+    <string name="scanner_action_edit_item">Modifier %1$s</string>
+    <string name="scanner_action_delete_item">Retirer %1$s</string>
+    <string name="scanner_action_rescan">Rescanner</string>
+    <plurals name="scanner_action_confirm">
+        <item quantity="one">Enregistrer %d produit</item>
+        <item quantity="other">Enregistrer %d produits</item>
+    </plurals>
+    <plurals name="scanner_items_saved">
+        <item quantity="one">%d produit ajouté à ton garde-manger</item>
+        <item quantity="other">%d produits ajoutés à ton garde-manger</item>
+    </plurals>
+    <string name="scanner_action_retry">Réessayer</string>
+    <string name="scanner_action_other_photo">Utiliser une autre photo</string>
+
+    <string name="scanner_edit_title">Modifier le produit</string>
+    <string name="scanner_edit_name">Nom</string>
+    <string name="scanner_edit_quantity">Quantité</string>
+    <string name="scanner_edit_unit">Unité</string>
+    <string name="scanner_edit_category">Catégorie</string>
+    <string name="scanner_edit_expiry">À consommer avant</string>
+    <string name="scanner_edit_expiry_minus">Un jour plus tôt</string>
+    <string name="scanner_edit_expiry_plus">Un jour plus tard</string>
+
+    <string name="scanner_error_title">Un problème est survenu</string>
+    <string name="scanner_error_not_configured">L’analyse de photos n’est pas configurée dans cette version (clé API manquante).</string>
+    <string name="scanner_error_image_unreadable">Impossible d’ouvrir cette photo. Essaie-en une autre.</string>
+    <string name="scanner_error_network">Impossible de joindre le serveur. Vérifie ta connexion et réessaie.</string>
+    <string name="scanner_error_rate_limited">Trop de requêtes en ce moment. Patiente un instant et réessaie.</string>
+    <string name="scanner_error_server">Le service d’analyse rencontre un problème. Réessaie.</string>
+    <string name="scanner_error_blocked">Cette photo ne peut pas être analysée. Essaie-en une autre.</string>
+    <string name="scanner_error_malformed">Les produits de cette photo n’ont pas été reconnus. Réessaie.</string>
+    <string name="scanner_error_unknown">Une erreur inattendue s’est produite. Réessaie.</string>
+    <string name="scanner_error_save_failed">Impossible d’enregistrer les produits. Réessaie.</string>
+    <string name="scanner_error_storage">Pas assez d’espace de stockage pour prendre une photo.</string>
+    <string name="scanner_error_no_camera">Aucune application d’appareil photo trouvée sur cet appareil.</string>
+
+    <!-- Rescue recipe -->
+    <string name="recipe_title">Recette anti-gaspi</string>
+    <string name="recipe_cooking_title">Mode cuisine</string>
+    <string name="recipe_loading">Frizzy mijote une idée…</string>
+    <string name="recipe_loading_subtitle">Une recette rapide avec les produits qui vont bientôt périmer.</string>
+    <plurals name="recipe_time_minutes">
+        <item quantity="one">%d min</item>
+        <item quantity="other">%d min</item>
+    </plurals>
+    <plurals name="recipe_servings">
+        <item quantity="one">Pour %d personne</item>
+        <item quantity="other">Pour %d personnes</item>
+    </plurals>
+    <plurals name="recipe_rescued_count">
+        <item quantity="one">Sauve %d produit</item>
+        <item quantity="other">Sauve %d produits</item>
+    </plurals>
+    <string name="recipe_section_rescued">Sauvé de ton garde-manger</string>
+    <string name="recipe_section_extras">Ingrédients de base nécessaires</string>
+    <string name="recipe_section_steps">Étapes</string>
+    <string name="recipe_action_start">Commencer à cuisiner</string>
+    <string name="recipe_action_regenerate">Autre recette</string>
+    <string name="recipe_step_counter">Étape %1$d sur %2$d</string>
+    <string name="recipe_action_step_done">Étape %1$d terminée</string>
+    <string name="recipe_action_previous_step">Étape précédente</string>
+    <plurals name="recipe_step_wait">
+        <item quantity="one">%d min d’attente</item>
+        <item quantity="other">%d min d’attente</item>
+    </plurals>
+    <string name="recipe_finished_title">Bon appétit !</string>
+    <plurals name="recipe_finished_subtitle">
+        <item quantity="one">Tu as sauvé %d produit de la poubelle.</item>
+        <item quantity="other">Tu as sauvé %d produits de la poubelle.</item>
+    </plurals>
+    <string name="recipe_action_back_to_recipe">Retour à la recette</string>
+    <string name="recipe_action_done">Retour au garde-manger</string>
+    <string name="recipe_action_exit_cooking">Quitter le mode cuisine</string>
+    <string name="recipe_empty_title">Rien à sauver</string>
+    <string name="recipe_empty_subtitle">Aucun de tes produits ne va bientôt périmer. Reviens plus tard !</string>
+    <string name="recipe_error_not_configured">Les suggestions de recettes ne sont pas configurées dans cette version (clé API manquante).</string>
+    <string name="recipe_error_malformed">Frizzy n’a pas trouvé de recette cette fois-ci. Réessaie.</string>
+    <string name="recipe_action_favorite">Ajouter aux favoris</string>
+    <string name="recipe_action_unfavorite">Retirer des favoris</string>
+    <string name="recipe_not_found_title">Recette introuvable</string>
+    <string name="recipe_not_found_subtitle">Cette recette a été supprimée de ton historique.</string>
+    <string name="recipe_badge_cooked">Cuisinée</string>
+    <string name="recipe_action_cooked">Je l’ai cuisinée</string>
+    <string name="recipe_action_cooked_use_up">Je l’ai cuisinée, retirer les produits</string>
+    <string name="recipe_cooked_done">Les produits ont quitté ton garde-manger comme mangés.</string>
+    <string name="recipe_action_add_missing">Ajouter ce qui manque à la liste</string>
+    <plurals name="recipe_cooked_message">
+        <item quantity="one">Bravo ! %d produit marqué comme mangé.</item>
+        <item quantity="other">Bravo ! %d produits marqués comme mangés.</item>
+    </plurals>
+    <plurals name="recipe_shopping_added">
+        <item quantity="one">%d ingrédient ajouté à ta liste de courses</item>
+        <item quantity="other">%d ingrédients ajoutés à ta liste de courses</item>
+    </plurals>
+    <string name="recipe_shopping_already_listed">C’est déjà sur ta liste de courses.</string>
+
+    <string name="error_daily_quota">Le quota gratuit d’IA du jour est épuisé. Il se réinitialise demain, ou tu peux activer la facturation dans Google AI Studio.</string>
+
+    <!-- Daily freshness notification -->
+    <string name="notification_channel_freshness">Rappels de fraîcheur</string>
+    <string name="notification_channel_freshness_description">Un rappel quotidien avec une recette rapide pour les produits qui vont bientôt périmer.</string>
+    <string name="notification_recipe_ready_title">🍳 Ta recette anti-gaspi est prête</string>
+    <string name="notification_recipe_ready_text">Ta recette de %3$s en %2$d minutes avec %1$s de ton frigo est prête ! Touche pour cuisiner.</string>
+    <string name="notification_expiring_title">⏰ À consommer avant qu’il ne soit trop tard</string>
+    <string name="notification_expiring_text">Plus beaucoup de temps pour %1$s. Touche pour une recette rapide.</string>
+    <string name="notification_join_last">%1$s et %2$s</string>
+    <string name="meal_breakfast">petit-déjeuner</string>
+    <string name="meal_lunch">déjeuner</string>
+    <string name="meal_dinner">dîner</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_pantry">Garde-manger</string>
+    <string name="tab_recipes">Recettes</string>
+    <string name="tab_shopping">Courses</string>
+    <string name="tab_statistics">Stats</string>
+
+    <!-- Recipe history -->
+    <string name="history_title">Mes recettes</string>
+    <string name="history_filter_all">Toutes</string>
+    <string name="history_filter_favorites">Favorites</string>
+    <string name="history_filter_cooked">Cuisinées</string>
+    <string name="history_filter_empty">Pas encore de recettes ici.</string>
+    <string name="history_delete_title">Supprimer la recette ?</string>
+    <string name="history_delete_message">« %1$s » sera supprimée de ton historique.</string>
+    <string name="history_empty_title">Pas encore de recettes</string>
+    <string name="history_empty_subtitle">Chaque recette anti-gaspi est enregistrée ici, pour la refaire quand tu veux.</string>
+
+    <!-- Shopping list -->
+    <string name="shopping_title">Liste de courses</string>
+    <string name="shopping_clear_bought">Effacer les achats</string>
+    <string name="shopping_add_hint">Ajouter un article…</string>
+    <string name="shopping_add">Ajouter</string>
+    <string name="shopping_suggestions">Récemment épuisés</string>
+    <plurals name="shopping_to_buy">
+        <item quantity="one">À acheter · %d</item>
+        <item quantity="other">À acheter · %d</item>
+    </plurals>
+    <string name="shopping_empty">Ta liste est vide.</string>
+    <string name="shopping_bought">Acheté</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistiques</string>
+    <string name="stats_period_week">Cette semaine</string>
+    <string name="stats_period_month">Ce mois-ci</string>
+    <string name="stats_period_all">Depuis le début</string>
+    <string name="stats_hero_caption">des aliments sortis de ton garde-manger ont été mangés</string>
+    <string name="stats_hero_empty">Marque des produits comme mangés ou jetés pour voir tes statistiques.</string>
+    <string name="stats_tile_rescued">mangés à temps</string>
+    <string name="stats_tile_wasted">jetés</string>
+    <string name="stats_tile_savings">économies estimées</string>
+    <string name="stats_tile_cooked">recettes anti-gaspi cuisinées</string>
+    <string name="stats_chart_title">8 dernières semaines</string>
+    <string name="stats_show_table">Tableau</string>
+    <string name="stats_show_chart">Graphique</string>
+    <string name="stats_table_week">Semaine du</string>
+    <string name="stats_legend_rescued">Mangé</string>
+    <string name="stats_legend_wasted">Jeté</string>
+    <string name="stats_week_readout">Semaine du %1$s : %2$d mangés, %3$d jetés</string>
+    <string name="stats_top_wasted">Le plus souvent jeté</string>
+    <plurals name="stats_items">
+        <item quantity="one">%d produit</item>
+        <item quantity="other">%d produits</item>
+    </plurals>
+    <string name="stats_footnote">Les économies sont une estimation : produits mangés × valeur moyenne d’un produit définie dans les Réglages.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Réglages</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_notifications">Rappel quotidien de fraîcheur</string>
+    <string name="settings_notifications_hint">Une recette rapide pour les produits qui vont bientôt périmer.</string>
+    <string name="settings_reminder_hint">Android peut l’envoyer un peu plus tard pour économiser la batterie.</string>
+    <string name="settings_section_freshness">Fraîcheur</string>
+    <string name="settings_critical_days">Un produit est critique quand il lui reste au plus</string>
+    <plurals name="settings_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
+    <string name="settings_critical_hint">Critique : 0–%1$d jours restants · Attention : jusqu’à %2$d jours</string>
+    <string name="settings_section_statistics">Statistiques</string>
+    <string name="settings_average_value">Valeur moyenne d’un produit</string>
+    <string name="settings_average_value_hint">Sert uniquement à estimer tes économies.</string>
+
+    <!-- Add product -->
+    <string name="add_item_title">Ajouter un produit</string>
+    <string name="add_item_scan_barcode">Scanner le code-barres</string>
+    <string name="add_item_found">Produit trouvé : vérifie les informations et enregistre.</string>
+    <string name="add_item_not_found">Ce code-barres n’est pas dans la base de produits. Saisis le nom toi-même.</string>
+    <string name="add_item_lookup_failed">Impossible de rechercher le code-barres. Vérifie ta connexion ou saisis le nom.</string>
+    <string name="add_item_scanner_unavailable">Le lecteur de codes-barres n’est pas encore prêt. Réessaie dans un instant.</string>
+    <string name="add_item_saved">%1$s ajouté à ton garde-manger</string>
+
+    <!-- Frizzy, the mascot -->
+    <string name="mascot_name">Frizzy</string>
+    <string name="greeting_morning">Bonjour !</string>
+    <string name="greeting_afternoon">Salut !</string>
+    <string name="greeting_evening">Bonsoir !</string>
+    <plurals name="frizzy_critical">
+        <item quantity="one">%d produit a besoin de toi aujourd’hui. Cuisinons-le avant qu’il ne s’abîme !</item>
+        <item quantity="other">%d produits ont besoin de toi aujourd’hui. Cuisinons-les avant qu’ils ne s’abîment !</item>
+    </plurals>
+    <string name="frizzy_all_fresh">Tout est frais ici. Bien joué !</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Passer</string>
+    <string name="onboarding_next">Suivant</string>
+    <string name="onboarding_start">C’est parti</string>
+    <string name="onboarding_welcome_title">Salut, moi c’est Frizzy !</string>
+    <string name="onboarding_welcome_body">Je t’aide à manger ce que tu achètes au lieu de le jeter.</string>
+    <string name="onboarding_track_title">Prends ton étagère en photo</string>
+    <string name="onboarding_track_body">Une photo de ton frigo, de tes placards ou de ton ticket, ou un code-barres scanné : je surveille ce qui va bientôt périmer.</string>
+    <string name="onboarding_recipes_title">Recettes anti-gaspi</string>
+    <string name="onboarding_recipes_body">Quand un produit approche de sa date, je te propose une recette rapide pour l’utiliser.</string>
+    <string name="onboarding_notify_title">Un petit rappel amical par jour</string>
+    <string name="onboarding_notify_body">Autorise les notifications et je te préviendrai chaque matin, avec une recette prête à cuisiner.</string>
+
+    <string name="settings_reminder_label">Heure du rappel</string>
+    <string name="settings_about_version">Version %1$s</string>
+    <string name="settings_about_font">Police : Nunito (SIL Open Font License)</string>
+
+    <!-- Categories -->
+    <string name="category_dairy">Produits laitiers</string>
+    <string name="category_meat">Viande</string>
+    <string name="category_seafood">Poisson et fruits de mer</string>
+    <string name="category_fruits">Fruits</string>
+    <string name="category_vegetables">Légumes</string>
+    <string name="category_bakery">Boulangerie</string>
+    <string name="category_grains">Céréales</string>
+    <string name="category_canned">Conserves</string>
+    <string name="category_frozen">Surgelés</string>
+    <string name="category_beverages">Boissons</string>
+    <string name="category_condiments">Sauces et épices</string>
+    <string name="category_snacks">Snacks</string>
+    <string name="category_other">Autre</string>
+
+    <!-- Units -->
+    <string name="unit_piece">pce</string>
+    <string name="unit_package">paquet</string>
+    <string name="unit_gram">g</string>
+    <string name="unit_kilogram">kg</string>
+    <string name="unit_milliliter">ml</string>
+    <string name="unit_liter">l</string>
+</resources>

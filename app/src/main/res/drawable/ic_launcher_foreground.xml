@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Frizzy, the Shelfie mascot, kept inside the adaptive-icon safe zone (21..87). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Feet -->
+    <path android:fillColor="#1F5C43" android:pathData="M42,81h7v6h-7z M59,81h7v6h-7z" />
+    <!-- Body -->
+    <path
+        android:fillColor="#EAF7EF"
+        android:strokeColor="#1F5C43"
+        android:strokeWidth="3"
+        android:pathData="M44,24H64A9,9 0,0 1,73 33V75A9,9 0,0 1,64 84H44A9,9 0,0 1,35 75V33A9,9 0,0 1,44 24Z" />
+    <!-- Freezer door split -->
+    <path
+        android:strokeColor="#1F5C43"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M35,45H73" />
+    <!-- Handles -->
+    <path android:fillColor="#5FBF8C" android:pathData="M65,30h2.6v9h-2.6z M65,50h2.6v10h-2.6z" />
+    <!-- Leaf magnet -->
+    <path
+        android:fillColor="#43A36F"
+        android:pathData="M40,38C40,32 46,30.5 49,31.5C49,36 45.5,39.5 40,38Z" />
+    <!-- Eyes -->
+    <path
+        android:fillColor="#1C2B22"
+        android:pathData="M45.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z M57.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M48.4,57.6a1,1 0,1 0,2 0a1,1 0,1 0,-2 0z M60.4,57.6a1,1 0,1 0,2 0a1,1 0,1 0,-2 0z" />
+    <!-- Cheeks -->
+    <path
+        android:fillColor="#FF9E9E"
+        android:fillAlpha="0.6"
+        android:pathData="M40.4,64.5a2.6,1.6 0,1 0,5.2 0a2.6,1.6 0,1 0,-5.2 0z M62.4,64.5a2.6,1.6 0,1 0,5.2 0a2.6,1.6 0,1 0,-5.2 0z" />
+    <!-- Smile -->
+    <path
+        android:strokeColor="#1C2B22"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:pathData="M50,66Q54,70.5 58,66" />
+</vector>

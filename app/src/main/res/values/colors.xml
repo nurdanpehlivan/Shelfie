@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors the Compose theme (presentation/theme) for the few places Views still draw. -->
+    <color name="brand_background">#FFFBF8F1</color>
+    <color name="brand_green">#FF2E7D5B</color>
+    <color name="ic_launcher_background">#FFB8F0D2</color>
+</resources>

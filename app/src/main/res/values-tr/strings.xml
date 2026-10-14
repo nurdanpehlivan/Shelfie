@@ -1,0 +1,310 @@
+<resources>
+    <string name="action_cancel">İptal</string>
+    <string name="action_save">Kaydet</string>
+    <string name="action_undo">Geri al</string>
+    <string name="action_navigate_up">Geri</string>
+
+    <!-- Freshness groups -->
+    <string name="freshness_critical">Kritik</string>
+    <string name="freshness_warning">Dikkat</string>
+    <string name="freshness_fresh">Güvende</string>
+    <string name="freshness_critical_range">0–%1$d gün</string>
+    <string name="freshness_warning_range">%1$d–%2$d gün</string>
+    <string name="freshness_fresh_range">%1$d+ gün</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Kilerim</string>
+    <plurals name="dashboard_summary_title">
+        <item quantity="one">Bozulmak üzere olan %d ürün</item>
+        <item quantity="other">Bozulmak üzere olan %d ürün</item>
+    </plurals>
+    <string name="dashboard_summary_ring_caption">acil</string>
+    <string name="dashboard_filter_all">Tümü %1$d</string>
+    <string name="dashboard_swipe_hint">Tükettiğin ürünü sağa, çöpe gideni sola kaydır.</string>
+    <string name="dashboard_group_empty">Bu grupta ürün yok.</string>
+    <string name="dashboard_item_summary">%1$s %2$s · %3$s</string>
+    <string name="dashboard_badge_urgent">ACİL</string>
+    <string name="dashboard_expires_today">Bugün son gün</string>
+    <string name="dashboard_expires_tomorrow">Yarın</string>
+    <plurals name="dashboard_days_left">
+        <item quantity="one">%d gün kaldı</item>
+        <item quantity="other">%d gün kaldı</item>
+    </plurals>
+    <plurals name="dashboard_expired_days_ago">
+        <item quantity="one">%d gün önce geçti</item>
+        <item quantity="other">%d gün önce geçti</item>
+    </plurals>
+    <string name="dashboard_action_consumed">Tüketildi</string>
+    <string name="dashboard_action_wasted">Çöpe gitti</string>
+    <string name="dashboard_removed_consumed">%1$s tüketildi olarak işaretlendi</string>
+    <string name="dashboard_removed_wasted">%1$s çöpe gitti olarak işaretlendi</string>
+    <string name="dashboard_action_scan">Tara</string>
+    <string name="dashboard_empty_title">Kilerin boş</string>
+    <string name="dashboard_empty_subtitle">Bozulmak üzere olanları takip etmeye başlamak için buzdolabını ya da kilerini tara.</string>
+    <string name="dashboard_error_update_failed">Ürün güncellenemedi. Lütfen tekrar dene.</string>
+
+    <!-- Scanner -->
+    <string name="scanner_title">Rafını tara</string>
+    <string name="scanner_idle_title">Rafında neler var?</string>
+    <string name="scanner_idle_subtitle">Buzdolabının, kilerinin ya da fişinin fotoğrafını çek; içindeki yiyecekleri senin için listeleyelim.</string>
+    <string name="scanner_action_take_photo">Fotoğraf çek</string>
+    <string name="scanner_action_pick_photo">Galeriden seç</string>
+    <string name="scanner_analyzing">Ürünler tespit ediliyor…</string>
+    <string name="scanner_photo_description">Raf fotoğrafı</string>
+    <plurals name="scanner_items_found">
+        <item quantity="one">%d ürün bulundu</item>
+        <item quantity="other">%d ürün bulundu</item>
+    </plurals>
+    <string name="scanner_review_hint">Düzenlemek için ürüne dokun, yanlış olanları sil.</string>
+    <string name="scanner_review_empty">Kaydedilecek ürün kalmadı. Başka bir fotoğraf dene.</string>
+    <string name="scanner_item_summary">%1$s %2$s · %3$s</string>
+    <string name="scanner_item_expiry">SKT %1$s</string>
+    <string name="scanner_action_edit_item">%1$s ürününü düzenle</string>
+    <string name="scanner_action_delete_item">%1$s ürününü sil</string>
+    <string name="scanner_action_rescan">Yeniden tara</string>
+    <plurals name="scanner_action_confirm">
+        <item quantity="one">%d ürünü kaydet</item>
+        <item quantity="other">%d ürünü kaydet</item>
+    </plurals>
+    <plurals name="scanner_items_saved">
+        <item quantity="one">%d ürün kilerine eklendi</item>
+        <item quantity="other">%d ürün kilerine eklendi</item>
+    </plurals>
+    <string name="scanner_action_retry">Tekrar dene</string>
+    <string name="scanner_action_other_photo">Başka fotoğraf kullan</string>
+
+    <string name="scanner_edit_title">Ürünü düzenle</string>
+    <string name="scanner_edit_name">Ad</string>
+    <string name="scanner_edit_quantity">Miktar</string>
+    <string name="scanner_edit_unit">Birim</string>
+    <string name="scanner_edit_category">Kategori</string>
+    <string name="scanner_edit_expiry">Son kullanma</string>
+    <string name="scanner_edit_expiry_minus">Bir gün önce</string>
+    <string name="scanner_edit_expiry_plus">Bir gün sonra</string>
+
+    <string name="scanner_error_title">Bir sorun oluştu</string>
+    <string name="scanner_error_not_configured">Bu sürümde fotoğraf analizi yapılandırılmamış (API anahtarı eksik).</string>
+    <string name="scanner_error_image_unreadable">Bu fotoğraf açılamadı. Lütfen başka bir fotoğraf dene.</string>
+    <string name="scanner_error_network">Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.</string>
+    <string name="scanner_error_rate_limited">Şu an çok fazla istek var. Biraz bekleyip tekrar dene.</string>
+    <string name="scanner_error_server">Analiz servisi şu an yanıt veremiyor. Lütfen tekrar dene.</string>
+    <string name="scanner_error_blocked">Bu fotoğraf analiz edilemiyor. Lütfen farklı bir fotoğraf dene.</string>
+    <string name="scanner_error_malformed">Bu fotoğraftaki ürünler tanınamadı. Lütfen tekrar dene.</string>
+    <string name="scanner_error_unknown">Beklenmeyen bir hata oluştu. Lütfen tekrar dene.</string>
+    <string name="scanner_error_save_failed">Ürünler kaydedilemedi. Lütfen tekrar dene.</string>
+    <string name="scanner_error_storage">Fotoğraf çekmek için yeterli depolama alanı yok.</string>
+    <string name="scanner_error_no_camera">Bu cihazda kamera uygulaması bulunamadı.</string>
+
+    <!-- Rescue recipe -->
+    <string name="recipe_title">Kurtarma Tarifi</string>
+    <string name="recipe_cooking_title">Pişirme modu</string>
+    <string name="recipe_loading">Frizzy tarif hazırlıyor…</string>
+    <string name="recipe_loading_subtitle">Bozulmak üzere olan ürünlerinle hızlı bir tarif.</string>
+    <plurals name="recipe_time_minutes">
+        <item quantity="one">%d dk</item>
+        <item quantity="other">%d dk</item>
+    </plurals>
+    <plurals name="recipe_servings">
+        <item quantity="one">%d kişilik</item>
+        <item quantity="other">%d kişilik</item>
+    </plurals>
+    <plurals name="recipe_rescued_count">
+        <item quantity="one">%d ürünü kurtarıyor</item>
+        <item quantity="other">%d ürünü kurtarıyor</item>
+    </plurals>
+    <string name="recipe_section_rescued">Kilerinden kurtarılanlar</string>
+    <string name="recipe_section_extras">Gereken temel malzemeler</string>
+    <string name="recipe_section_steps">Adımlar</string>
+    <string name="recipe_action_start">Pişirmeye başla</string>
+    <string name="recipe_action_regenerate">Başka tarif</string>
+    <string name="recipe_step_counter">Adım %1$d / %2$d</string>
+    <string name="recipe_action_step_done">Adım %1$d tamamlandı</string>
+    <string name="recipe_action_previous_step">Önceki adım</string>
+    <plurals name="recipe_step_wait">
+        <item quantity="one">%d dk bekleme</item>
+        <item quantity="other">%d dk bekleme</item>
+    </plurals>
+    <string name="recipe_finished_title">Afiyet olsun!</string>
+    <plurals name="recipe_finished_subtitle">
+        <item quantity="one">%d ürünü çöpe gitmekten kurtardın.</item>
+        <item quantity="other">%d ürünü çöpe gitmekten kurtardın.</item>
+    </plurals>
+    <string name="recipe_action_back_to_recipe">Tarife dön</string>
+    <string name="recipe_action_done">Panoya dön</string>
+    <string name="recipe_action_exit_cooking">Pişirme modundan çık</string>
+    <string name="recipe_empty_title">Kurtarılacak ürün yok</string>
+    <string name="recipe_empty_subtitle">Bozulmak üzere olan ürünün yok. Daha sonra tekrar bak!</string>
+    <string name="recipe_error_not_configured">Bu sürümde tarif önerileri yapılandırılmamış (API anahtarı eksik).</string>
+    <string name="recipe_error_malformed">Şef bu sefer bir tarif bulamadı. Lütfen tekrar dene.</string>
+    <string name="dashboard_rescue_title">Bunları yemeğe dönüştür</string>
+    <string name="dashboard_rescue_subtitle">Bozulmak üzere olanlarla 15 dakikalık tarif</string>
+    <string name="dashboard_rescue_action">Tarif al</string>
+
+    <string name="error_daily_quota">Bugünkü ücretsiz yapay zekâ kotası doldu. Yarın sıfırlanır; istersen Google AI Studio\'dan faturalandırmayı açabilirsin.</string>
+
+    <!-- Daily freshness notification -->
+    <string name="notification_channel_freshness">Tazelik hatırlatmaları</string>
+    <string name="notification_channel_freshness_description">Bozulmak üzere olan ürünler için her gün hızlı bir tarif önerisi.</string>
+    <string name="notification_recipe_ready_title">🍳 Kurtarma tarifin hazır</string>
+    <string name="notification_recipe_ready_text">Dolaptaki %1$s için %2$d dakikalık %3$s tarifi hazır! Dokun ve pişir.</string>
+    <string name="notification_expiring_title">⏰ Bozulmadan değerlendir</string>
+    <string name="notification_expiring_text">Dolaptaki %1$s bozulmak üzere. Dokun, sana hızlı bir tarif hazırlayalım.</string>
+    <string name="notification_join_last">%1$s ve %2$s</string>
+    <string name="meal_breakfast">kahvaltı</string>
+    <string name="meal_lunch">öğle yemeği</string>
+    <string name="meal_dinner">akşam yemeği</string>
+
+    <string name="action_delete">Sil</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_pantry">Kiler</string>
+    <string name="tab_recipes">Tarifler</string>
+    <string name="tab_shopping">Alışveriş</string>
+    <string name="tab_statistics">İstatistik</string>
+
+    <!-- Recipe: history actions -->
+    <string name="recipe_action_favorite">Favorilere ekle</string>
+    <string name="recipe_action_unfavorite">Favorilerden çıkar</string>
+    <string name="recipe_not_found_title">Tarif bulunamadı</string>
+    <string name="recipe_not_found_subtitle">Bu tarif geçmişinden silinmiş.</string>
+    <string name="recipe_badge_cooked">Pişirildi</string>
+    <string name="recipe_action_cooked">Pişirdim</string>
+    <string name="recipe_action_cooked_use_up">Pişirdim, ürünleri kilerden düş</string>
+    <string name="recipe_cooked_done">Ürünler kilerden tüketildi olarak düşüldü.</string>
+    <string name="recipe_action_add_missing">Eksikleri alışveriş listesine ekle</string>
+    <plurals name="recipe_cooked_message">
+        <item quantity="one">Harika! %d ürün tüketildi olarak işaretlendi.</item>
+        <item quantity="other">Harika! %d ürün tüketildi olarak işaretlendi.</item>
+    </plurals>
+    <plurals name="recipe_shopping_added">
+        <item quantity="one">%d malzeme alışveriş listene eklendi</item>
+        <item quantity="other">%d malzeme alışveriş listene eklendi</item>
+    </plurals>
+    <string name="recipe_shopping_already_listed">Bunlar zaten alışveriş listende.</string>
+
+    <!-- Recipe history -->
+    <string name="history_title">Tariflerim</string>
+    <string name="history_filter_all">Tümü</string>
+    <string name="history_filter_favorites">Favoriler</string>
+    <string name="history_filter_cooked">Pişirilenler</string>
+    <string name="history_filter_empty">Burada henüz tarif yok.</string>
+    <string name="history_delete_title">Tarif silinsin mi?</string>
+    <string name="history_delete_message">\"%1$s\" geçmişinden kaldırılacak.</string>
+    <string name="history_empty_title">Henüz tarif yok</string>
+    <string name="history_empty_subtitle">Aldığın her kurtarma tarifi burada saklanır; istediğin zaman tekrar pişirebilirsin.</string>
+
+    <!-- Shopping list -->
+    <string name="shopping_title">Alışveriş listesi</string>
+    <string name="shopping_clear_bought">Alınanları temizle</string>
+    <string name="shopping_add_hint">Ürün ekle…</string>
+    <string name="shopping_add">Ekle</string>
+    <string name="shopping_suggestions">Son tükenenler</string>
+    <plurals name="shopping_to_buy">
+        <item quantity="one">Alınacaklar · %d</item>
+        <item quantity="other">Alınacaklar · %d</item>
+    </plurals>
+    <string name="shopping_empty">Listen boş.</string>
+    <string name="shopping_bought">Alınanlar</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">İstatistikler</string>
+    <string name="stats_period_week">Bu hafta</string>
+    <string name="stats_period_month">Bu ay</string>
+    <string name="stats_period_all">Tüm zamanlar</string>
+    <string name="stats_hero_caption">kilerden çıkan yiyeceklerin tüketilme oranı</string>
+    <string name="stats_hero_empty">İstatistiklerini görmek için ürünleri tüketildi ya da çöpe gitti olarak işaretle.</string>
+    <string name="stats_tile_rescued">zamanında tüketildi</string>
+    <string name="stats_tile_wasted">çöpe gitti</string>
+    <string name="stats_tile_savings">tahmini tasarruf</string>
+    <string name="stats_tile_cooked">pişirilen kurtarma tarifi</string>
+    <string name="stats_chart_title">Son 8 hafta</string>
+    <string name="stats_show_table">Tablo</string>
+    <string name="stats_show_chart">Grafik</string>
+    <string name="stats_table_week">Hafta</string>
+    <string name="stats_legend_rescued">Tüketildi</string>
+    <string name="stats_legend_wasted">Çöpe gitti</string>
+    <string name="stats_week_readout">%1$s haftası: %2$d tüketildi, %3$d çöpe gitti</string>
+    <string name="stats_top_wasted">En çok çöpe gidenler</string>
+    <plurals name="stats_items">
+        <item quantity="one">%d ürün</item>
+        <item quantity="other">%d ürün</item>
+    </plurals>
+    <string name="stats_footnote">Tasarruf bir tahmindir: tüketilen ürün sayısı × Ayarlar\'daki ortalama ürün değeri.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_section_notifications">Bildirimler</string>
+    <string name="settings_notifications">Günlük tazelik hatırlatması</string>
+    <string name="settings_notifications_hint">Bozulmak üzere olan ürünler için hızlı bir tarif.</string>
+    <string name="settings_reminder_hint">Android pil tasarrufu için bildirimi biraz geciktirebilir.</string>
+    <string name="settings_section_freshness">Tazelik</string>
+    <string name="settings_critical_days">Bir ürün kritik sayılsın, kalan süre en fazla</string>
+    <plurals name="settings_days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <string name="settings_critical_hint">Kritik: 0–%1$d gün kaldı · Dikkat: %2$d güne kadar</string>
+    <string name="settings_section_statistics">İstatistik</string>
+    <string name="settings_average_value">Ortalama ürün değeri</string>
+    <string name="settings_average_value_hint">Yalnızca ne kadar tasarruf ettiğini tahmin etmek için kullanılır.</string>
+
+    <!-- Add product -->
+    <string name="add_item_title">Ürün ekle</string>
+    <string name="add_item_scan_barcode">Barkod okut</string>
+    <string name="add_item_found">Ürün bulundu, bilgileri kontrol edip kaydet.</string>
+    <string name="add_item_not_found">Bu barkod ürün veritabanında yok. Adını kendin yaz.</string>
+    <string name="add_item_lookup_failed">Barkod sorgulanamadı. Bağlantını kontrol et ya da adını yaz.</string>
+    <string name="add_item_scanner_unavailable">Barkod okuyucu henüz hazır değil. Birazdan tekrar dene.</string>
+    <string name="add_item_saved">%1$s kilerine eklendi</string>
+
+    <!-- Frizzy, the mascot -->
+    <string name="mascot_name">Frizzy</string>
+    <string name="greeting_morning">Günaydın!</string>
+    <string name="greeting_afternoon">Merhaba!</string>
+    <string name="greeting_evening">İyi akşamlar!</string>
+    <plurals name="frizzy_critical">
+        <item quantity="one">Bugün %d ürün seni bekliyor. Bozulmadan pişirelim!</item>
+        <item quantity="other">Bugün %d ürün seni bekliyor. Bozulmadan pişirelim!</item>
+    </plurals>
+    <string name="frizzy_all_fresh">Buradaki her şey taze. Harika gidiyorsun!</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Geç</string>
+    <string name="onboarding_next">İleri</string>
+    <string name="onboarding_start">Başlayalım</string>
+    <string name="onboarding_welcome_title">Merhaba, ben Frizzy!</string>
+    <string name="onboarding_welcome_body">Aldıklarını çöpe atmak yerine yemene yardım edeceğim.</string>
+    <string name="onboarding_track_title">Rafının fotoğrafını çek</string>
+    <string name="onboarding_track_body">Buzdolabının, kilerinin ya da fişinin tek bir fotoğrafını çek veya barkod okut. Bozulmak üzere olanları ben takip ederim.</string>
+    <string name="onboarding_recipes_title">Kurtarma tarifleri</string>
+    <string name="onboarding_recipes_body">Bir ürünün tarihi yaklaşınca onu değerlendiren hızlı bir tarif öneririm.</string>
+    <string name="onboarding_notify_title">Günde bir dostça hatırlatma</string>
+    <string name="onboarding_notify_body">Bildirimlere izin ver; her sabah pişirmeye hazır bir tarifle sana hatırlatayım.</string>
+
+    <string name="settings_reminder_label">Hatırlatma saati</string>
+    <string name="settings_about_version">Sürüm %1$s</string>
+    <string name="settings_about_font">Yazı tipi: Nunito (SIL Open Font License)</string>
+
+    <!-- Categories -->
+    <string name="category_dairy">Süt ürünleri</string>
+    <string name="category_meat">Et</string>
+    <string name="category_seafood">Deniz ürünleri</string>
+    <string name="category_fruits">Meyve</string>
+    <string name="category_vegetables">Sebze</string>
+    <string name="category_bakery">Fırın</string>
+    <string name="category_grains">Tahıl</string>
+    <string name="category_canned">Konserve</string>
+    <string name="category_frozen">Dondurulmuş</string>
+    <string name="category_beverages">İçecek</string>
+    <string name="category_condiments">Sos ve baharat</string>
+    <string name="category_snacks">Atıştırmalık</string>
+    <string name="category_other">Diğer</string>
+
+    <!-- Units -->
+    <string name="unit_piece">adet</string>
+    <string name="unit_package">paket</string>
+    <string name="unit_gram">g</string>
+    <string name="unit_kilogram">kg</string>
+    <string name="unit_milliliter">ml</string>
+    <string name="unit_liter">L</string>
+</resources>

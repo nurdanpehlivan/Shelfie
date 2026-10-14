@@ -1,0 +1,314 @@
+<resources>
+    <string name="app_name">Shelfie</string>
+
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_navigate_up">Back</string>
+
+    <!-- Freshness groups -->
+    <string name="freshness_critical">Critical</string>
+    <string name="freshness_warning">Heads up</string>
+    <string name="freshness_fresh">Safe</string>
+    <string name="freshness_critical_range">0–%1$d days</string>
+    <string name="freshness_warning_range">%1$d–%2$d days</string>
+    <string name="freshness_fresh_range">%1$d+ days</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">My pantry</string>
+    <plurals name="dashboard_summary_title">
+        <item quantity="one">%d product about to spoil</item>
+        <item quantity="other">%d products about to spoil</item>
+    </plurals>
+    <string name="dashboard_summary_ring_caption">use soon</string>
+    <string name="dashboard_filter_all">All %1$d</string>
+    <string name="dashboard_swipe_hint">Swipe right when eaten, left when thrown away.</string>
+    <string name="dashboard_group_empty">Nothing in this group.</string>
+    <string name="dashboard_item_summary">%1$s %2$s · %3$s</string>
+    <string name="dashboard_badge_urgent">URGENT</string>
+    <string name="dashboard_expires_today">Last day today</string>
+    <string name="dashboard_expires_tomorrow">Tomorrow</string>
+    <plurals name="dashboard_days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
+    <plurals name="dashboard_expired_days_ago">
+        <item quantity="one">Expired %d day ago</item>
+        <item quantity="other">Expired %d days ago</item>
+    </plurals>
+    <string name="dashboard_action_consumed">Eaten</string>
+    <string name="dashboard_action_wasted">Thrown away</string>
+    <string name="dashboard_removed_consumed">%1$s marked as eaten</string>
+    <string name="dashboard_removed_wasted">%1$s marked as thrown away</string>
+    <string name="dashboard_action_scan">Scan</string>
+    <string name="dashboard_empty_title">Your pantry is empty</string>
+    <string name="dashboard_empty_subtitle">Scan your fridge or pantry to start tracking what\'s about to spoil.</string>
+    <string name="dashboard_error_update_failed">Couldn\'t update the product. Please try again.</string>
+
+    <!-- Scanner -->
+    <string name="scanner_title">Scan your shelf</string>
+    <string name="scanner_idle_title">What\'s on your shelf?</string>
+    <string name="scanner_idle_subtitle">Take a photo of your fridge, pantry or receipt and we\'ll list the food in it for you.</string>
+    <string name="scanner_action_take_photo">Take a photo</string>
+    <string name="scanner_action_pick_photo">Choose from gallery</string>
+    <string name="scanner_analyzing">Detecting products…</string>
+    <string name="scanner_photo_description">Shelf photo</string>
+    <plurals name="scanner_items_found">
+        <item quantity="one">%d product found</item>
+        <item quantity="other">%d products found</item>
+    </plurals>
+    <string name="scanner_review_hint">Tap a product to edit it, remove anything that\'s wrong.</string>
+    <string name="scanner_review_empty">No products left to save. Try another photo.</string>
+    <string name="scanner_item_summary">%1$s %2$s · %3$s</string>
+    <string name="scanner_item_expiry">Best before %1$s</string>
+    <string name="scanner_action_edit_item">Edit %1$s</string>
+    <string name="scanner_action_delete_item">Remove %1$s</string>
+    <string name="scanner_action_rescan">Rescan</string>
+    <plurals name="scanner_action_confirm">
+        <item quantity="one">Save %d product</item>
+        <item quantity="other">Save %d products</item>
+    </plurals>
+    <plurals name="scanner_items_saved">
+        <item quantity="one">%d product added to your pantry</item>
+        <item quantity="other">%d products added to your pantry</item>
+    </plurals>
+    <string name="scanner_action_retry">Try again</string>
+    <string name="scanner_action_other_photo">Use another photo</string>
+
+    <string name="scanner_edit_title">Edit product</string>
+    <string name="scanner_edit_name">Name</string>
+    <string name="scanner_edit_quantity">Quantity</string>
+    <string name="scanner_edit_unit">Unit</string>
+    <string name="scanner_edit_category">Category</string>
+    <string name="scanner_edit_expiry">Best before</string>
+    <string name="scanner_edit_expiry_minus">One day earlier</string>
+    <string name="scanner_edit_expiry_plus">One day later</string>
+
+    <string name="scanner_error_title">Something went wrong</string>
+    <string name="scanner_error_not_configured">Photo analysis isn\'t set up in this build (missing API key).</string>
+    <string name="scanner_error_image_unreadable">This photo couldn\'t be opened. Please try another one.</string>
+    <string name="scanner_error_network">Couldn\'t reach the server. Check your connection and try again.</string>
+    <string name="scanner_error_rate_limited">Too many requests right now. Please wait a moment and try again.</string>
+    <string name="scanner_error_server">The analysis service is having trouble. Please try again.</string>
+    <string name="scanner_error_blocked">This photo can\'t be analysed. Please try a different one.</string>
+    <string name="scanner_error_malformed">The products in this photo couldn\'t be recognised. Please try again.</string>
+    <string name="scanner_error_unknown">An unexpected error occurred. Please try again.</string>
+    <string name="scanner_error_save_failed">Products couldn\'t be saved. Please try again.</string>
+    <string name="scanner_error_storage">Not enough storage to take a photo.</string>
+    <string name="scanner_error_no_camera">No camera app found on this device.</string>
+
+    <!-- Rescue recipe -->
+    <string name="recipe_title">Rescue recipe</string>
+    <string name="recipe_cooking_title">Cooking mode</string>
+    <string name="recipe_loading">Frizzy is cooking up an idea…</string>
+    <string name="recipe_loading_subtitle">A quick recipe with the products that are about to spoil.</string>
+    <plurals name="recipe_time_minutes">
+        <item quantity="one">%d min</item>
+        <item quantity="other">%d min</item>
+    </plurals>
+    <plurals name="recipe_servings">
+        <item quantity="one">Serves %d</item>
+        <item quantity="other">Serves %d</item>
+    </plurals>
+    <plurals name="recipe_rescued_count">
+        <item quantity="one">Rescues %d product</item>
+        <item quantity="other">Rescues %d products</item>
+    </plurals>
+    <string name="recipe_section_rescued">Rescued from your pantry</string>
+    <string name="recipe_section_extras">Basics you\'ll need</string>
+    <string name="recipe_section_steps">Steps</string>
+    <string name="recipe_action_start">Start cooking</string>
+    <string name="recipe_action_regenerate">Another recipe</string>
+    <string name="recipe_step_counter">Step %1$d of %2$d</string>
+    <string name="recipe_action_step_done">Step %1$d done</string>
+    <string name="recipe_action_previous_step">Previous step</string>
+    <plurals name="recipe_step_wait">
+        <item quantity="one">%d min hands-off</item>
+        <item quantity="other">%d min hands-off</item>
+    </plurals>
+    <string name="recipe_finished_title">Enjoy your meal!</string>
+    <plurals name="recipe_finished_subtitle">
+        <item quantity="one">You saved %d product from the bin.</item>
+        <item quantity="other">You saved %d products from the bin.</item>
+    </plurals>
+    <string name="recipe_action_back_to_recipe">Back to recipe</string>
+    <string name="recipe_action_done">Back to pantry</string>
+    <string name="recipe_action_exit_cooking">Exit cooking mode</string>
+    <string name="recipe_empty_title">Nothing to rescue</string>
+    <string name="recipe_empty_subtitle">None of your products are about to spoil. Check back later!</string>
+    <string name="recipe_error_not_configured">Recipe suggestions aren\'t set up in this build (missing API key).</string>
+    <string name="recipe_error_malformed">The chef couldn\'t come up with a recipe this time. Please try again.</string>
+    <string name="dashboard_rescue_title">Turn them into a meal</string>
+    <string name="dashboard_rescue_subtitle">A 15-minute recipe with what\'s about to spoil</string>
+    <string name="dashboard_rescue_action">Get recipe</string>
+
+    <string name="error_daily_quota">Today\'s free AI quota is used up. It resets tomorrow, or you can enable billing in Google AI Studio.</string>
+
+    <!-- Daily freshness notification -->
+    <string name="notification_channel_freshness">Freshness reminders</string>
+    <string name="notification_channel_freshness_description">A daily heads-up with a quick recipe for products about to spoil.</string>
+    <string name="notification_recipe_ready_title">🍳 Your rescue recipe is ready</string>
+    <!-- %1$s: ingredient names, %2$d: minutes, %3$s: meal (breakfast/lunch/dinner) -->
+    <string name="notification_recipe_ready_text">A %2$d-minute %3$s recipe for the %1$s in your fridge is ready! Tap to cook.</string>
+    <string name="notification_expiring_title">⏰ Use them before they spoil</string>
+    <string name="notification_expiring_text">Your %1$s won\'t last much longer. Tap for a quick recipe.</string>
+    <string name="notification_join_last">%1$s and %2$s</string>
+    <string name="meal_breakfast">breakfast</string>
+    <string name="meal_lunch">lunch</string>
+    <string name="meal_dinner">dinner</string>
+
+    <string name="action_delete">Delete</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_pantry">Pantry</string>
+    <string name="tab_recipes">Recipes</string>
+    <string name="tab_shopping">Shopping</string>
+    <string name="tab_statistics">Stats</string>
+
+    <!-- Recipe: history actions -->
+    <string name="recipe_action_favorite">Add to favourites</string>
+    <string name="recipe_action_unfavorite">Remove from favourites</string>
+    <string name="recipe_not_found_title">Recipe not found</string>
+    <string name="recipe_not_found_subtitle">This recipe was deleted from your history.</string>
+    <string name="recipe_badge_cooked">Cooked</string>
+    <string name="recipe_action_cooked">I cooked it</string>
+    <string name="recipe_action_cooked_use_up">I cooked it, use up the products</string>
+    <string name="recipe_cooked_done">The products left your pantry as eaten.</string>
+    <string name="recipe_action_add_missing">Add missing to shopping list</string>
+    <plurals name="recipe_cooked_message">
+        <item quantity="one">Well done! %d product marked as eaten.</item>
+        <item quantity="other">Well done! %d products marked as eaten.</item>
+    </plurals>
+    <plurals name="recipe_shopping_added">
+        <item quantity="one">%d ingredient added to your shopping list</item>
+        <item quantity="other">%d ingredients added to your shopping list</item>
+    </plurals>
+    <string name="recipe_shopping_already_listed">These are already on your shopping list.</string>
+
+    <!-- Recipe history -->
+    <string name="history_title">My recipes</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_favorites">Favourites</string>
+    <string name="history_filter_cooked">Cooked</string>
+    <string name="history_filter_empty">No recipes here yet.</string>
+    <string name="history_delete_title">Delete recipe?</string>
+    <string name="history_delete_message">\"%1$s\" will be removed from your history.</string>
+    <string name="history_empty_title">No recipes yet</string>
+    <string name="history_empty_subtitle">Every rescue recipe you get is saved here, so you can cook it again any time.</string>
+
+    <!-- Shopping list -->
+    <string name="shopping_title">Shopping list</string>
+    <string name="shopping_clear_bought">Clear bought</string>
+    <string name="shopping_add_hint">Add an item…</string>
+    <string name="shopping_add">Add</string>
+    <string name="shopping_suggestions">Recently ran out</string>
+    <plurals name="shopping_to_buy">
+        <item quantity="one">To buy · %d</item>
+        <item quantity="other">To buy · %d</item>
+    </plurals>
+    <string name="shopping_empty">Your list is empty.</string>
+    <string name="shopping_bought">Bought</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_period_week">This week</string>
+    <string name="stats_period_month">This month</string>
+    <string name="stats_period_all">All time</string>
+    <string name="stats_hero_caption">of the food that left your pantry was eaten</string>
+    <string name="stats_hero_empty">Mark products as eaten or thrown away to see your stats.</string>
+    <string name="stats_tile_rescued">eaten in time</string>
+    <string name="stats_tile_wasted">thrown away</string>
+    <string name="stats_tile_savings">estimated savings</string>
+    <string name="stats_tile_cooked">rescue recipes cooked</string>
+    <string name="stats_chart_title">Last 8 weeks</string>
+    <string name="stats_show_table">Table</string>
+    <string name="stats_show_chart">Chart</string>
+    <string name="stats_table_week">Week of</string>
+    <string name="stats_legend_rescued">Eaten</string>
+    <string name="stats_legend_wasted">Thrown away</string>
+    <!-- %1$s: week start date, %2$d: eaten count, %3$d: thrown-away count -->
+    <string name="stats_week_readout">Week of %1$s: %2$d eaten, %3$d thrown away</string>
+    <string name="stats_top_wasted">Thrown away most often</string>
+    <plurals name="stats_items">
+        <item quantity="one">%d product</item>
+        <item quantity="other">%d products</item>
+    </plurals>
+    <string name="stats_footnote">Savings are an estimate: eaten products × the average product value in Settings.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_notifications">Daily freshness reminder</string>
+    <string name="settings_notifications_hint">A quick recipe for products about to spoil.</string>
+    <string name="settings_reminder_hint">Android may deliver it a little later to save battery.</string>
+    <string name="settings_section_freshness">Freshness</string>
+    <string name="settings_critical_days">A product is critical when it has at most</string>
+    <plurals name="settings_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="settings_critical_hint">Critical: 0–%1$d days left · Heads up: up to %2$d days left</string>
+    <string name="settings_section_statistics">Statistics</string>
+    <string name="settings_average_value">Average product value</string>
+    <string name="settings_average_value_hint">Used only to estimate how much you saved.</string>
+
+    <!-- Add product -->
+    <string name="add_item_title">Add product</string>
+    <string name="add_item_scan_barcode">Scan barcode</string>
+    <string name="add_item_found">Product found, check the details and save.</string>
+    <string name="add_item_not_found">This barcode isn\'t in the product database. Type the name yourself.</string>
+    <string name="add_item_lookup_failed">Couldn\'t look up the barcode. Check your connection or type the name.</string>
+    <string name="add_item_scanner_unavailable">The barcode scanner isn\'t ready yet. Try again in a moment.</string>
+    <string name="add_item_saved">%1$s added to your pantry</string>
+
+    <!-- Frizzy, the mascot -->
+    <string name="mascot_name">Frizzy</string>
+    <string name="greeting_morning">Good morning!</string>
+    <string name="greeting_afternoon">Hi there!</string>
+    <string name="greeting_evening">Good evening!</string>
+    <plurals name="frizzy_critical">
+        <item quantity="one">%d product needs you today. Let\'s cook it before it spoils!</item>
+        <item quantity="other">%d products need you today. Let\'s cook them before they spoil!</item>
+    </plurals>
+    <string name="frizzy_all_fresh">Everything in here is fresh. Nice work!</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Let\'s go</string>
+    <string name="onboarding_welcome_title">Hi, I\'m Frizzy!</string>
+    <string name="onboarding_welcome_body">I\'ll help you eat what you buy, not throw it away.</string>
+    <string name="onboarding_track_title">Snap your shelf</string>
+    <string name="onboarding_track_body">Take one photo of your fridge, pantry or receipt, or scan a barcode. I\'ll keep track of what\'s about to spoil.</string>
+    <string name="onboarding_recipes_title">Rescue recipes</string>
+    <string name="onboarding_recipes_body">When something is close to its date, I\'ll suggest a quick recipe that uses it up.</string>
+    <string name="onboarding_notify_title">One friendly nudge a day</string>
+    <string name="onboarding_notify_body">Allow notifications and I\'ll remind you each morning, with a recipe ready to cook.</string>
+
+    <string name="settings_reminder_label">Reminder time</string>
+    <string name="settings_about_version">Version %1$s</string>
+    <string name="settings_about_font">Typeface: Nunito (SIL Open Font License)</string>
+
+    <!-- Categories -->
+    <string name="category_dairy">Dairy</string>
+    <string name="category_meat">Meat</string>
+    <string name="category_seafood">Seafood</string>
+    <string name="category_fruits">Fruits</string>
+    <string name="category_vegetables">Vegetables</string>
+    <string name="category_bakery">Bakery</string>
+    <string name="category_grains">Grains</string>
+    <string name="category_canned">Canned</string>
+    <string name="category_frozen">Frozen</string>
+    <string name="category_beverages">Beverages</string>
+    <string name="category_condiments">Condiments</string>
+    <string name="category_snacks">Snacks</string>
+    <string name="category_other">Other</string>
+
+    <!-- Units -->
+    <string name="unit_piece">pcs</string>
+    <string name="unit_package">pack</string>
+    <string name="unit_gram">g</string>
+    <string name="unit_kilogram">kg</string>
+    <string name="unit_milliliter">ml</string>
+    <string name="unit_liter">L</string>
+</resources>

@@ -1,0 +1,307 @@
+<resources>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_undo">Rückgängig</string>
+    <string name="action_navigate_up">Zurück</string>
+    <string name="action_delete">Löschen</string>
+
+    <!-- Freshness groups -->
+    <string name="freshness_critical">Kritisch</string>
+    <string name="freshness_warning">Bald fällig</string>
+    <string name="freshness_fresh">Frisch</string>
+    <string name="freshness_critical_range">0–%1$d Tage</string>
+    <string name="freshness_warning_range">%1$d–%2$d Tage</string>
+    <string name="freshness_fresh_range">%1$d+ Tage</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Mein Vorrat</string>
+    <plurals name="dashboard_summary_title">
+        <item quantity="one">%d Produkt läuft bald ab</item>
+        <item quantity="other">%d Produkte laufen bald ab</item>
+    </plurals>
+    <string name="dashboard_summary_ring_caption">bald essen</string>
+    <string name="dashboard_filter_all">Alle %1$d</string>
+    <string name="dashboard_swipe_hint">Nach rechts wischen, wenn gegessen, nach links, wenn weggeworfen.</string>
+    <string name="dashboard_group_empty">Nichts in dieser Gruppe.</string>
+    <string name="dashboard_item_summary">%1$s %2$s · %3$s</string>
+    <string name="dashboard_badge_urgent">DRINGEND</string>
+    <string name="dashboard_expires_today">Heute letzter Tag</string>
+    <string name="dashboard_expires_tomorrow">Morgen</string>
+    <plurals name="dashboard_days_left">
+        <item quantity="one">Noch %d Tag</item>
+        <item quantity="other">Noch %d Tage</item>
+    </plurals>
+    <plurals name="dashboard_expired_days_ago">
+        <item quantity="one">Seit %d Tag abgelaufen</item>
+        <item quantity="other">Seit %d Tagen abgelaufen</item>
+    </plurals>
+    <string name="dashboard_action_consumed">Gegessen</string>
+    <string name="dashboard_action_wasted">Weggeworfen</string>
+    <string name="dashboard_removed_consumed">%1$s als gegessen markiert</string>
+    <string name="dashboard_removed_wasted">%1$s als weggeworfen markiert</string>
+    <string name="dashboard_action_scan">Scannen</string>
+    <string name="dashboard_empty_title">Dein Vorrat ist leer</string>
+    <string name="dashboard_empty_subtitle">Scanne deinen Kühlschrank oder Vorratsschrank, um zu sehen, was bald abläuft.</string>
+    <string name="dashboard_error_update_failed">Das Produkt konnte nicht aktualisiert werden. Bitte versuche es erneut.</string>
+    <string name="dashboard_rescue_title">Mach ein Gericht daraus</string>
+    <string name="dashboard_rescue_subtitle">Ein 15-Minuten-Rezept mit dem, was bald abläuft</string>
+    <string name="dashboard_rescue_action">Rezept holen</string>
+
+    <!-- Scanner -->
+    <string name="scanner_title">Regal scannen</string>
+    <string name="scanner_idle_title">Was steht in deinem Regal?</string>
+    <string name="scanner_idle_subtitle">Fotografiere deinen Kühlschrank, Vorratsschrank oder Kassenbon und wir listen die Lebensmittel für dich auf.</string>
+    <string name="scanner_action_take_photo">Foto aufnehmen</string>
+    <string name="scanner_action_pick_photo">Aus Galerie wählen</string>
+    <string name="scanner_analyzing">Produkte werden erkannt…</string>
+    <string name="scanner_photo_description">Regalfoto</string>
+    <plurals name="scanner_items_found">
+        <item quantity="one">%d Produkt gefunden</item>
+        <item quantity="other">%d Produkte gefunden</item>
+    </plurals>
+    <string name="scanner_review_hint">Tippe auf ein Produkt, um es zu bearbeiten, und entferne alles, was nicht stimmt.</string>
+    <string name="scanner_review_empty">Keine Produkte mehr zum Speichern. Versuche ein anderes Foto.</string>
+    <string name="scanner_item_summary">%1$s %2$s · %3$s</string>
+    <string name="scanner_item_expiry">Mindestens haltbar bis %1$s</string>
+    <string name="scanner_action_edit_item">%1$s bearbeiten</string>
+    <string name="scanner_action_delete_item">%1$s entfernen</string>
+    <string name="scanner_action_rescan">Neu scannen</string>
+    <plurals name="scanner_action_confirm">
+        <item quantity="one">%d Produkt speichern</item>
+        <item quantity="other">%d Produkte speichern</item>
+    </plurals>
+    <plurals name="scanner_items_saved">
+        <item quantity="one">%d Produkt zu deinem Vorrat hinzugefügt</item>
+        <item quantity="other">%d Produkte zu deinem Vorrat hinzugefügt</item>
+    </plurals>
+    <string name="scanner_action_retry">Erneut versuchen</string>
+    <string name="scanner_action_other_photo">Anderes Foto verwenden</string>
+
+    <string name="scanner_edit_title">Produkt bearbeiten</string>
+    <string name="scanner_edit_name">Name</string>
+    <string name="scanner_edit_quantity">Menge</string>
+    <string name="scanner_edit_unit">Einheit</string>
+    <string name="scanner_edit_category">Kategorie</string>
+    <string name="scanner_edit_expiry">Mindestens haltbar bis</string>
+    <string name="scanner_edit_expiry_minus">Einen Tag früher</string>
+    <string name="scanner_edit_expiry_plus">Einen Tag später</string>
+
+    <string name="scanner_error_title">Etwas ist schiefgelaufen</string>
+    <string name="scanner_error_not_configured">Die Fotoanalyse ist in dieser Version nicht eingerichtet (API-Schlüssel fehlt).</string>
+    <string name="scanner_error_image_unreadable">Dieses Foto konnte nicht geöffnet werden. Bitte versuche ein anderes.</string>
+    <string name="scanner_error_network">Server nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="scanner_error_rate_limited">Gerade gibt es zu viele Anfragen. Warte kurz und versuche es erneut.</string>
+    <string name="scanner_error_server">Der Analysedienst hat gerade Probleme. Bitte versuche es erneut.</string>
+    <string name="scanner_error_blocked">Dieses Foto kann nicht analysiert werden. Bitte versuche ein anderes.</string>
+    <string name="scanner_error_malformed">Die Produkte auf diesem Foto wurden nicht erkannt. Bitte versuche es erneut.</string>
+    <string name="scanner_error_unknown">Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.</string>
+    <string name="scanner_error_save_failed">Die Produkte konnten nicht gespeichert werden. Bitte versuche es erneut.</string>
+    <string name="scanner_error_storage">Nicht genug Speicherplatz für ein Foto.</string>
+    <string name="scanner_error_no_camera">Auf diesem Gerät wurde keine Kamera-App gefunden.</string>
+
+    <!-- Rescue recipe -->
+    <string name="recipe_title">Rettungsrezept</string>
+    <string name="recipe_cooking_title">Kochmodus</string>
+    <string name="recipe_loading">Frizzy kocht sich eine Idee aus…</string>
+    <string name="recipe_loading_subtitle">Ein schnelles Rezept mit den Produkten, die bald ablaufen.</string>
+    <plurals name="recipe_time_minutes">
+        <item quantity="one">%d Min.</item>
+        <item quantity="other">%d Min.</item>
+    </plurals>
+    <plurals name="recipe_servings">
+        <item quantity="one">Für %d Person</item>
+        <item quantity="other">Für %d Personen</item>
+    </plurals>
+    <plurals name="recipe_rescued_count">
+        <item quantity="one">Rettet %d Produkt</item>
+        <item quantity="other">Rettet %d Produkte</item>
+    </plurals>
+    <string name="recipe_section_rescued">Aus deinem Vorrat gerettet</string>
+    <string name="recipe_section_extras">Grundzutaten, die du brauchst</string>
+    <string name="recipe_section_steps">Schritte</string>
+    <string name="recipe_action_start">Kochen starten</string>
+    <string name="recipe_action_regenerate">Anderes Rezept</string>
+    <string name="recipe_step_counter">Schritt %1$d von %2$d</string>
+    <string name="recipe_action_step_done">Schritt %1$d erledigt</string>
+    <string name="recipe_action_previous_step">Vorheriger Schritt</string>
+    <plurals name="recipe_step_wait">
+        <item quantity="one">%d Min. Wartezeit</item>
+        <item quantity="other">%d Min. Wartezeit</item>
+    </plurals>
+    <string name="recipe_finished_title">Guten Appetit!</string>
+    <plurals name="recipe_finished_subtitle">
+        <item quantity="one">Du hast %d Produkt vor dem Müll gerettet.</item>
+        <item quantity="other">Du hast %d Produkte vor dem Müll gerettet.</item>
+    </plurals>
+    <string name="recipe_action_back_to_recipe">Zurück zum Rezept</string>
+    <string name="recipe_action_done">Zurück zum Vorrat</string>
+    <string name="recipe_action_exit_cooking">Kochmodus beenden</string>
+    <string name="recipe_empty_title">Nichts zu retten</string>
+    <string name="recipe_empty_subtitle">Keines deiner Produkte läuft bald ab. Schau später wieder vorbei!</string>
+    <string name="recipe_error_not_configured">Rezeptvorschläge sind in dieser Version nicht eingerichtet (API-Schlüssel fehlt).</string>
+    <string name="recipe_error_malformed">Frizzy ist diesmal kein Rezept eingefallen. Bitte versuche es erneut.</string>
+    <string name="recipe_action_favorite">Zu Favoriten hinzufügen</string>
+    <string name="recipe_action_unfavorite">Aus Favoriten entfernen</string>
+    <string name="recipe_not_found_title">Rezept nicht gefunden</string>
+    <string name="recipe_not_found_subtitle">Dieses Rezept wurde aus deinem Verlauf gelöscht.</string>
+    <string name="recipe_badge_cooked">Gekocht</string>
+    <string name="recipe_action_cooked">Gekocht!</string>
+    <string name="recipe_action_cooked_use_up">Gekocht – Produkte verbrauchen</string>
+    <string name="recipe_cooked_done">Die Produkte wurden als gegessen ausgetragen.</string>
+    <string name="recipe_action_add_missing">Fehlendes auf die Einkaufsliste</string>
+    <plurals name="recipe_cooked_message">
+        <item quantity="one">Super! %d Produkt als gegessen markiert.</item>
+        <item quantity="other">Super! %d Produkte als gegessen markiert.</item>
+    </plurals>
+    <plurals name="recipe_shopping_added">
+        <item quantity="one">%d Zutat zur Einkaufsliste hinzugefügt</item>
+        <item quantity="other">%d Zutaten zur Einkaufsliste hinzugefügt</item>
+    </plurals>
+    <string name="recipe_shopping_already_listed">Das steht schon auf deiner Einkaufsliste.</string>
+
+    <string name="error_daily_quota">Das kostenlose KI-Kontingent für heute ist aufgebraucht. Es wird morgen zurückgesetzt, oder du aktivierst die Abrechnung in Google AI Studio.</string>
+
+    <!-- Daily freshness notification -->
+    <string name="notification_channel_freshness">Frische-Erinnerungen</string>
+    <string name="notification_channel_freshness_description">Eine tägliche Erinnerung mit einem schnellen Rezept für Produkte, die bald ablaufen.</string>
+    <string name="notification_recipe_ready_title">🍳 Dein Rettungsrezept ist fertig</string>
+    <string name="notification_recipe_ready_text">Ein %2$d-Minuten-Rezept fürs %3$s mit %1$s aus deinem Kühlschrank ist bereit! Tippe zum Kochen.</string>
+    <string name="notification_expiring_title">⏰ Verbrauchen, bevor es verdirbt</string>
+    <string name="notification_expiring_text">%1$s hält nicht mehr lange. Tippe für ein schnelles Rezept.</string>
+    <string name="notification_join_last">%1$s und %2$s</string>
+    <string name="meal_breakfast">Frühstück</string>
+    <string name="meal_lunch">Mittagessen</string>
+    <string name="meal_dinner">Abendessen</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_pantry">Vorrat</string>
+    <string name="tab_recipes">Rezepte</string>
+    <string name="tab_shopping">Einkauf</string>
+    <string name="tab_statistics">Statistik</string>
+
+    <!-- Recipe history -->
+    <string name="history_title">Meine Rezepte</string>
+    <string name="history_filter_all">Alle</string>
+    <string name="history_filter_favorites">Favoriten</string>
+    <string name="history_filter_cooked">Gekocht</string>
+    <string name="history_filter_empty">Hier gibt es noch keine Rezepte.</string>
+    <string name="history_delete_title">Rezept löschen?</string>
+    <string name="history_delete_message">„%1$s“ wird aus deinem Verlauf entfernt.</string>
+    <string name="history_empty_title">Noch keine Rezepte</string>
+    <string name="history_empty_subtitle">Jedes Rettungsrezept wird hier gespeichert, damit du es jederzeit wieder kochen kannst.</string>
+
+    <!-- Shopping list -->
+    <string name="shopping_title">Einkaufsliste</string>
+    <string name="shopping_clear_bought">Gekauftes entfernen</string>
+    <string name="shopping_add_hint">Artikel hinzufügen…</string>
+    <string name="shopping_add">Hinzufügen</string>
+    <string name="shopping_suggestions">Kürzlich aufgebraucht</string>
+    <plurals name="shopping_to_buy">
+        <item quantity="one">Zu kaufen · %d</item>
+        <item quantity="other">Zu kaufen · %d</item>
+    </plurals>
+    <string name="shopping_empty">Deine Liste ist leer.</string>
+    <string name="shopping_bought">Gekauft</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistik</string>
+    <string name="stats_period_week">Diese Woche</string>
+    <string name="stats_period_month">Dieser Monat</string>
+    <string name="stats_period_all">Gesamt</string>
+    <string name="stats_hero_caption">der Lebensmittel, die deinen Vorrat verlassen haben, wurden gegessen</string>
+    <string name="stats_hero_empty">Markiere Produkte als gegessen oder weggeworfen, um deine Statistik zu sehen.</string>
+    <string name="stats_tile_rescued">rechtzeitig gegessen</string>
+    <string name="stats_tile_wasted">weggeworfen</string>
+    <string name="stats_tile_savings">geschätzte Ersparnis</string>
+    <string name="stats_tile_cooked">Rettungsrezepte gekocht</string>
+    <string name="stats_chart_title">Letzte 8 Wochen</string>
+    <string name="stats_show_table">Tabelle</string>
+    <string name="stats_show_chart">Diagramm</string>
+    <string name="stats_table_week">Woche ab</string>
+    <string name="stats_legend_rescued">Gegessen</string>
+    <string name="stats_legend_wasted">Weggeworfen</string>
+    <string name="stats_week_readout">Woche ab %1$s: %2$d gegessen, %3$d weggeworfen</string>
+    <string name="stats_top_wasted">Am häufigsten weggeworfen</string>
+    <plurals name="stats_items">
+        <item quantity="one">%d Produkt</item>
+        <item quantity="other">%d Produkte</item>
+    </plurals>
+    <string name="stats_footnote">Die Ersparnis ist eine Schätzung: gegessene Produkte × durchschnittlicher Produktwert aus den Einstellungen.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_section_notifications">Benachrichtigungen</string>
+    <string name="settings_notifications">Tägliche Frische-Erinnerung</string>
+    <string name="settings_notifications_hint">Ein schnelles Rezept für Produkte, die bald ablaufen.</string>
+    <string name="settings_reminder_hint">Android liefert sie zum Akkusparen eventuell etwas später.</string>
+    <string name="settings_section_freshness">Frische</string>
+    <string name="settings_critical_days">Ein Produkt ist kritisch bei höchstens</string>
+    <plurals name="settings_days">
+        <item quantity="one">%d Tag</item>
+        <item quantity="other">%d Tagen</item>
+    </plurals>
+    <string name="settings_critical_hint">Kritisch: noch 0–%1$d Tage · Bald fällig: bis zu %2$d Tage</string>
+    <string name="settings_section_statistics">Statistik</string>
+    <string name="settings_average_value">Durchschnittlicher Produktwert</string>
+    <string name="settings_average_value_hint">Wird nur zur Schätzung deiner Ersparnis verwendet.</string>
+
+    <!-- Add product -->
+    <string name="add_item_title">Produkt hinzufügen</string>
+    <string name="add_item_scan_barcode">Barcode scannen</string>
+    <string name="add_item_found">Produkt gefunden – prüfe die Angaben und speichere.</string>
+    <string name="add_item_not_found">Dieser Barcode ist nicht in der Produktdatenbank. Gib den Namen selbst ein.</string>
+    <string name="add_item_lookup_failed">Der Barcode konnte nicht abgefragt werden. Prüfe deine Verbindung oder gib den Namen ein.</string>
+    <string name="add_item_scanner_unavailable">Der Barcode-Scanner ist noch nicht bereit. Versuche es gleich noch einmal.</string>
+    <string name="add_item_saved">%1$s zu deinem Vorrat hinzugefügt</string>
+
+    <!-- Frizzy, the mascot -->
+    <string name="mascot_name">Frizzy</string>
+    <string name="greeting_morning">Guten Morgen!</string>
+    <string name="greeting_afternoon">Hallo!</string>
+    <string name="greeting_evening">Guten Abend!</string>
+    <plurals name="frizzy_critical">
+        <item quantity="one">%d Produkt braucht dich heute. Lass es uns kochen, bevor es verdirbt!</item>
+        <item quantity="other">%d Produkte brauchen dich heute. Lass sie uns kochen, bevor sie verderben!</item>
+    </plurals>
+    <string name="frizzy_all_fresh">Hier drin ist alles frisch. Gut gemacht!</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Überspringen</string>
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_start">Los geht’s</string>
+    <string name="onboarding_welcome_title">Hi, ich bin Frizzy!</string>
+    <string name="onboarding_welcome_body">Ich helfe dir, zu essen, was du kaufst, statt es wegzuwerfen.</string>
+    <string name="onboarding_track_title">Fotografiere dein Regal</string>
+    <string name="onboarding_track_body">Mach ein Foto von Kühlschrank, Vorratsschrank oder Kassenbon oder scanne einen Barcode. Ich behalte im Blick, was bald abläuft.</string>
+    <string name="onboarding_recipes_title">Rettungsrezepte</string>
+    <string name="onboarding_recipes_body">Wenn etwas bald abläuft, schlage ich dir ein schnelles Rezept vor, das es verbraucht.</string>
+    <string name="onboarding_notify_title">Ein freundlicher Stups am Tag</string>
+    <string name="onboarding_notify_body">Erlaube Benachrichtigungen, dann erinnere ich dich jeden Morgen – mit einem fertigen Rezept.</string>
+
+    <string name="settings_reminder_label">Uhrzeit der Erinnerung</string>
+    <string name="settings_about_version">Version %1$s</string>
+    <string name="settings_about_font">Schrift: Nunito (SIL Open Font License)</string>
+
+    <!-- Categories -->
+    <string name="category_dairy">Milchprodukte</string>
+    <string name="category_meat">Fleisch</string>
+    <string name="category_seafood">Fisch &amp; Meeresfrüchte</string>
+    <string name="category_fruits">Obst</string>
+    <string name="category_vegetables">Gemüse</string>
+    <string name="category_bakery">Backwaren</string>
+    <string name="category_grains">Getreide</string>
+    <string name="category_canned">Konserven</string>
+    <string name="category_frozen">Tiefkühl</string>
+    <string name="category_beverages">Getränke</string>
+    <string name="category_condiments">Gewürze &amp; Saucen</string>
+    <string name="category_snacks">Snacks</string>
+    <string name="category_other">Sonstiges</string>
+
+    <!-- Units -->
+    <string name="unit_piece">Stk.</string>
+    <string name="unit_package">Pck.</string>
+    <string name="unit_gram">g</string>
+    <string name="unit_kilogram">kg</string>
+    <string name="unit_milliliter">ml</string>
+    <string name="unit_liter">l</string>
+</resources>
