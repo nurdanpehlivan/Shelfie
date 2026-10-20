@@ -1,5 +1,5 @@
 /**
- * Served at `GET /panel`: the user's pantry, shopping list and recipes on the web.
+ * Served at `GET /panel`: the user's pantry, shopping list, recipes and weekly plan on the web.
  *
  * Reads `/api/web/data` and writes whole records to `/api/web/records`; the app picks the
  * changes up on its next sync. Record shapes match the app's sync mapper (SyncRecordMapper.kt).
@@ -129,12 +129,14 @@ export const PANEL_HTML = `<!doctype html>
 			<button type="button" role="tab" data-tab="pantry">Kiler</button>
 			<button type="button" role="tab" data-tab="shopping">Alışveriş listesi</button>
 			<button type="button" role="tab" data-tab="recipes">Tarifler</button>
+			<button type="button" role="tab" data-tab="mealplan">Haftalık plan</button>
 		</div>
 
 		<div id="tab-pantry" role="tabpanel" hidden>
 			<form class="add-form" id="add-pantry">
 				<input name="item" placeholder="Ürün adı" maxlength="60" required aria-label="Ürün adı">
 				<select name="category" aria-label="Kategori"></select>
+				<select name="location" aria-label="Saklama yeri"></select>
 				<input name="expiry" type="date" required aria-label="Son kullanma tarihi">
 				<button type="submit" class="primary">Ekle</button>
 			</form>
@@ -161,6 +163,10 @@ export const PANEL_HTML = `<!doctype html>
 			<div class="list" id="recipe-list"></div>
 		</div>
 
+		<div id="tab-mealplan" role="tabpanel" hidden>
+			<div class="list" id="mealplan-list"></div>
+		</div>
+
 		<footer>
 			<span>Değişiklikler uygulamaya bir sonraki senkronizasyonda geçer.</span>
 			<span class="spacer"></span>
@@ -179,7 +185,11 @@ export const PANEL_HTML = `<!doctype html>
 	const CATEGORIES = { DAIRY: "Süt ürünleri", MEAT: "Et", SEAFOOD: "Deniz ürünleri", FRUITS: "Meyve", VEGETABLES: "Sebze", BAKERY: "Fırın", GRAINS: "Tahıl", CANNED: "Konserve", FROZEN: "Dondurulmuş", BEVERAGES: "İçecek", CONDIMENTS: "Sos ve baharat", SNACKS: "Atıştırmalık", OTHER: "Diğer" };
 	const SHELF_LIFE = { DAIRY: 7, MEAT: 3, SEAFOOD: 2, FRUITS: 7, VEGETABLES: 7, BAKERY: 4, GRAINS: 180, CANNED: 365, FROZEN: 90, BEVERAGES: 30, CONDIMENTS: 90, SNACKS: 60, OTHER: 14 };
 	const UNITS = { PIECE: "adet", PACKAGE: "paket", GRAM: "g", KILOGRAM: "kg", MILLILITER: "ml", LITER: "L" };
-	let data = { pantry: [], shopping: [], recipes: [] };
+	const LOCATIONS = { FRIDGE: "Buzdolabı", FREEZER: "Dondurucu", PANTRY: "Kiler" };
+	// Where a category usually lives; mirrors Category.defaultLocation in the app.
+	const DEFAULT_LOCATION = { DAIRY: "FRIDGE", MEAT: "FRIDGE", SEAFOOD: "FRIDGE", FRUITS: "FRIDGE", VEGETABLES: "FRIDGE", BAKERY: "PANTRY", GRAINS: "PANTRY", CANNED: "PANTRY", FROZEN: "FREEZER", BEVERAGES: "PANTRY", CONDIMENTS: "PANTRY", SNACKS: "PANTRY", OTHER: "FRIDGE" };
+	const MEALS = { BREAKFAST: "Kahvaltı", LUNCH: "Öğle", DINNER: "Akşam" };
+	let data = { pantry: [], shopping: [], recipes: [], mealplan: [] };
 	let mode = "login";
 	let tab = "pantry";
 	try { tab = localStorage.getItem("shelfie-panel-tab") || "pantry"; } catch {}
@@ -242,7 +252,7 @@ export const PANEL_HTML = `<!doctype html>
 
 	async function load() {
 		const body = await api("/api/web/data");
-		data = { pantry: body.pantry, shopping: body.shopping, recipes: body.recipes };
+		data = { pantry: body.pantry, shopping: body.shopping, recipes: body.recipes, mealplan: body.mealplan || [] };
 		$("who").textContent = body.user.email;
 		$("auth").hidden = true;
 		$("app").hidden = false;
@@ -285,17 +295,20 @@ export const PANEL_HTML = `<!doctype html>
 		$("summary").replaceChildren(...summary.map(([v, l]) => el("div", { class: "card" }, el("div", { class: "value" }, v), el("div", { class: "label" }, l))));
 
 		document.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
-		for (const name of ["pantry", "shopping", "recipes"]) $("tab-" + name).hidden = name !== tab;
+		for (const name of ["pantry", "shopping", "recipes", "mealplan"]) $("tab-" + name).hidden = name !== tab;
 		renderPantry(active);
 		renderShopping();
 		renderRecipes();
+		renderMealPlan();
 	}
 
-	function freshnessBadge(iso) {
+	/** "≈" marks an estimated date (no printed one), as in the app. */
+	function freshnessBadge(iso, estimated) {
 		const days = daysUntil(iso);
 		const cls = days <= CRITICAL_DAYS ? "critical" : days <= WARNING_DAYS ? "warning" : "fresh";
 		const text = days < 0 ? (-days) + " gün geçti" : days === 0 ? "Bugün bitiyor" : days === 1 ? "Yarın bitiyor" : days + " gün kaldı";
-		return el("span", { class: "badge " + cls, title: "Son kullanma: " + longDate(iso) }, (cls === "critical" ? "⚠ " : "") + text);
+		const title = (estimated ? "Tahmini son kullanma: " : "Son kullanma: ") + longDate(iso);
+		return el("span", { class: "badge " + cls, title }, (cls === "critical" ? "⚠ " : "") + (estimated ? "≈ " : "") + text);
 	}
 
 	function renderPantry(active) {
@@ -307,9 +320,10 @@ export const PANEL_HTML = `<!doctype html>
 		$("pantry-list").replaceChildren(...(items.length ? items.map((p) =>
 			el("div", { class: "item" },
 				el("div", { class: "main" },
-					el("div", { class: "title" }, p.name),
-					el("div", { class: "meta" }, qty(p.quantity) + " " + (UNITS[p.unit] || "") + " · " + (CATEGORIES[p.category] || "Diğer"))),
-				freshnessBadge(p.expiryDate),
+					el("div", { class: "title" }, (p.emoji ? p.emoji + " " : "") + p.name),
+					el("div", { class: "meta" }, qty(p.quantity) + " " + (UNITS[p.unit] || "") + " · " + (CATEGORIES[p.category] || "Diğer") +
+						" · " + (LOCATIONS[p.location] || LOCATIONS[DEFAULT_LOCATION[p.category]] || ""))),
+				freshnessBadge(p.expiryDate, p.expiryEstimated),
 				el("div", { class: "actions" },
 					el("button", { type: "button", onclick: () => change(p, { isConsumed: true, isWasted: false }) }, "Yedim"),
 					el("button", { type: "button", onclick: () => change(p, { isConsumed: true, isWasted: true }) }, "Attım"),
@@ -367,13 +381,37 @@ export const PANEL_HTML = `<!doctype html>
 		$("recipe-dialog").showModal();
 	}
 
+	/** Read-only: the plan is made in the app, where the recipes are. */
+	function renderMealPlan() {
+		const today = todayIso();
+		const recipeTitle = (syncId) => {
+			const r = data.recipes.find((x) => x.syncId === syncId);
+			return r ? (parseRecipe(r)?.title || r.title || "Tarif") : null;
+		};
+		const order = { BREAKFAST: 0, LUNCH: 1, DINNER: 2 };
+		const items = data.mealplan
+			.filter((m) => m.date >= today)
+			.sort((a, b) => a.date.localeCompare(b.date) || (order[a.mealType] ?? 3) - (order[b.mealType] ?? 3));
+		$("mealplan-list").replaceChildren(...(items.length ? items.map((m) =>
+			el("div", { class: "item" },
+				el("div", { class: "main" },
+					el("div", { class: "title" }, [recipeTitle(m.recipeSyncId), m.note].filter(Boolean).join(" · ") || "—"),
+					el("div", { class: "meta" }, longDate(m.date) + " · " + (MEALS[m.mealType] || "")))))
+			: [el("div", { class: "empty" }, "Planlanmış öğün yok. Uygulamada Tarifler → Haftalık plan'dan ekleyebilirsin.")]));
+	}
+
 	// endregion
 
 	// region Forms
 
 	const categorySelect = $("add-pantry").category;
+	const locationSelect = $("add-pantry").location;
 	for (const [key, label] of Object.entries(CATEGORIES)) categorySelect.append(el("option", { value: key }, label));
-	const suggestExpiry = () => { $("add-pantry").expiry.value = addDays(todayIso(), SHELF_LIFE[categorySelect.value] || 14); };
+	for (const [key, label] of Object.entries(LOCATIONS)) locationSelect.append(el("option", { value: key }, label));
+	const suggestExpiry = () => {
+		$("add-pantry").expiry.value = addDays(todayIso(), SHELF_LIFE[categorySelect.value] || 14);
+		locationSelect.value = DEFAULT_LOCATION[categorySelect.value] || "FRIDGE";
+	};
 	categorySelect.addEventListener("change", suggestExpiry);
 	categorySelect.value = "OTHER";
 	suggestExpiry();
@@ -383,8 +421,8 @@ export const PANEL_HTML = `<!doctype html>
 		const f = e.target;
 		const now = Date.now();
 		run(save("pantry", {
-			name: f.item.value.trim().slice(0, 60), category: f.category.value, quantity: 1, unit: "PIECE",
-			purchaseDate: todayIso(), expiryDate: f.expiry.value, isConsumed: false, isWasted: false, createdAt: now, updatedAt: now,
+			name: f.item.value.trim().slice(0, 60), category: f.category.value, location: f.location.value, quantity: 1, unit: "PIECE",
+			purchaseDate: todayIso(), expiryDate: f.expiry.value, expiryEstimated: false, isConsumed: false, isWasted: false, createdAt: now, updatedAt: now,
 		}).then(() => { f.item.value = ""; f.item.focus(); }));
 	});
 	$("add-shopping").addEventListener("submit", (e) => {

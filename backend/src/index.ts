@@ -8,6 +8,7 @@ import { error, html, isSameOrigin } from "./http.ts";
 import { LANDING_HTML } from "./landing.ts";
 import { ADMIN_HTML } from "./pages/admin.ts";
 import { PANEL_HTML } from "./pages/panel.ts";
+import { PRIVACY_HTML } from "./pages/privacy.ts";
 import { handleProxy, PROXY_ROUTE } from "./proxy.ts";
 import { handleSync, handleWebData, handleWebWrite } from "./sync.ts";
 
@@ -18,6 +19,7 @@ import { handleSync, handleWebData, handleWebWrite } from "./sync.ts";
  * - `/api/household/*`, `/api/billing/verify`: family sharing and Play subscriptions (bearer token)
  * - `GET /api/quota`: plan and today's AI usage (app token, optional bearer), see quota.ts
  * - `/panel` + `/api/web/*`: the user's web panel (session cookie)
+ * - `/privacy`: the privacy policy (public)
  * - `/admin` + `/admin/api/*`: operator dashboard (ADMIN_PASSWORD)
  */
 export default {
@@ -35,6 +37,7 @@ export default {
 			});
 		}
 		if (path === "/panel" && isRead) return html(PANEL_HTML);
+		if (path === "/privacy" && isRead) return html(PRIVACY_HTML);
 		if (path === "/admin" && isRead) return html(ADMIN_HTML);
 
 		try {

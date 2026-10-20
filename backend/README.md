@@ -10,6 +10,7 @@ A Cloudflare Worker with a D1 database. It does four jobs:
 | `/api/household/*` | Family sharing: invite codes, join, leave, remove members | `Authorization: Bearer <session>` |
 | `GET /api/quota` | The caller's plan and today's AI usage | `x-shelfie-token`, optional bearer |
 | `POST /api/billing/verify` | Checks a Play subscription purchase and grants Premium | `Authorization: Bearer <session>` |
+| `/privacy` | Privacy policy (Turkish and English), linked from the Play listing | Public |
 | `/admin` | Operator dashboard: requests, active installs, errors, models, tokens, users | ADMIN_PASSWORD |
 
 URL: https://shelfie-gemini-proxy.shelfie-app.workers.dev/
