@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
+import com.shelfie.app.data.local.entity.MealPlanEntity
 import com.shelfie.app.data.local.entity.PantryItemEntity
 import com.shelfie.app.data.local.entity.SavedRecipeEntity
 import com.shelfie.app.data.local.entity.ShoppingItemEntity
@@ -46,6 +47,7 @@ interface SyncDao {
         SELECT 'pantry', sync_id, updated_at FROM pantry_items
         UNION ALL SELECT 'shopping', sync_id, created_at FROM shopping_items
         UNION ALL SELECT 'recipes', sync_id, COALESCE(cooked_at, created_at) FROM saved_recipes
+        UNION ALL SELECT 'mealplan', sync_id, updated_at FROM meal_plan
         """
     )
     suspend fun enqueueAll()
@@ -72,6 +74,15 @@ interface SyncDao {
 
     @Query("SELECT * FROM saved_recipes WHERE sync_id = :syncId")
     suspend fun getRecipe(syncId: String): SavedRecipeEntity?
+
+    @Query("SELECT * FROM meal_plan WHERE sync_id = :syncId")
+    suspend fun getMealPlan(syncId: String): MealPlanEntity?
+
+    @Upsert
+    suspend fun upsertMealPlan(entry: MealPlanEntity)
+
+    @Query("DELETE FROM meal_plan WHERE sync_id = :syncId")
+    suspend fun deleteMealPlan(syncId: String)
 
     @Upsert
     suspend fun upsertPantryItem(item: PantryItemEntity)

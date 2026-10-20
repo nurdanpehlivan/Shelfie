@@ -1,7 +1,9 @@
 package com.shelfie.app.presentation
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
@@ -9,36 +11,61 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.presentation.navigation.ShelfieNavHost
 import com.shelfie.app.presentation.onboarding.OnboardingScreen
 import com.shelfie.app.presentation.theme.ShelfieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            ShelfieTheme {
-                val viewModel: MainViewModel = hiltViewModel()
+            val viewModel: MainViewModel = hiltViewModel()
+            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+            // The status and navigation bar icons follow the app's theme, not the phone's:
+            // a light app on a phone in dark mode needs dark icons.
+            DisposableEffect(darkTheme) {
+                enableEdgeToEdge(
+                    statusBarStyle = if (darkTheme) {
+                        SystemBarStyle.dark(Color.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                    },
+                    navigationBarStyle = if (darkTheme) {
+                        SystemBarStyle.dark(Color.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                    },
+                )
+                onDispose {}
+            }
+            ShelfieTheme(darkTheme = darkTheme) {
                 val onboardingCompleted by viewModel.onboardingCompleted.collectAsStateWithLifecycle()
                 AnimatedContent(
                     targetState = onboardingCompleted,
@@ -66,6 +93,11 @@ class MainViewModel @Inject constructor(
     val onboardingCompleted: StateFlow<Boolean?> = settingsRepository.settings
         .map { it.onboardingCompleted }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Light until DataStore has been read, matching the window background. */
+    val themeMode: StateFlow<ThemeMode> = settingsRepository.settings
+        .map { it.themeMode }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, ThemeMode.LIGHT)
 
     fun completeOnboarding() {
         viewModelScope.launch { settingsRepository.setOnboardingCompleted() }

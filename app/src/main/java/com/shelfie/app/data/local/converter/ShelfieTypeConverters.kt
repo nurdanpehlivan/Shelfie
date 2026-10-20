@@ -3,6 +3,7 @@ package com.shelfie.app.data.local.converter
 import androidx.room.TypeConverter
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
+import com.shelfie.app.domain.model.StorageLocation
 import java.time.Instant
 import java.time.LocalDate
 
@@ -35,4 +36,10 @@ class ShelfieTypeConverters {
 
     @TypeConverter
     fun nameToMeasurementUnit(name: String?): MeasurementUnit? = name?.let(MeasurementUnit::fromName)
+
+    @TypeConverter
+    fun storageLocationToName(location: StorageLocation?): String? = location?.name
+
+    @TypeConverter
+    fun nameToStorageLocation(name: String?): StorageLocation? = name?.let(StorageLocation::fromName)
 }

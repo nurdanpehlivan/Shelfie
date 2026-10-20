@@ -16,7 +16,12 @@ interface RecipeRepository {
      * A failure always carries a [com.shelfie.app.domain.model.PantryScanException], the same
      * typed AI-service errors as a photo scan.
      */
-    suspend fun generateRescueRecipe(ingredients: List<PantryItem>, mealType: MealType): Result<SavedRecipe>
+    suspend fun generateRescueRecipe(
+        ingredients: List<PantryItem>,
+        mealType: MealType,
+        /** The morning freshness check, which has an allowance of its own on the server. */
+        isBackground: Boolean = false,
+    ): Result<SavedRecipe>
 
     /**
      * The recipe generated today for exactly these [ingredients], e.g. by the morning freshness

@@ -14,6 +14,8 @@ data class AppSettings(
     val averageItemValue: Double = DEFAULT_AVERAGE_ITEM_VALUE,
     /** The first-run introduction was finished or skipped. */
     val onboardingCompleted: Boolean = false,
+    /** Light by default: the warm, fresh look is the app's identity; dark is opt-in. */
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
 ) {
     val reminderTime: LocalTime get() = LocalTime.of(reminderHour, 0)
 
@@ -22,5 +24,17 @@ data class AppSettings(
         const val MIN_REMINDER_HOUR = 6
         const val MAX_REMINDER_HOUR = 22
         const val DEFAULT_AVERAGE_ITEM_VALUE = 50.0
+    }
+}
+
+enum class ThemeMode {
+    LIGHT,
+    DARK,
+
+    /** Follows the phone's dark mode. */
+    SYSTEM;
+
+    companion object {
+        fun fromName(name: String?): ThemeMode = entries.firstOrNull { it.name == name } ?: LIGHT
     }
 }

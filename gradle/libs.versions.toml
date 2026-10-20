@@ -18,6 +18,7 @@ datastore = "1.1.7"
 
 # Google Play services
 codeScanner = "16.1.0"
+billing = "8.0.0"
 
 # Dependency injection
 hilt = "2.60.1"
@@ -43,6 +44,7 @@ turbine = "1.2.1"
 mockk = "1.14.11"
 
 [libraries]
+play-billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
 # AndroidX core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

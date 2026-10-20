@@ -49,7 +49,7 @@ class FreshnessCheckWorker @AssistedInject constructor(
 
         val mealType = MealType.at(LocalTime.now(clock))
         val saved = recipeRepository.getTodaysRecipeFor(ingredients)
-            ?: recipeRepository.generateRescueRecipe(ingredients, mealType).getOrElse { error ->
+            ?: recipeRepository.generateRescueRecipe(ingredients, mealType, isBackground = true).getOrElse { error ->
                 // A flaky connection at reminder time shouldn't cost the user the recipe; try
                 // again a bit later, then fall back to a plain reminder.
                 if (error is PantryScanException.Network && runAttemptCount < MAX_NETWORK_RETRIES) {

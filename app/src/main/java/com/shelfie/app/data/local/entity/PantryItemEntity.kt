@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
+import com.shelfie.app.domain.model.StorageLocation
 import java.time.Instant
 import java.time.LocalDate
 
@@ -34,6 +35,18 @@ data class PantryItemEntity(
 
     @ColumnInfo(name = COLUMN_UNIT, defaultValue = "PIECE")
     val unit: MeasurementUnit,
+
+    /** Added in schema 5; older rows default to the fridge. */
+    @ColumnInfo(name = COLUMN_LOCATION, defaultValue = "FRIDGE")
+    val location: StorageLocation = StorageLocation.FRIDGE,
+
+    /** Added in schema 7. */
+    @ColumnInfo(name = COLUMN_EMOJI)
+    val emoji: String? = null,
+
+    /** Added in schema 7; see [com.shelfie.app.domain.model.PantryItem.isExpiryEstimated]. */
+    @ColumnInfo(name = COLUMN_EXPIRY_ESTIMATED, defaultValue = "0")
+    val isExpiryEstimated: Boolean = false,
 
     @ColumnInfo(name = COLUMN_IMAGE_URI)
     val imageUri: String?,
@@ -74,6 +87,9 @@ data class PantryItemEntity(
         const val COLUMN_CATEGORY = "category"
         const val COLUMN_QUANTITY = "quantity"
         const val COLUMN_UNIT = "unit"
+        const val COLUMN_LOCATION = "location"
+        const val COLUMN_EMOJI = "emoji"
+        const val COLUMN_EXPIRY_ESTIMATED = "expiry_estimated"
         const val COLUMN_IMAGE_URI = "image_uri"
         const val COLUMN_PURCHASE_DATE = "purchase_date"
         const val COLUMN_EXPIRY_DATE = "expiry_date"

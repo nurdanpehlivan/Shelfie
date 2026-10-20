@@ -15,13 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -32,14 +29,13 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -53,8 +49,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.BuildConfig
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.AppSettings
+import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.model.FreshnessThresholds
+import androidx.compose.material3.Surface
+import com.shelfie.app.presentation.common.ShelfieCard
+import com.shelfie.app.presentation.theme.extendedColors
+import com.shelfie.app.presentation.common.ShelfieTopBar
 import com.shelfie.app.presentation.common.formatQuantity
+import com.shelfie.app.presentation.common.shelfieSegmentedColors
 import com.shelfie.app.presentation.common.parseQuantity
 import com.shelfie.app.presentation.mascot.Frizzy
 import com.shelfie.app.presentation.mascot.FrizzyMood
@@ -65,7 +67,11 @@ import java.util.Currency
 import java.util.Locale
 
 @Composable
-fun SettingsRoute(onNavigateUp: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsRoute(
+    onNavigateUp: () -> Unit,
+    onOpenPremium: () -> Unit = {},
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val account by viewModel.account.collectAsStateWithLifecycle()
     val accountUi by viewModel.accountUi.collectAsStateWithLifecycle()
@@ -86,6 +92,8 @@ fun SettingsRoute(onNavigateUp: () -> Unit, viewModel: SettingsViewModel = hiltV
         onReminderHourChange = viewModel::setReminderHour,
         onCriticalDaysChange = viewModel::setCriticalDays,
         onAverageValueChange = viewModel::setAverageItemValue,
+        onThemeModeChange = viewModel::setThemeMode,
+        onOpenPremium = onOpenPremium,
         accountSection = {
             AccountSectionContent(
                 account = account,
@@ -117,23 +125,16 @@ fun SettingsScreen(
     onReminderHourChange: (Int) -> Unit,
     onCriticalDaysChange: (Long) -> Unit,
     onAverageValueChange: (Double) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     accountSection: @Composable ColumnScope.() -> Unit = {},
+    onOpenPremium: () -> Unit = {},
+    householdSection: @Composable ColumnScope.() -> Unit = { HouseholdSectionContent() },
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = stringResource(R.string.action_navigate_up),
-                        )
-                    }
-                },
-            )
+            ShelfieTopBar(title = stringResource(R.string.settings_title), onNavigateUp = onNavigateUp)
         },
     ) { padding ->
         if (settings == null) {
@@ -145,9 +146,25 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            PremiumCard(onClick = onOpenPremium)
+
+            SettingsCard(title = stringResource(R.string.settings_section_appearance)) {
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    ThemeMode.entries.forEachIndexed { index, mode ->
+                        SegmentedButton(
+                            selected = settings.themeMode == mode,
+                            onClick = { onThemeModeChange(mode) },
+                            shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
+                            colors = shelfieSegmentedColors(),
+                            icon = {},
+                        ) { Text(stringResource(mode.labelRes)) }
+                    }
+                }
+            }
+
             SettingsCard(title = stringResource(R.string.settings_section_notifications)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -174,6 +191,8 @@ fun SettingsScreen(
                             selected = settings.freshnessThresholds.criticalDays == days,
                             onClick = { onCriticalDaysChange(days) },
                             shape = SegmentedButtonDefaults.itemShape(index, dayOptions.size),
+                            colors = shelfieSegmentedColors(),
+                            icon = {},
                         ) { Text(pluralStringResource(R.plurals.settings_days, days.toInt(), days.toInt())) }
                     }
                 }
@@ -194,23 +213,60 @@ fun SettingsScreen(
 
             SettingsCard(title = stringResource(R.string.settings_section_account), content = accountSection)
 
+            SettingsCard(title = stringResource(R.string.household_title), content = householdSection)
+
             AboutCard()
         }
     }
 }
 
-/** A titled group of settings on a white card. */
+private val ThemeMode.labelRes: Int
+    get() = when (this) {
+        ThemeMode.LIGHT -> R.string.settings_theme_light
+        ThemeMode.DARK -> R.string.settings_theme_dark
+        ThemeMode.SYSTEM -> R.string.settings_theme_system
+    }
+
+/** Entry to Premium at the top of the settings, on the evergreen hero surface. */
+@Composable
+private fun PremiumCard(onClick: () -> Unit) {
+    val extended = MaterialTheme.extendedColors
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.large,
+        color = extended.hero,
+        contentColor = extended.onHero,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "✨", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.premium_title), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.premium_settings_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = extended.onHeroVariant,
+                )
+            }
+        }
+    }
+}
+
+/** A titled group of settings: the title sits above a flat white card, like a list section. */
 @Composable
 private fun SettingsCard(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
-        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-            content()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 4.dp, top = 8.dp),
+        )
+        ShelfieCard(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                content()
+            }
         }
     }
 }

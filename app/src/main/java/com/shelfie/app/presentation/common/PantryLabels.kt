@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
+import com.shelfie.app.domain.model.StorageLocation
 import android.text.format.DateFormat
 import java.text.DecimalFormat
 import java.time.format.DateTimeFormatter
@@ -25,6 +26,14 @@ val Category.labelRes: Int
         Category.CONDIMENTS -> R.string.category_condiments
         Category.SNACKS -> R.string.category_snacks
         Category.OTHER -> R.string.category_other
+    }
+
+@get:StringRes
+val StorageLocation.labelRes: Int
+    get() = when (this) {
+        StorageLocation.FRIDGE -> R.string.location_fridge
+        StorageLocation.FREEZER -> R.string.location_freezer
+        StorageLocation.PANTRY -> R.string.location_pantry
     }
 
 val Category.emoji: String

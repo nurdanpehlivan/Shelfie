@@ -1,6 +1,6 @@
 package com.shelfie.app.presentation.scanner.components
 
-import com.shelfie.app.presentation.common.foodEmoji
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.PantryItem
-import com.shelfie.app.presentation.common.emoji
+import com.shelfie.app.presentation.common.displayEmoji
+import com.shelfie.app.presentation.common.foodEmoji
 import com.shelfie.app.presentation.common.formatQuantity
 import com.shelfie.app.presentation.common.labelRes
 import java.time.format.DateTimeFormatter
@@ -41,24 +43,31 @@ fun DetectedItemCard(
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
 
-    OutlinedCard(onClick = onEdit, enabled = enabled, modifier = modifier.fillMaxWidth()) {
+    OutlinedCard(
+        onClick = onEdit,
+        enabled = enabled,
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
         Row(
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
+            modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape),
+                    .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = foodEmoji(item.name, item.category), style = MaterialTheme.typography.titleLarge)
+                Text(text = item.displayEmoji, style = MaterialTheme.typography.titleLarge)
             }
 
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
@@ -81,7 +90,7 @@ fun DetectedItemCard(
                 )
                 Text(
                     text = stringResource(
-                        R.string.scanner_item_expiry,
+                        if (item.isExpiryEstimated) R.string.scanner_item_expiry_estimated else R.string.scanner_item_expiry,
                         item.expiryDate.format(dateFormatter),
                     ),
                     style = MaterialTheme.typography.labelMedium,

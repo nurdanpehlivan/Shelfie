@@ -6,6 +6,7 @@ import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.domain.model.StorageLocation
 import java.time.LocalDate
 
 /** A pantry item with its freshness already worked out for "today". */
@@ -22,15 +23,28 @@ data class DashboardUiState(
     val warning: List<DashboardItem> = emptyList(),
     val fresh: List<DashboardItem> = emptyList(),
     /** `null` shows every group. */
-    val selectedFilter: FreshnessStatus? = null,
+    val selectedFilter: PantryFilter? = null,
     val thresholds: FreshnessThresholds = FreshnessThresholds.DEFAULT,
+    /** Name search; blank shows everything. */
+    val query: String = "",
+    /** `null` shows every storage place. */
+    val locationFilter: StorageLocation? = null,
+    /** Active items per place, ignoring the place filter and search, for the chip counts. */
+    val locationCounts: Map<StorageLocation, Int> = emptyMap(),
 ) {
+    /** Items shown after the place filter and search. */
     val totalCount: Int get() = critical.size + warning.size + fresh.size
+
+    /** Every active item, whatever the filters. */
+    val allCount: Int get() = locationCounts.values.sum()
+
+    val isFiltered: Boolean get() = query.isNotBlank() || locationFilter != null
 
     /** Headline number of the summary widget: items that need to be used within days. */
     val expiringSoonCount: Int get() = critical.size
 
-    val isEmpty: Boolean get() = !isLoading && totalCount == 0
+    /** The pantry itself is empty (not just the current search or place filter). */
+    val isEmpty: Boolean get() = !isLoading && allCount == 0
 
     /** Critical items that are not expired yet, i.e. what a rescue recipe can still use. */
     val hasRescuableItems: Boolean get() = critical.any { it.daysLeft >= 0 }
@@ -41,16 +55,50 @@ data class DashboardUiState(
         FreshnessStatus.FRESH -> fresh
     }
 
+    /** Items to use up soon: critical plus warning, the second overview card. */
+    val useSoonCount: Int get() = critical.size + warning.size
+
     /** Groups to render in order, honouring [selectedFilter]. */
     val visibleGroups: List<FreshnessStatus>
-        get() = selectedFilter?.let(::listOf) ?: FreshnessStatus.entries
+        get() = selectedFilter?.groups ?: FreshnessStatus.entries
+}
+
+/** The two overview cards double as list filters; each shows one or more freshness groups. */
+enum class PantryFilter(val groups: List<FreshnessStatus>) {
+    SAFE(listOf(FreshnessStatus.FRESH)),
+    USE_SOON(listOf(FreshnessStatus.CRITICAL, FreshnessStatus.WARNING)),
 }
 
 enum class RemovalReason { CONSUMED, WASTED }
 
 sealed interface DashboardIntent {
 
-    data class SelectFilter(val status: FreshnessStatus?) : DashboardIntent
+    data class SelectFilter(val filter: PantryFilter?) : DashboardIntent
+
+    data class Search(val query: String) : DashboardIntent
+
+    data class SelectLocation(val location: StorageLocation?) : DashboardIntent
+
+    /** Tapped a card: opens its edit sheet. */
+    data class OpenItem(val itemId: Long) : DashboardIntent
+
+    data object DismissItem : DashboardIntent
+
+    data class SaveItemEdits(
+        val itemId: Long,
+        val name: String,
+        val quantity: Double,
+        val unit: MeasurementUnit,
+        val category: Category,
+        val expiryDate: LocalDate,
+        val location: StorageLocation,
+    ) : DashboardIntent
+
+    /** Part of the item was used; halves the quantity left. */
+    data class UseHalf(val itemId: Long) : DashboardIntent
+
+    /** Moves the item to the freezer and extends its expiry to the frozen shelf life. */
+    data class Freeze(val itemId: Long) : DashboardIntent
 
     /** Swiped right. */
     data class MarkConsumed(val itemId: Long) : DashboardIntent
@@ -81,6 +129,7 @@ sealed interface DashboardIntent {
         val unit: MeasurementUnit,
         val category: Category,
         val expiryDate: LocalDate,
+        val location: StorageLocation,
     ) : DashboardIntent
 }
 
@@ -102,6 +151,13 @@ sealed interface DashboardEffect {
     ) : DashboardEffect
 
     data class ShowMessage(@param:StringRes val messageRes: Int) : DashboardEffect
+
+    /** A message about one item; [messageRes] takes the item name (and [extra]) as arguments. */
+    data class ShowItemMessage(
+        @param:StringRes val messageRes: Int,
+        val itemName: String,
+        val extra: String? = null,
+    ) : DashboardEffect
 }
 
 /**

@@ -50,6 +50,54 @@ class SyncMigrationTest {
         db.close()
     }
 
+    @Test
+    fun migrate3To5_defaultsLocationToFridge_andKeepsSyncTriggers() {
+        helper.createDatabase(DB, 3).use { db ->
+            db.execSQL(
+                "INSERT INTO pantry_items (name, category, quantity, unit, purchase_date, expiry_date, is_consumed, is_wasted, created_at, updated_at) " +
+                    "VALUES ('Milk', 'DAIRY', 1, 'PIECE', 20000, 20005, 0, 0, 1, 1)",
+            )
+        }
+
+        // 4 -> 5 is an auto-migration; validates against the exported 5.json.
+        val db = helper.runMigrationsAndValidate(DB, 5, true, MIGRATION_3_4)
+
+        assertEquals(1, db.count("SELECT COUNT(*) FROM pantry_items WHERE location = 'FRIDGE'"))
+        // ADD COLUMN must not drop the triggers MIGRATION_3_4 created.
+        db.execSQL("UPDATE pantry_items SET location = 'FREEZER'")
+        assertEquals(1, db.count("SELECT COUNT(*) FROM sync_outbox"))
+        db.close()
+    }
+
+    @Test
+    fun migrate3To6_addsMealPlanWithSyncTriggers() {
+        helper.createDatabase(DB, 3).close()
+
+        val db = helper.runMigrationsAndValidate(DB, 6, true, MIGRATION_3_4)
+
+        db.execSQL(
+            "INSERT INTO meal_plan (sync_id, date, meal_type, recipe_sync_id, note, updated_at) " +
+                "VALUES ('plan-2026-10-20-dinner', 20381, 'DINNER', NULL, 'Pizza', 1)",
+        )
+        assertEquals(1, db.count("SELECT COUNT(*) FROM sync_outbox WHERE collection = 'mealplan'"))
+        db.close()
+    }
+
+    @Test
+    fun migrate3To7_addsEmojiAndEstimatedExpiry() {
+        helper.createDatabase(DB, 3).use { db ->
+            db.execSQL(
+                "INSERT INTO pantry_items (name, category, quantity, unit, purchase_date, expiry_date, is_consumed, is_wasted, created_at, updated_at) " +
+                    "VALUES ('Milk', 'DAIRY', 1, 'PIECE', 20000, 20005, 0, 0, 1, 1)",
+            )
+        }
+
+        val db = helper.runMigrationsAndValidate(DB, 7, true, MIGRATION_3_4)
+
+        assertEquals(1, db.count("SELECT COUNT(*) FROM pantry_items WHERE emoji IS NULL AND expiry_estimated = 0"))
+        db.close()
+    }
+
     private fun androidx.sqlite.db.SupportSQLiteDatabase.count(sql: String): Int =
         query(sql).use { it.moveToFirst(); it.getInt(0) }
 

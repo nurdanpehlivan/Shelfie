@@ -1,5 +1,6 @@
 package com.shelfie.app.data.local.dao
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -16,6 +17,13 @@ interface SavedRecipeDao {
 
     @Query("SELECT * FROM saved_recipes WHERE id = :id")
     suspend fun getById(id: Long): SavedRecipeEntity?
+
+    /** Local id ↔ sync id of every recipe, for meal plan slots that refer to recipes by sync id. */
+    @Query("SELECT id, sync_id FROM saved_recipes")
+    fun observeIdPairs(): Flow<List<RecipeIdPair>>
+
+    @Query("SELECT sync_id FROM saved_recipes WHERE id = :id")
+    suspend fun getSyncId(id: Long): String?
 
     /** Latest recipe for exactly these (encoded) pantry item ids, created at or after [since]. */
     @Query(
@@ -47,3 +55,8 @@ interface SavedRecipeDao {
     @Query("DELETE FROM saved_recipes")
     suspend fun deleteAll()
 }
+
+data class RecipeIdPair(
+    @ColumnInfo(name = "id") val id: Long,
+    @ColumnInfo(name = "sync_id") val syncId: String,
+)

@@ -8,7 +8,14 @@ import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.PantryScanException
 import kotlinx.coroutines.delay
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 import retrofit2.HttpException
+import java.time.Instant
 import java.io.IOException
 import java.time.LocalDate
 import java.util.Locale
@@ -61,9 +68,13 @@ class GeminiRemoteDataSource @Inject constructor(
         mealType: MealType,
         today: LocalDate,
         locale: Locale = Locale.getDefault(),
+        isBackground: Boolean = false,
     ): String {
         requireConfigured()
-        return generate(RecipePrompts.buildRequest(ingredients, mealType, today, locale), GeminiApiService.FEATURE_RECIPE)
+        return generate(
+            RecipePrompts.buildRequest(ingredients, mealType, today, locale),
+            if (isBackground) GeminiApiService.FEATURE_DAILY_RECIPE else GeminiApiService.FEATURE_RECIPE,
+        )
     }
 
     private fun requireConfigured() {
@@ -76,6 +87,7 @@ class GeminiRemoteDataSource @Inject constructor(
         val response = try {
             callWithRetry(request, feature)
         } catch (e: HttpException) {
+            if (e.code() == HTTP_PAYMENT_REQUIRED) throw e.toQuotaExceeded()
             throw PantryScanException.Api(
                 httpCode = e.code(),
                 cause = e,
@@ -135,6 +147,20 @@ class GeminiRemoteDataSource @Inject constructor(
         return api.generateContent(model = model, request = request, feature = feature)
     }
 
+    /** The Shelfie proxy's 402 body: `{ error: { details: { limit, plan, resetsAt } } }`. */
+    private fun HttpException.toQuotaExceeded(): PantryScanException.QuotaExceeded {
+        val details = runCatching {
+            val body = response()?.errorBody()?.string().orEmpty()
+            Json.parseToJsonElement(body).jsonObject["error"]?.jsonObject?.get("details")?.jsonObject
+        }.getOrNull()
+        return PantryScanException.QuotaExceeded(
+            limit = details?.get("limit")?.jsonPrimitive?.intOrNull,
+            isPremium = details?.get("plan")?.jsonPrimitive?.contentOrNull == "premium",
+            resetsAt = details?.get("resetsAt")?.jsonPrimitive?.longOrNull?.let(Instant::ofEpochMilli),
+            cause = this,
+        )
+    }
+
     /** Gemini names the exhausted quota in the error body, e.g. "...RequestsPerDayPerProjectPerModel...". */
     private fun HttpException.isDailyQuota(): Boolean =
         runCatching { response()?.errorBody()?.string().orEmpty() }.getOrDefault("").contains("PerDay")
@@ -167,6 +193,9 @@ class GeminiRemoteDataSource @Inject constructor(
         val RETRY_DELAYS = listOf(1.seconds, 3.seconds)
 
         const val HTTP_TOO_MANY_REQUESTS = 429
+
+        /** The Shelfie proxy's "daily allowance used up"; not retried, nor tried on another model. */
+        const val HTTP_PAYMENT_REQUIRED = 402
 
         /** Long enough to stop hammering an exhausted model, short enough to notice it's back. */
         val MODEL_COOLDOWN = 10.minutes

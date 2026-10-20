@@ -7,32 +7,37 @@ import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.domain.model.ShelfLife
+import com.shelfie.app.domain.model.StorageLocation
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.ProductLookupRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Clock
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
+import java.util.Locale
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Clock
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
@@ -42,7 +47,12 @@ class DashboardViewModel @Inject constructor(
     private val clock: Clock,
 ) : ViewModel() {
 
-    private val selectedFilter = MutableStateFlow<FreshnessStatus?>(null)
+    private val selectedFilter = MutableStateFlow<PantryFilter?>(null)
+    private val query = MutableStateFlow("")
+    private val locationFilter = MutableStateFlow<StorageLocation?>(null)
+
+    /** The three list filters in one flow, since [combine] takes five typed flows at most. */
+    private val listFilters = combine(selectedFilter, query, locationFilter, ::ListFilters)
 
     /**
      * Ids swiped away but possibly not yet gone from the Room stream. Hiding them here keeps a
@@ -64,13 +74,16 @@ class DashboardViewModel @Inject constructor(
     val uiState: StateFlow<DashboardUiState> = combine(
         pantryRepository.observePantryItems(),
         today,
-        selectedFilter,
+        listFilters,
         pendingRemovals,
         settingsRepository.settings.map { it.freshnessThresholds }.distinctUntilChanged(),
-    ) { items, today, filter, pending, thresholds ->
-        val grouped = items
+    ) { items, today, filters, pending, thresholds ->
+        val active = items.filterNot { it.id in pending }
+        val needle = filters.query.trim().lowercase(Locale.getDefault())
+        val grouped = active
             .asSequence()
-            .filterNot { it.id in pending }
+            .filter { filters.location == null || it.location == filters.location }
+            .filter { needle.isEmpty() || it.name.lowercase(Locale.getDefault()).contains(needle) }
             .map { it.toDashboardItem(today, thresholds) }
             .groupBy { it.status }
         DashboardUiState(
@@ -78,14 +91,22 @@ class DashboardViewModel @Inject constructor(
             critical = grouped[FreshnessStatus.CRITICAL].orEmpty(),
             warning = grouped[FreshnessStatus.WARNING].orEmpty(),
             fresh = grouped[FreshnessStatus.FRESH].orEmpty(),
-            selectedFilter = filter,
+            selectedFilter = filters.freshness,
             thresholds = thresholds,
+            query = filters.query,
+            locationFilter = filters.location,
+            locationCounts = StorageLocation.entries.associateWith { place -> active.count { it.location == place } },
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
         initialValue = DashboardUiState(),
     )
+
+    private val _editItem = MutableStateFlow<PantryItem?>(null)
+
+    /** The item whose edit sheet is open, `null` while it is closed. */
+    val editItem: StateFlow<PantryItem?> = _editItem.asStateFlow()
 
     private val _addItem = MutableStateFlow<AddItemState?>(null)
 
@@ -99,7 +120,14 @@ class DashboardViewModel @Inject constructor(
 
     fun onIntent(intent: DashboardIntent) {
         when (intent) {
-            is DashboardIntent.SelectFilter -> selectedFilter.value = intent.status
+            is DashboardIntent.SelectFilter -> selectedFilter.value = intent.filter
+            is DashboardIntent.Search -> query.value = intent.query
+            is DashboardIntent.SelectLocation -> locationFilter.value = intent.location
+            is DashboardIntent.OpenItem -> _editItem.value = uiState.value.findItem(intent.itemId)
+            DashboardIntent.DismissItem -> _editItem.value = null
+            is DashboardIntent.SaveItemEdits -> saveItemEdits(intent)
+            is DashboardIntent.UseHalf -> useHalf(intent.itemId)
+            is DashboardIntent.Freeze -> freeze(intent.itemId)
             is DashboardIntent.MarkConsumed -> removeItem(intent.itemId, RemovalReason.CONSUMED)
             is DashboardIntent.MarkWasted -> removeItem(intent.itemId, RemovalReason.WASTED)
             is DashboardIntent.UndoRemoval -> undoRemoval(intent.itemId)
@@ -160,6 +188,7 @@ class DashboardViewModel @Inject constructor(
             category = Category.OTHER,
             purchaseDate = today,
             expiryDate = today.plusDays(Category.OTHER.defaultShelfLifeDays.toLong()),
+            isExpiryEstimated = true,
             createdAt = now,
             updatedAt = now,
         )
@@ -189,8 +218,11 @@ class DashboardViewModel @Inject constructor(
                         draft = state.draft.copy(
                             name = product.name,
                             category = product.category,
-                            expiryDate = state.draft.purchaseDate
-                                .plusDays(product.category.defaultShelfLifeDays.toLong()),
+                            location = product.category.defaultLocation,
+                            expiryDate = state.draft.purchaseDate.plusDays(
+                                ShelfLife.estimateDays(product.name, product.category, product.category.defaultLocation).toLong(),
+                            ),
+                            isExpiryEstimated = true,
                         ),
                     )
                 }
@@ -210,6 +242,11 @@ class DashboardViewModel @Inject constructor(
                         unit = intent.unit,
                         category = intent.category,
                         expiryDate = intent.expiryDate,
+                        location = intent.location,
+                        // Kept the date the sheet worked out for the product: still an estimate.
+                        isExpiryEstimated = intent.expiryDate == draft.purchaseDate.plusDays(
+                            ShelfLife.estimateDays(intent.name, intent.category, intent.location).toLong(),
+                        ),
                     ),
                 )
             } catch (e: CancellationException) {
@@ -219,6 +256,68 @@ class DashboardViewModel @Inject constructor(
                 return@launch
             }
             _effects.send(DashboardEffect.ItemAdded(intent.name))
+        }
+    }
+
+    private fun saveItemEdits(intent: DashboardIntent.SaveItemEdits) {
+        val item = uiState.value.findItem(intent.itemId) ?: return
+        _editItem.value = null
+        updateItem(
+            item.copy(
+                name = intent.name,
+                quantity = intent.quantity,
+                unit = intent.unit,
+                category = intent.category,
+                expiryDate = intent.expiryDate,
+                location = intent.location,
+                // The scanned emoji belongs to the old name; the new one finds its own.
+                emoji = item.emoji.takeIf { intent.name.equals(item.name, ignoreCase = true) },
+                isExpiryEstimated = item.isExpiryEstimated && intent.expiryDate == item.expiryDate,
+            ),
+            DashboardEffect.ShowItemMessage(R.string.dashboard_item_updated, intent.name),
+        )
+    }
+
+    private fun useHalf(itemId: Long) {
+        val item = uiState.value.findItem(itemId) ?: return
+        _editItem.value = null
+        updateItem(
+            item.copy(quantity = item.quantity / 2),
+            DashboardEffect.ShowItemMessage(R.string.dashboard_item_half_used, item.name),
+        )
+    }
+
+    /** Never shortens the date: something already good for longer keeps its own expiry. */
+    private fun freeze(itemId: Long) {
+        val item = uiState.value.findItem(itemId) ?: return
+        _editItem.value = null
+        val frozenUntil = LocalDate.now(clock).plusDays(item.category.freezerShelfLifeDays.toLong())
+        val expiry = maxOf(item.expiryDate, frozenUntil)
+        updateItem(
+            item.copy(
+                location = StorageLocation.FREEZER,
+                expiryDate = expiry,
+                isExpiryEstimated = if (expiry == item.expiryDate) item.isExpiryEstimated else true,
+            ),
+            DashboardEffect.ShowItemMessage(
+                R.string.dashboard_item_frozen,
+                item.name,
+                expiry.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
+            ),
+        )
+    }
+
+    private fun updateItem(item: PantryItem, onSuccess: DashboardEffect) {
+        viewModelScope.launch {
+            try {
+                pantryRepository.updatePantryItem(item)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _effects.send(DashboardEffect.ShowMessage(R.string.dashboard_error_update_failed))
+                return@launch
+            }
+            _effects.send(onSuccess)
         }
     }
 
@@ -233,6 +332,12 @@ class DashboardViewModel @Inject constructor(
         item = this,
         daysLeft = ChronoUnit.DAYS.between(today, expiryDate),
         status = freshnessStatus(today, thresholds),
+    )
+
+    private data class ListFilters(
+        val freshness: PantryFilter?,
+        val query: String,
+        val location: StorageLocation?,
     )
 
     private companion object {

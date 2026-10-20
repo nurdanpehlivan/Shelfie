@@ -33,6 +33,26 @@ class FoodEmojiTest {
 
     @Test
     fun `unknown names fall back to the category`() {
-        assertEquals(Category.CONDIMENTS.emoji, foodEmoji("Mystery sauce", Category.CONDIMENTS))
+        assertEquals(Category.CONDIMENTS.emoji, foodEmoji("Mystery spread", Category.CONDIMENTS))
+    }
+
+    @Test
+    fun `packaged foods get their own icon, not an ingredient's`() {
+        assertEquals("🫙", foodEmoji("Reçel", Category.CONDIMENTS))
+        assertEquals("🥫", foodEmoji("Ketçap", Category.CONDIMENTS))
+        assertEquals("🥫", foodEmoji("Domates salçası", Category.CANNED))
+        assertEquals("🌿", foodEmoji("Pesto sos", Category.CONDIMENTS))
+        assertEquals("🥣", foodEmoji("Mısır gevreği", Category.GRAINS))
+        assertEquals("🥜", foodEmoji("Fıstık ezmesi", Category.SNACKS))
+        assertEquals("🥤", foodEmoji("Kola", Category.BEVERAGES))
+        assertEquals("💧", foodEmoji("Maden suyu", Category.BEVERAGES))
+        assertEquals("🧃", foodEmoji("Elma suyu", Category.BEVERAGES))
+    }
+
+    @Test
+    fun `honey is not fish and coconut is not turkey`() {
+        assertEquals("🍯", foodEmoji("Bal", Category.CONDIMENTS))
+        assertEquals("🐟", foodEmoji("Balık", Category.SEAFOOD))
+        assertEquals("🥥", foodEmoji("Hindistan cevizi", Category.FRUITS))
     }
 }

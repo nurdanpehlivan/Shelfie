@@ -53,10 +53,10 @@ enum class FrizzyMood {
 
 /** Fixed mascot colours: Frizzy looks the same in light and dark mode, like a logo. */
 private object FrizzyColors {
-    val body = Color(0xFFEAF7EF)
-    val bodyShade = Color(0xFFD3EEDD)
-    val outline = Color(0xFF1F5C43)
-    val handle = Color(0xFF8FD8B0)
+    val body = Color(0xFFEAF7F2)
+    val bodyShade = Color(0xFFD0ECE2)
+    val outline = Color(0xFF14574A)
+    val handle = Color(0xFF86D5BE)
     val eye = Color(0xFF1C2B22)
     val cheek = Color(0xFFFF9E9E)
     val mouth = Color(0xFF1C2B22)

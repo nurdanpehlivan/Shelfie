@@ -45,16 +45,30 @@ class GetExpiringIngredientsUseCaseTest {
     }
 
     @Test
+    fun `leaves out drinks and snacks, which are not cooked`() = runTest {
+        every { repository.observeItemsByFreshness(FreshnessStatus.CRITICAL, today, FreshnessThresholds.DEFAULT) } returns flowOf(
+            listOf(
+                item(1, "Cola", daysLeft = 0, category = Category.BEVERAGES),
+                item(2, "Rice", daysLeft = 1),
+                item(3, "Crisps", daysLeft = 1, category = Category.SNACKS),
+                item(4, "Pepper", daysLeft = 2, category = Category.VEGETABLES),
+            ),
+        )
+
+        assertEquals(listOf(2L, 4L), useCase().map { it.id })
+    }
+
+    @Test
     fun `returns an empty list when nothing is critical`() = runTest {
         every { repository.observeItemsByFreshness(FreshnessStatus.CRITICAL, today, FreshnessThresholds.DEFAULT) } returns flowOf(emptyList())
 
         assertEquals(emptyList<PantryItem>(), useCase())
     }
 
-    private fun item(id: Long, name: String, daysLeft: Long) = PantryItem(
+    private fun item(id: Long, name: String, daysLeft: Long, category: Category = Category.OTHER) = PantryItem(
         id = id,
         name = name,
-        category = Category.OTHER,
+        category = category,
         purchaseDate = today,
         expiryDate = today.plusDays(daysLeft),
         createdAt = Instant.EPOCH,

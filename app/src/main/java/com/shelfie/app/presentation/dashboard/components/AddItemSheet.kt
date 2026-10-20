@@ -43,8 +43,8 @@ fun AddItemSheet(state: AddItemState, onIntent: (DashboardIntent) -> Unit) {
         item = state.draft,
         title = stringResource(R.string.add_item_title),
         onDismiss = { onIntent(DashboardIntent.DismissAddItem) },
-        onSave = { name, quantity, unit, category, expiryDate ->
-            onIntent(DashboardIntent.SaveNewItem(name, quantity, unit, category, expiryDate))
+        onSave = { name, quantity, unit, category, expiryDate, location ->
+            onIntent(DashboardIntent.SaveNewItem(name, quantity, unit, category, expiryDate, location))
         },
         headerContent = {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

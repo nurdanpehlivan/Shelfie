@@ -1,5 +1,6 @@
 package com.shelfie.app.domain.usecase
 
+import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.repository.PantryRepository
@@ -29,6 +30,9 @@ class GetExpiringIngredientsUseCase @Inject constructor(
             .first()
             .asSequence()
             .filterNot { it.isExpired(today) }
+            // Drinks and snacks are finished as they are, not cooked; offering them to the chef
+            // only produced dishes like rice with cola.
+            .filterNot { it.category in NOT_COOKED }
             .distinctBy { it.name.trim().lowercase() }
             .take(limit)
             .toList()
@@ -37,5 +41,7 @@ class GetExpiringIngredientsUseCase @Inject constructor(
     companion object {
         /** More than three and a 15-minute recipe stops being realistic. */
         const val MAX_INGREDIENTS = 3
+
+        val NOT_COOKED = setOf(Category.BEVERAGES, Category.SNACKS)
     }
 }

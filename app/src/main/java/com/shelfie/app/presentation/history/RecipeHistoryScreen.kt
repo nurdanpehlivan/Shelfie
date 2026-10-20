@@ -1,10 +1,10 @@
 package com.shelfie.app.presentation.history
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.Surface
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Card
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
+import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.ShelfieCard
+import com.shelfie.app.presentation.common.ScreenHeader
+import com.shelfie.app.presentation.common.shelfieFilterChipColors
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
@@ -18,15 +18,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -36,18 +35,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -64,6 +61,8 @@ import java.time.format.FormatStyle
 fun RecipeHistoryRoute(
     onOpenRecipe: (Long) -> Unit,
     onNewRecipe: () -> Unit,
+    onCookWithWhatIHave: () -> Unit = {},
+    onOpenMealPlan: () -> Unit = {},
     viewModel: RecipeHistoryViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -74,6 +73,8 @@ fun RecipeHistoryRoute(
         onToggleFavorite = viewModel::toggleFavorite,
         onDelete = viewModel::delete,
         onNewRecipe = onNewRecipe,
+        onCookWithWhatIHave = onCookWithWhatIHave,
+        onOpenMealPlan = onOpenMealPlan,
     )
 }
 
@@ -86,20 +87,42 @@ fun RecipeHistoryScreen(
     onToggleFavorite: (SavedRecipe) -> Unit,
     onDelete: (SavedRecipe) -> Unit,
     onNewRecipe: () -> Unit,
+    onCookWithWhatIHave: () -> Unit = {},
+    onOpenMealPlan: () -> Unit = {},
 ) {
     var pendingDelete by remember { mutableStateOf<SavedRecipe?>(null) }
 
-    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.history_title)) }) }) { padding ->
+    Scaffold { padding ->
         when {
             state.isLoading -> Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) {
                 CircularProgressIndicator()
             }
-            !state.hasAnyRecipe -> EmptyHistory(onNewRecipe, Modifier.padding(padding))
+            !state.hasAnyRecipe -> EmptyHistory(onNewRecipe, onCookWithWhatIHave, Modifier.padding(padding))
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                item(key = "header") { ScreenHeader(title = stringResource(R.string.history_title)) }
+                item(key = "actions") {
+                    // Equal heights whatever the title length: the taller card sets the row.
+                    Row(modifier = Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        RecipeActionCard(
+                            emoji = "🧑‍🍳",
+                            title = stringResource(R.string.picker_entry_title),
+                            subtitle = stringResource(R.string.picker_entry_subtitle),
+                            onClick = onCookWithWhatIHave,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                        RecipeActionCard(
+                            emoji = "🗓",
+                            title = stringResource(R.string.plan_title),
+                            subtitle = stringResource(R.string.plan_entry_subtitle),
+                            onClick = onOpenMealPlan,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                    }
+                }
                 item(key = "filters") {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         HistoryFilter.entries.forEach { filter ->
@@ -107,6 +130,8 @@ fun RecipeHistoryScreen(
                                 selected = state.filter == filter,
                                 onClick = { onFilterSelected(filter) },
                                 label = { Text(stringResource(filter.labelRes)) },
+                                shape = CircleShape,
+                                colors = shelfieFilterChipColors(),
                             )
                         }
                     }
@@ -165,22 +190,16 @@ private fun HistoryCard(
     val date = remember(saved.createdAt) { saved.createdAt.atZone(ZoneId.systemDefault()).toLocalDate().format(formatter) }
     val emojis = recipe.rescuedIngredients.mapNotNull { it.emoji }.ifEmpty { listOf(FALLBACK_INGREDIENT_EMOJI) }
 
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
+    ShelfieCard(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large) {
         Row(
-            modifier = Modifier.padding(start = 14.dp, top = 14.dp, bottom = 14.dp, end = 4.dp),
+            modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Up to two ingredient emojis on a mint tile: the recipe's "cover".
+            // Up to two ingredient emojis on an aubergine tile, the colour of cooking: the "cover".
             Box(
                 modifier = Modifier
-                    .size(64.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(18.dp)),
+                    .size(68.dp)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.shapes.medium),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(text = emojis.take(2).joinToString(""), style = MaterialTheme.typography.titleLarge)
@@ -194,7 +213,7 @@ private fun HistoryCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    MetaChip(
+                    Pill(
                         "⏱ " + pluralStringResource(
                             R.plurals.recipe_time_minutes,
                             recipe.cookingTimeMinutes,
@@ -202,10 +221,10 @@ private fun HistoryCard(
                         ),
                     )
                     if (saved.isCooked) {
-                        MetaChip(
+                        Pill(
                             "✓ " + stringResource(R.string.recipe_badge_cooked),
-                            container = MaterialTheme.colorScheme.primaryContainer,
-                            content = MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                     }
                 }
@@ -222,7 +241,7 @@ private fun HistoryCard(
                         contentDescription = stringResource(
                             if (saved.isFavorite) R.string.recipe_action_unfavorite else R.string.recipe_action_favorite,
                         ),
-                        tint = if (saved.isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
+                        tint = if (saved.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline,
                     )
                 }
                 IconButton(onClick = onDelete) {
@@ -239,30 +258,38 @@ private fun HistoryCard(
 }
 
 @Composable
-private fun MetaChip(
-    text: String,
-    container: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    content: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-) {
-    Surface(shape = CircleShape, color = container, contentColor = content) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
-            maxLines = 1,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-        )
-    }
-}
-
-@Composable
-private fun EmptyHistory(onNewRecipe: () -> Unit, modifier: Modifier = Modifier) {
+private fun EmptyHistory(onNewRecipe: () -> Unit, onCookWithWhatIHave: () -> Unit, modifier: Modifier = Modifier) {
     MascotMessage(
         mood = FrizzyMood.CHEF,
         title = stringResource(R.string.history_empty_title),
         message = stringResource(R.string.history_empty_subtitle),
         primaryAction = stringResource(R.string.dashboard_rescue_action) to onNewRecipe,
+        secondaryAction = stringResource(R.string.picker_entry_title) to onCookWithWhatIHave,
         modifier = modifier,
     )
+}
+
+/** Cooking entry points (picker, weekly plan), in the recipe accent so they read as actions. */
+@Composable
+private fun RecipeActionCard(emoji: String, title: String, subtitle: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    ShelfieCard(
+        onClick = onClick,
+        modifier = modifier,
+        containerColor = scheme.tertiaryContainer,
+        border = BorderStroke(1.dp, scheme.tertiary.copy(alpha = 0.25f)),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = emoji, style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = title, style = MaterialTheme.typography.titleMedium, color = scheme.onTertiaryContainer)
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onTertiaryContainer.copy(alpha = 0.8f),
+            )
+        }
+    }
 }
 
 private val HistoryFilter.labelRes: Int

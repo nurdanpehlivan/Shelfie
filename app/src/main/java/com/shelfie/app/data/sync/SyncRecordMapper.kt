@@ -1,10 +1,13 @@
 package com.shelfie.app.data.sync
 
+import com.shelfie.app.data.local.entity.MealPlanEntity
 import com.shelfie.app.data.local.entity.PantryItemEntity
 import com.shelfie.app.data.local.entity.SavedRecipeEntity
 import com.shelfie.app.data.local.entity.ShoppingItemEntity
 import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.MeasurementUnit
+import com.shelfie.app.domain.model.StorageLocation
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -29,11 +32,17 @@ object SyncRecordMapper {
     private const val MAX_NAME_LENGTH = 60
     private const val MAX_AMOUNT_LENGTH = 30
 
+    /** One emoji, including skin-tone or ZWJ sequences. */
+    private const val MAX_EMOJI_LENGTH = 16
+
     fun PantryItemEntity.toRecord(): JsonObject = buildJsonObject {
         put("name", name)
         put("category", category.name)
         put("quantity", quantity)
         put("unit", unit.name)
+        put("location", location.name)
+        emoji?.let { put("emoji", it) }
+        put("expiryEstimated", isExpiryEstimated)
         put("purchaseDate", purchaseDate.toString())
         put("expiryDate", expiryDate.toString())
         put("isConsumed", isConsumed)
@@ -54,6 +63,12 @@ object SyncRecordMapper {
             category = Category.fromName(data.string("category")),
             quantity = data.double("quantity")?.takeIf { it > 0 } ?: 1.0,
             unit = MeasurementUnit.fromName(data.string("unit")),
+            // Records written before locations existed (or by the web panel) keep what we have.
+            location = StorageLocation.fromNameOrNull(data.string("location"))
+                ?: existing?.location
+                ?: Category.fromName(data.string("category")).defaultLocation,
+            emoji = data.string("emoji")?.take(MAX_EMOJI_LENGTH)?.takeIf { it.isNotBlank() } ?: existing?.emoji,
+            isExpiryEstimated = data.boolean("expiryEstimated") ?: existing?.isExpiryEstimated ?: false,
             imageUri = existing?.imageUri,
             purchaseDate = data.date("purchaseDate") ?: existing?.purchaseDate ?: expiry,
             expiryDate = expiry,
@@ -62,6 +77,27 @@ object SyncRecordMapper {
             createdAt = createdAt,
             updatedAt = data.instant("updatedAt") ?: createdAt,
             syncId = syncId,
+        )
+    }
+
+    fun MealPlanEntity.toRecord(): JsonObject = buildJsonObject {
+        put("date", date.toString())
+        put("mealType", mealType.name)
+        recipeSyncId?.let { put("recipeSyncId", it) }
+        put("note", note)
+        put("updatedAt", updatedAt.toEpochMilli())
+    }
+
+    fun mealPlanFromRecord(syncId: String, data: JsonObject): MealPlanEntity? {
+        val date = data.date("date") ?: return null
+        val mealType = MealType.entries.firstOrNull { it.name == data.string("mealType") } ?: return null
+        return MealPlanEntity(
+            syncId = syncId,
+            date = date,
+            mealType = mealType,
+            recipeSyncId = data.string("recipeSyncId")?.takeIf { it.isNotBlank() },
+            note = data.string("note")?.trim()?.take(MAX_NAME_LENGTH).orEmpty(),
+            updatedAt = data.instant("updatedAt") ?: Instant.EPOCH,
         )
     }
 

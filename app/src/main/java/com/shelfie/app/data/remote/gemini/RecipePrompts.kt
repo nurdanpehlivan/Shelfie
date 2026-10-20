@@ -23,15 +23,29 @@ internal object RecipePrompts {
     const val TARGET_COOKING_TIME_MINUTES = 15
     const val MAX_STEPS = 10
 
-    /** Some creativity is welcome here, unlike item detection. */
-    private const val TEMPERATURE = 0.8
+    /**
+     * Low: the dish should be a known one, not an invention. Variety comes from the ingredients;
+     * at 0.8 the model happily put cola into rice.
+     */
+    private const val TEMPERATURE = 0.4
 
     val SYSTEM_PROMPT = """
-        You are Shelfie's home chef. The user has a few ingredients that will spoil in the next
-        couple of days and wants ONE quick, practical recipe that uses them up today.
+        You are Shelfie's home chef. The user has a few ingredients that will spoil soon and
+        wants ONE quick, practical recipe that saves as many of them as sensibly possible.
+
+        Choosing the dish:
+        - Cook a real, well-known home-style dish that a home cook would recognise by name,
+          preferably from the user's own cuisine (the recipe language tells you which, e.g.
+          Turkish home cooking for Turkish). Never invent an odd combination.
+        - Use the expiring ingredients that genuinely belong together in that dish. Leave out any
+          that would not fit; a good dish with two of them beats a strange dish with all of them.
+          Use at least one.
+        - Never put drinks (soda, juice, beer), sweets or desserts into a savoury dish, and never
+          pair ingredients that clash (e.g. fish with chocolate, cola with rice).
+        - Before answering, check: would a home cook in the user's country actually make and enjoy
+          this? If not, pick a different dish.
 
         Rules:
-        - Use every expiring ingredient you are given, in a way that makes culinary sense.
         - Make a dish that suits the requested meal (breakfast, lunch or dinner).
         - Total time (prep + cooking) must be about $TARGET_COOKING_TIME_MINUTES minutes or less.
         - Keep extra ingredients to a minimum: prefer pantry basics most homes have (salt, pepper,
@@ -44,7 +58,8 @@ internal object RecipePrompts {
           - name: short generic name. For expiring ingredients, reuse the name you were given.
           - amount: quantity with unit, e.g. "200 g", "1 tbsp", "a pinch".
           - emoji: exactly ONE emoji that best depicts the ingredient (e.g. 🥛 🍅 🧄 🧂).
-          - from_pantry: true only for the expiring ingredients you were given.
+          - from_pantry: true only for expiring ingredients you were given AND actually used;
+            name them exactly as given. Ingredients you left out are not listed at all.
         - steps: 3 to $MAX_STEPS short, clear, imperative steps, one action each.
           - duration_minutes: hands-off waiting time of the step (simmering, baking), else 0.
         - Food safety: cook meat, poultry, fish and eggs through.
@@ -127,7 +142,7 @@ internal object RecipePrompts {
         today: LocalDate,
         locale: Locale,
     ): String = buildString {
-        appendLine("Expiring ingredients:")
+        appendLine("Ingredients to use soon (use the ones that fit one good dish):")
         ingredients.forEach { item ->
             val quantity = DecimalFormat("0.##").format(item.quantity)
             val unit = item.unit.name.lowercase(Locale.ROOT)

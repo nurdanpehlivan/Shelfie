@@ -19,6 +19,8 @@ sealed interface RecipeUiState {
         val ingredients: List<PantryItem>,
         @param:StringRes val messageRes: Int,
         val canRetry: Boolean,
+        /** The free daily allowance is used up; offer Premium. */
+        val canUpgrade: Boolean = false,
     ) : RecipeUiState
 
     data class Ready(

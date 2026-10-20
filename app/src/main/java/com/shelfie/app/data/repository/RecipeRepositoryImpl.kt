@@ -30,6 +30,7 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun generateRescueRecipe(
         ingredients: List<PantryItem>,
         mealType: MealType,
+        isBackground: Boolean,
     ): Result<SavedRecipe> {
         require(ingredients.isNotEmpty()) { "A rescue recipe needs at least one ingredient" }
         return try {
@@ -37,6 +38,7 @@ class RecipeRepositoryImpl @Inject constructor(
                 ingredients = ingredients,
                 mealType = mealType,
                 today = LocalDate.now(clock),
+                isBackground = isBackground,
             )
             val recipe = recipeParser.parse(rawJson)
             val entity = SavedRecipeEntity(

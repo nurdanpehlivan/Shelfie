@@ -28,6 +28,9 @@ interface GeminiApiService {
         const val FEATURE_HEADER = "x-shelfie-feature"
         const val FEATURE_SCAN = "scan"
         const val FEATURE_RECIPE = "recipe"
+
+        /** The morning freshness recipe, generated in the background; it has its own allowance. */
+        const val FEATURE_DAILY_RECIPE = "recipe_daily"
     }
 }
 

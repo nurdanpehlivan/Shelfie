@@ -1,13 +1,8 @@
 package com.shelfie.app.presentation.dashboard
 
-import java.time.LocalTime
-import androidx.compose.ui.res.pluralStringResource
 import com.shelfie.app.presentation.mascot.MascotMessage
-import com.shelfie.app.presentation.mascot.FrizzySays
 import com.shelfie.app.presentation.mascot.FrizzyMood
 import com.shelfie.app.domain.model.FreshnessThresholds
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.IconButton
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,23 +13,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -42,11 +29,13 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -55,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,10 +57,16 @@ import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
-import com.shelfie.app.presentation.dashboard.components.PantryHeroCard
+import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.GlassIconButton
+import com.shelfie.app.presentation.common.ScreenHeader
+import com.shelfie.app.presentation.dashboard.components.ItemEditSheet
+import com.shelfie.app.presentation.dashboard.components.LocationChips
+import com.shelfie.app.presentation.dashboard.components.PantryOverviewCards
+import com.shelfie.app.presentation.dashboard.components.PantrySearchField
+import com.shelfie.app.presentation.dashboard.components.ScanActions
 import com.shelfie.app.presentation.dashboard.components.RescueRecipeBanner
 import com.shelfie.app.presentation.dashboard.components.SwipeablePantryItemCard
-import com.shelfie.app.presentation.dashboard.components.emoji
 import com.shelfie.app.presentation.dashboard.components.rangeText
 import com.shelfie.app.presentation.dashboard.components.AddItemSheet
 import com.shelfie.app.presentation.dashboard.components.titleRes
@@ -105,6 +99,7 @@ fun DashboardRoute(
     val currentOnNavigateToRecipe by rememberUpdatedState(onNavigateToRecipe)
     val currentOnNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
     val addItem by viewModel.addItem.collectAsStateWithLifecycle()
+    val editItem by viewModel.editItem.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(viewModel, lifecycleOwner) {
@@ -142,6 +137,13 @@ fun DashboardRoute(
                             }
                         }
 
+                        is DashboardEffect.ShowItemMessage -> snackbarScope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                context.getString(effect.messageRes, effect.itemName, effect.extra),
+                            )
+                        }
+
                         is DashboardEffect.ShowMessage -> snackbarScope.launch {
                             snackbarHostState.showSnackbar(context.getString(effect.messageRes))
                         }
@@ -169,6 +171,10 @@ fun DashboardRoute(
         onIntent = viewModel::onIntent,
     )
 
+    editItem?.let { item ->
+        ItemEditSheet(item = item, onIntent = viewModel::onIntent)
+    }
+
     addItem?.let { addState ->
         AddItemSheet(state = addState, onIntent = viewModel::onIntent)
     }
@@ -184,35 +190,19 @@ fun DashboardScreen(
 ) {
     val listState = rememberLazyListState()
     val fabExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    // Open while there is a query, so coming back to the tab keeps the search visible.
+    var isSearching by rememberSaveable { mutableStateOf(state.query.isNotEmpty()) }
 
     Scaffold(
         modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.dashboard_title)) },
-                actions = {
-                    IconButton(onClick = { onIntent(DashboardIntent.OpenSettings) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_settings),
-                            contentDescription = stringResource(R.string.settings_title),
-                        )
-                    }
-                },
-            )
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             // The empty state has its own big buttons for the same actions.
-            if (!state.isEmpty) Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                // Manual / barcode entry: no photo, no AI quota.
-                SmallFloatingActionButton(onClick = { onIntent(DashboardIntent.OpenAddItem) }) {
-                    Icon(painterResource(R.drawable.ic_add), contentDescription = stringResource(R.string.add_item_title))
-                }
-                ExtendedFloatingActionButton(
-                    onClick = { onIntent(DashboardIntent.ScanNewPhoto) },
+            if (!state.isEmpty) {
+                ScanActions(
                     expanded = fabExpanded,
-                    icon = { Icon(painterResource(R.drawable.ic_photo_camera), contentDescription = null) },
-                    text = { Text(stringResource(R.string.dashboard_action_scan)) },
+                    onScan = { onIntent(DashboardIntent.ScanNewPhoto) },
+                    onQuickAdd = { onIntent(DashboardIntent.OpenAddItem) },
                 )
             }
         },
@@ -241,16 +231,46 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                // Bottom padding keeps the last card clear of the FAB.
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+                // Bottom padding keeps the last card clear of the scan actions.
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 168.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                item(key = "hero") {
-                    PantryHeroCard(
-                        greeting = greetingForNow(),
+                item(key = "header") {
+                    ScreenHeader(
+                        title = stringResource(R.string.dashboard_title),
+                        subtitle = stringResource(R.string.dashboard_subtitle),
+                        actions = {
+                            GlassIconButton(
+                                painter = painterResource(R.drawable.ic_search),
+                                contentDescription = stringResource(R.string.dashboard_search),
+                                onClick = { isSearching = true },
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            GlassIconButton(
+                                painter = painterResource(R.drawable.ic_settings),
+                                contentDescription = stringResource(R.string.settings_title),
+                                onClick = { onIntent(DashboardIntent.OpenSettings) },
+                            )
+                        },
+                    )
+                }
+                if (isSearching) {
+                    item(key = "search") {
+                        PantrySearchField(
+                            query = state.query,
+                            onQueryChange = { onIntent(DashboardIntent.Search(it)) },
+                            onClose = {
+                                onIntent(DashboardIntent.Search(""))
+                                isSearching = false
+                            },
+                        )
+                    }
+                }
+                item(key = "overview") {
+                    PantryOverviewCards(
+                        safeCount = state.fresh.size,
                         criticalCount = state.critical.size,
                         warningCount = state.warning.size,
-                        freshCount = state.fresh.size,
                         selectedFilter = state.selectedFilter,
                         onFilterSelected = { onIntent(DashboardIntent.SelectFilter(it)) },
                     )
@@ -260,11 +280,37 @@ fun DashboardScreen(
                         RescueRecipeBanner(onClick = { onIntent(DashboardIntent.OpenRescueRecipe) })
                     }
                 }
+                item(key = "locations") {
+                    LocationChips(
+                        selected = state.locationFilter,
+                        counts = state.locationCounts,
+                        onSelect = { onIntent(DashboardIntent.SelectLocation(it)) },
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
+                if (state.isFiltered && state.totalCount == 0) {
+                    item(key = "noResults") {
+                        Text(
+                            text = if (state.query.isNotBlank()) {
+                                stringResource(R.string.dashboard_search_empty, state.query.trim())
+                            } else {
+                                stringResource(R.string.dashboard_group_empty)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                        )
+                    }
+                    return@LazyColumn
+                }
                 item(key = "swipeHint") {
                     Text(
                         text = stringResource(R.string.dashboard_swipe_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                     )
                 }
 
@@ -288,6 +334,7 @@ fun DashboardScreen(
                             entry = entry,
                             onConsumed = { onIntent(DashboardIntent.MarkConsumed(entry.item.id)) },
                             onWasted = { onIntent(DashboardIntent.MarkWasted(entry.item.id)) },
+                            onClick = { onIntent(DashboardIntent.OpenItem(entry.item.id)) },
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -299,25 +346,24 @@ fun DashboardScreen(
 
 @Composable
 private fun GroupHeader(status: FreshnessStatus, count: Int, thresholds: FreshnessThresholds) {
-    val accent = MaterialTheme.freshnessPalette.forStatus(status).accent
+    val colors = MaterialTheme.freshnessPalette.forStatus(status)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             // Opaque so cards scrolling under the sticky header don't show through.
             .background(MaterialTheme.colorScheme.background)
-            .padding(top = 12.dp, bottom = 4.dp),
+            .padding(top = 16.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp)
-                .background(accent, CircleShape),
+                .size(10.dp)
+                .background(colors.accent, CircleShape),
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = stringResource(status.titleRes),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -326,26 +372,8 @@ private fun GroupHeader(status: FreshnessStatus, count: Int, thresholds: Freshne
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f),
         )
-        Text(
-            text = count.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            color = accent,
-            fontWeight = FontWeight.Bold,
-        )
+        Pill(text = count.toString(), containerColor = colors.container, contentColor = colors.onContainer)
     }
-}
-
-/** "Good morning!" and friends, by the time of day. */
-@Composable
-private fun greetingForNow(): String {
-    val hour = remember { LocalTime.now().hour }
-    return stringResource(
-        when (hour) {
-            in 5..11 -> R.string.greeting_morning
-            in 12..17 -> R.string.greeting_afternoon
-            else -> R.string.greeting_evening
-        },
-    )
 }
 
 @Preview(showBackground = true)

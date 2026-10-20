@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,24 +37,24 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.shelfie.app.presentation.common.BottomActionBar
+import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.ShelfieTopBar
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -96,6 +95,7 @@ import java.time.LocalDate
 fun ScannerRoute(
     onItemsSaved: (count: Int) -> Unit = {},
     onNavigateUp: (() -> Unit)? = null,
+    onOpenPremium: () -> Unit = {},
     viewModel: ScannerViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -166,6 +166,7 @@ fun ScannerRoute(
         snackbarHostState = snackbarHostState,
         onIntent = viewModel::onIntent,
         onNavigateUp = onNavigateUp,
+        onOpenPremium = onOpenPremium,
     )
 }
 
@@ -177,25 +178,14 @@ fun ScannerScreen(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigateUp: (() -> Unit)? = null,
+    onOpenPremium: () -> Unit = {},
 ) {
     var editingKey by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.scanner_title)) },
-                navigationIcon = {
-                    if (onNavigateUp != null) {
-                        IconButton(onClick = onNavigateUp) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_arrow_back),
-                                contentDescription = stringResource(R.string.action_navigate_up),
-                            )
-                        }
-                    }
-                },
-            )
+            ShelfieTopBar(title = stringResource(R.string.scanner_title), onNavigateUp = onNavigateUp)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
@@ -219,7 +209,7 @@ fun ScannerScreen(
                     onEditItem = { editingKey = it },
                     onIntent = onIntent,
                 )
-                is ScannerUiState.Error -> ErrorContent(state = target, onIntent = onIntent)
+                is ScannerUiState.Error -> ErrorContent(state = target, onIntent = onIntent, onOpenPremium = onOpenPremium)
             }
         }
     }
@@ -229,7 +219,7 @@ fun ScannerScreen(
         EditItemSheet(
             item = editing.item,
             onDismiss = { editingKey = null },
-            onSave = { name, quantity, unit, category, expiryDate ->
+            onSave = { name, quantity, unit, category, expiryDate, location ->
                 onIntent(
                     ScannerIntent.EditItem(
                         key = editing.key,
@@ -238,6 +228,7 @@ fun ScannerScreen(
                         unit = unit,
                         category = category,
                         expiryDate = expiryDate,
+                        location = location,
                     ),
                 )
             },
@@ -255,7 +246,14 @@ private fun IdleContent(onIntent: (ScannerIntent) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Frizzy(mood = FrizzyMood.HAPPY, size = 168.dp)
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Frizzy(mood = FrizzyMood.HAPPY, size = 160.dp)
+        }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.scanner_idle_title),
@@ -269,19 +267,26 @@ private fun IdleContent(onIntent: (ScannerIntent) -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+        // What a photo can show: receipts are easy to miss otherwise.
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                "🧊 " + stringResource(R.string.location_fridge),
+                "🗄 " + stringResource(R.string.location_pantry),
+                "🧾 " + stringResource(R.string.scanner_source_receipt),
+            ).forEach { Pill(text = it) }
+        }
+        Spacer(modifier = Modifier.height(28.dp))
         Button(
             onClick = { onIntent(ScannerIntent.OpenCamera) },
-            contentPadding = PaddingValues(vertical = 16.dp),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
         ) {
             ButtonIconLabel(R.drawable.ic_photo_camera, R.string.scanner_action_take_photo)
         }
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedButton(
             onClick = { onIntent(ScannerIntent.OpenPhotoPicker) },
-            contentPadding = PaddingValues(vertical = 16.dp),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
         ) {
             ButtonIconLabel(R.drawable.ic_photo_library, R.string.scanner_action_pick_photo)
         }
@@ -376,24 +381,18 @@ private fun ReviewContent(
 
 @Composable
 private fun ConfirmBar(state: ScannerUiState.Success, onIntent: (ScannerIntent) -> Unit) {
-    Surface(tonalElevation = 3.dp, shadowElevation = 8.dp) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+    BottomActionBar {
             OutlinedButton(
                 onClick = { onIntent(ScannerIntent.Reset) },
                 enabled = !state.isSaving,
+                modifier = Modifier.height(56.dp),
             ) {
                 Text(stringResource(R.string.scanner_action_rescan))
             }
             Button(
                 onClick = { onIntent(ScannerIntent.ConfirmItems) },
                 enabled = !state.isSaving && state.items.isNotEmpty(),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(56.dp),
             ) {
                 if (state.isSaving) {
                     CircularProgressIndicator(
@@ -412,12 +411,11 @@ private fun ConfirmBar(state: ScannerUiState.Success, onIntent: (ScannerIntent) 
                     )
                 }
             }
-        }
     }
 }
 
 @Composable
-private fun ErrorContent(state: ScannerUiState.Error, onIntent: (ScannerIntent) -> Unit) {
+private fun ErrorContent(state: ScannerUiState.Error, onIntent: (ScannerIntent) -> Unit, onOpenPremium: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -443,10 +441,16 @@ private fun ErrorContent(state: ScannerUiState.Error, onIntent: (ScannerIntent) 
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(32.dp))
+        if (state.canUpgrade) {
+            Button(onClick = onOpenPremium, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                Text("✨ " + stringResource(R.string.premium_upgrade))
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
         if (state.canRetry && state.imageUri != null) {
             Button(
                 onClick = { onIntent(ScannerIntent.RetryAnalysis) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(56.dp),
             ) {
                 ButtonIconLabel(R.drawable.ic_refresh, R.string.scanner_action_retry)
             }
@@ -454,7 +458,7 @@ private fun ErrorContent(state: ScannerUiState.Error, onIntent: (ScannerIntent) 
         }
         FilledTonalButton(
             onClick = { onIntent(ScannerIntent.Reset) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
         ) {
             Text(stringResource(R.string.scanner_action_other_photo))
         }
@@ -468,7 +472,7 @@ private fun ShelfiePhoto(imageUri: String, modifier: Modifier = Modifier) {
         contentDescription = stringResource(R.string.scanner_photo_description),
         contentScale = ContentScale.Crop,
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
     )
 }

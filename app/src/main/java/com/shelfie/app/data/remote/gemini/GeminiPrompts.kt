@@ -5,14 +5,15 @@ import com.shelfie.app.data.remote.gemini.dto.GenerateContentRequest
 import com.shelfie.app.data.remote.gemini.dto.GenerationConfig
 import com.shelfie.app.data.remote.gemini.dto.InlineData
 import com.shelfie.app.data.remote.gemini.dto.Part
-import com.shelfie.app.data.remote.gemini.dto.ScanCategory
+import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.StorageLocation
+import java.util.Locale
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
-import java.util.Locale
 
 /**
  * Prompt + structured-output configuration for pantry photo analysis.
@@ -26,6 +27,9 @@ internal object GeminiPrompts {
 
     private const val TEMPERATURE = 0.1
 
+    const val EXPIRY_FROM_LABEL = "label"
+    const val EXPIRY_ESTIMATED = "estimate"
+
     val SYSTEM_PROMPT = """
         You are Shelfie's food inventory assistant. You receive ONE photo of a fridge, a pantry
         shelf, or a grocery receipt and list the food items in it.
@@ -37,14 +41,31 @@ internal object GeminiPrompts {
         - One entry per visible item; if the same product appears several times, repeat the entry.
         - name: short, generic, singular, no brand unless it identifies the product type, max 60 chars.
         - category, one of:
-          DAIRY (milk, cheese, yogurt, eggs, butter),
-          PRODUCE (fresh fruit, vegetables, herbs),
-          MEAT (meat, poultry, fish, seafood, deli meat),
+          DAIRY (milk, cheese, yogurt, eggs, butter, cream),
+          MEAT (meat, poultry, deli meat, sausages),
+          SEAFOOD (fish, shrimp, shellfish),
+          FRUITS (fresh fruit),
+          VEGETABLES (fresh vegetables, herbs, potatoes, onions),
           BAKERY (bread, pastries, cakes),
-          PANTRY (everything else: dry goods, canned food, sauces, snacks, drinks, frozen food).
-        - estimated_shelf_life_days: whole days from today until the item should be used, assuming
-          proper storage (refrigerated if seen in a fridge, unopened if it looks sealed). If an
-          expiry date is legible on the package, use it. Be conservative when unsure.
+          GRAINS (rice, pasta, flour, cereal, oats, legumes),
+          CANNED (tins and jars of cooked food, tomato paste),
+          FROZEN (frozen ready meals and frozen vegetables),
+          BEVERAGES (water, juice, soda, coffee, tea),
+          CONDIMENTS (sauces, ketchup, mayonnaise, jam, honey, oil, spices),
+          SNACKS (chips, biscuits, chocolate, nuts),
+          OTHER (anything else).
+        - emoji: exactly ONE emoji that best shows the product itself, e.g. 🍅 tomato, 🫙 jam,
+          🍯 honey, 🥫 tomato paste or ketchup, 🥣 cereal, 🥤 cola, 🧃 juice. Never a face or a flag.
+        - storage: where the item is kept: FRIDGE (seen in a fridge), FREEZER (freezer drawer or
+          frozen), PANTRY (shelf, cupboard, counter). For receipts, where it normally belongs.
+        - expiry_source: "label" ONLY if you can actually read an expiry or best-before date
+          printed on this very item in the photo; otherwise "estimate". Never guess a printed date.
+        - estimated_shelf_life_days: whole days from today until the item should be used.
+          With a label, count to the printed date. Without one, use the typical home storage time
+          for that product kept in that storage, unopened if it looks sealed: fresh produce
+          usually lasts 2-7 days in the fridge (berries 2-3, leafy greens 3-5, apples and carrots
+          several weeks); fresh meat and fish 1-3 days; opened milk about 5. For produce, look at
+          ripeness and shorten the estimate if it has spots, bruises or wilting. Be conservative.
         - confidence: 0.0-1.0, how sure you are that the item exists and is identified correctly.
         - If no food is visible, or the photo is unrelated, return {"items": []}.
         - Never invent items you cannot see.
@@ -66,7 +87,21 @@ internal object GeminiPrompts {
                         putJsonObject("category") {
                             put("type", "STRING")
                             put("format", "enum")
-                            putJsonArray("enum") { ScanCategory.entries.forEach { add(it.name) } }
+                            putJsonArray("enum") { Category.entries.forEach { add(it.name) } }
+                        }
+                        putJsonObject("emoji") { put("type", "STRING") }
+                        putJsonObject("storage") {
+                            put("type", "STRING")
+                            put("format", "enum")
+                            putJsonArray("enum") { StorageLocation.entries.forEach { add(it.name) } }
+                        }
+                        putJsonObject("expiry_source") {
+                            put("type", "STRING")
+                            put("format", "enum")
+                            putJsonArray("enum") {
+                                add(EXPIRY_FROM_LABEL)
+                                add(EXPIRY_ESTIMATED)
+                            }
                         }
                         putJsonObject("estimated_shelf_life_days") {
                             put("type", "INTEGER")
@@ -79,7 +114,15 @@ internal object GeminiPrompts {
                             put("maximum", 1)
                         }
                     }
-                    val fields = listOf("name", "category", "estimated_shelf_life_days", "confidence")
+                    val fields = listOf(
+                        "name",
+                        "category",
+                        "emoji",
+                        "storage",
+                        "expiry_source",
+                        "estimated_shelf_life_days",
+                        "confidence",
+                    )
                     putJsonArray("required") { fields.forEach { add(it) } }
                     putJsonArray("propertyOrdering") { fields.forEach { add(it) } }
                 }

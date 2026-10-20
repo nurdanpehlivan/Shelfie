@@ -1,6 +1,5 @@
 package com.shelfie.app.presentation.recipe.components
 
-import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Box
@@ -27,15 +26,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -47,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.Recipe
+import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.recipe.CookingProgress
 
 /**
@@ -119,10 +118,9 @@ private fun StepContent(
             fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(12.dp))
-        ElevatedCard(
+        ShelfieCard(
             modifier = Modifier.fillMaxWidth().weight(1f),
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
         ) {
             Column(
                 modifier = Modifier
@@ -158,7 +156,6 @@ private fun StepContent(
         Button(
             onClick = onStepDone,
             modifier = Modifier.fillMaxWidth().height(64.dp),
-            shape = RoundedCornerShape(20.dp),
         ) {
             Icon(painterResource(R.drawable.ic_check), contentDescription = null)
             Spacer(modifier = Modifier.width(10.dp))

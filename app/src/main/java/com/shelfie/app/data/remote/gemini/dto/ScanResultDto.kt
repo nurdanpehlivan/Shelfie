@@ -18,12 +18,19 @@ data class ScanResultDto(
 data class ScannedItemDto(
     val name: String? = null,
     val category: String? = null,
+    val emoji: String? = null,
+    val storage: String? = null,
+    @SerialName("expiry_source")
+    val expirySource: String? = null,
     @SerialName("estimated_shelf_life_days")
     val estimatedShelfLifeDays: Int? = null,
     val confidence: Double? = null,
 )
 
-/** Coarse categories the model chooses from; mapped onto the richer domain `Category`. */
+/**
+ * The coarse categories older prompts asked for; still understood so a cached or older answer
+ * parses. The model now picks from the domain `Category` itself.
+ */
 enum class ScanCategory {
     DAIRY,
     PRODUCE,

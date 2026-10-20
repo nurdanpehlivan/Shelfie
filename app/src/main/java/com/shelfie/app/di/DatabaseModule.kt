@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.shelfie.app.data.local.MIGRATION_3_4
 import com.shelfie.app.data.local.ShelfieDatabase
 import com.shelfie.app.data.local.SyncTriggers
+import com.shelfie.app.data.local.dao.MealPlanDao
 import com.shelfie.app.data.local.dao.PantryDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
@@ -46,4 +47,7 @@ object DatabaseModule {
 
     @Provides
     fun provideSyncDao(database: ShelfieDatabase): SyncDao = database.syncDao()
+
+    @Provides
+    fun provideMealPlanDao(database: ShelfieDatabase): MealPlanDao = database.mealPlanDao()
 }

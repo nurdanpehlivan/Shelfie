@@ -27,6 +27,17 @@ sealed class PantryScanException(message: String, cause: Throwable? = null) :
         val isRateLimited: Boolean get() = httpCode == 429
     }
 
+    /**
+     * Today's AI allowance of the user's plan is used up (the Shelfie server answered 402).
+     * [resetsAt] is when it renews; [isPremium] tells whether upgrading would help.
+     */
+    class QuotaExceeded(
+        val limit: Int?,
+        val isPremium: Boolean,
+        val resetsAt: java.time.Instant?,
+        cause: Throwable? = null,
+    ) : PantryScanException("Daily AI allowance used up", cause)
+
     /** The AI service refused to analyse the photo (safety filters etc.). */
     class Blocked(val reason: String) : PantryScanException("Analysis blocked: $reason")
 

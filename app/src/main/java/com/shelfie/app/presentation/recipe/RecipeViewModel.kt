@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.shelfie.app.R
+import com.shelfie.app.domain.model.PantryScanException
 import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.SavedRecipe
@@ -40,8 +41,12 @@ class RecipeViewModel @Inject constructor(
     private val clock: Clock,
 ) : ViewModel() {
 
-    private val savedRecipeId: Long? = savedStateHandle.toRoute<RecipeDestination>().savedRecipeId
-        .takeIf { it != RecipeDestination.NO_SAVED_RECIPE }
+    private val route = savedStateHandle.toRoute<RecipeDestination>()
+
+    private val savedRecipeId: Long? = route.savedRecipeId.takeIf { it != RecipeDestination.NO_SAVED_RECIPE }
+
+    /** Hand-picked pantry items ("cook with what I have"); empty for a rescue recipe. */
+    private val pickedIds: List<Long> = route.ingredientIds.split(',').mapNotNull { it.trim().toLongOrNull() }
 
     private val _uiState = MutableStateFlow<RecipeUiState>(RecipeUiState.Loading())
     val uiState: StateFlow<RecipeUiState> = _uiState.asStateFlow()
@@ -52,7 +57,11 @@ class RecipeViewModel @Inject constructor(
     private var loadJob: Job? = null
 
     init {
-        if (savedRecipeId != null) loadSaved(savedRecipeId) else load(ingredients = null, forceNew = false)
+        when {
+            savedRecipeId != null -> loadSaved(savedRecipeId)
+            pickedIds.isNotEmpty() -> loadPicked()
+            else -> load(ingredients = null, forceNew = false)
+        }
     }
 
     fun onIntent(intent: RecipeIntent) {
@@ -80,6 +89,16 @@ class RecipeViewModel @Inject constructor(
             loadSaved(savedRecipeId)
         } else {
             load(currentIngredients().takeIf { it.isNotEmpty() }, forceNew = false)
+        }
+    }
+
+    /** Items may have been eaten since they were picked; whatever is left gets the recipe. */
+    private fun loadPicked() {
+        loadJob?.cancel()
+        _uiState.value = RecipeUiState.Loading()
+        loadJob = viewModelScope.launch {
+            val items = pickedIds.mapNotNull { pantryRepository.getPantryItem(it) }.filterNot { it.isConsumed }
+            load(ingredients = items, forceNew = false)
         }
     }
 
@@ -189,6 +208,7 @@ class RecipeViewModel @Inject constructor(
             ingredients = ingredients,
             messageRes = error.toRecipeMessageRes(),
             canRetry = error.isRetryableRecipeFailure(),
+            canUpgrade = error is PantryScanException.QuotaExceeded && !error.isPremium,
         )
     }
 

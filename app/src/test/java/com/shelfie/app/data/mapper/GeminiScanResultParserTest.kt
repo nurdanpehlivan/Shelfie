@@ -2,7 +2,10 @@ package com.shelfie.app.data.mapper
 
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.PantryScanException
+import com.shelfie.app.domain.model.StorageLocation
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Clock
@@ -103,6 +106,43 @@ class GeminiScanResultParserTest {
 
         assertEquals(2.0, item.quantity, 0.0)
         assertEquals(today.plusDays(10), item.expiryDate)
+    }
+
+    @Test
+    fun `keeps the AI's emoji, place and a printed date`() {
+        val json = """
+            {"items":[{"name":"Reçel","category":"CONDIMENTS","emoji":"🫙","storage":"PANTRY",
+              "expiry_source":"label","estimated_shelf_life_days":200,"confidence":0.9}]}
+        """.trimIndent()
+
+        val item = parser.parse(json, imageUri = null).single()
+
+        assertEquals("🫙", item.emoji)
+        assertEquals(StorageLocation.PANTRY, item.location)
+        assertEquals(today.plusDays(200), item.expiryDate)
+        assertFalse(item.isExpiryEstimated)
+    }
+
+    @Test
+    fun `an estimated date is capped by the shelf-life table`() {
+        val json = """
+            {"items":[{"name":"Marul","category":"VEGETABLES","emoji":"🥬","storage":"FRIDGE",
+              "expiry_source":"estimate","estimated_shelf_life_days":20,"confidence":0.9}]}
+        """.trimIndent()
+
+        val item = parser.parse(json, imageUri = null).single()
+
+        assertEquals(today.plusDays(5), item.expiryDate)
+        assertTrue(item.isExpiryEstimated)
+    }
+
+    @Test
+    fun `words instead of an emoji are dropped`() {
+        val json = """
+            {"items":[{"name":"Milk","category":"DAIRY","emoji":"milk","confidence":0.9}]}
+        """.trimIndent()
+
+        assertNull(parser.parse(json, imageUri = null).single().emoji)
     }
 
     @Test

@@ -100,6 +100,8 @@ dependencies {
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
+    // Shelfie Premium subscription; purchases are verified by the backend (backend/src/billing.ts).
+    implementation(libs.play.billing)
     implementation(libs.play.services.code.scanner)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

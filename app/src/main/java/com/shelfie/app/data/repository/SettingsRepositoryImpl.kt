@@ -8,7 +8,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.shelfie.app.domain.model.AppSettings
+import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +38,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 ),
                 averageItemValue = prefs[AVERAGE_ITEM_VALUE] ?: AppSettings.DEFAULT_AVERAGE_ITEM_VALUE,
                 onboardingCompleted = prefs[ONBOARDING_COMPLETED] ?: false,
+                themeMode = ThemeMode.fromName(prefs[THEME_MODE]),
             )
         }
         .distinctUntilChanged()
@@ -60,6 +63,10 @@ class SettingsRepositoryImpl @Inject constructor(
         dataStore.edit { it[ONBOARDING_COMPLETED] = true }
     }
 
+    override suspend fun setThemeMode(mode: ThemeMode) {
+        dataStore.edit { it[THEME_MODE] = mode.name }
+    }
+
     private fun Int.clampHour() = coerceIn(AppSettings.MIN_REMINDER_HOUR, AppSettings.MAX_REMINDER_HOUR)
 
     private fun Long.clampDays() =
@@ -71,6 +78,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val CRITICAL_DAYS = longPreferencesKey("critical_days")
         val AVERAGE_ITEM_VALUE = doublePreferencesKey("average_item_value")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
         const val MAX_AVERAGE_ITEM_VALUE = 1_000_000.0
     }
 }

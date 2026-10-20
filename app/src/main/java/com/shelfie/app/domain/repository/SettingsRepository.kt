@@ -1,6 +1,7 @@
 package com.shelfie.app.domain.repository
 
 import com.shelfie.app.domain.model.AppSettings
+import com.shelfie.app.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
@@ -19,4 +20,6 @@ interface SettingsRepository {
     suspend fun setAverageItemValue(value: Double)
 
     suspend fun setOnboardingCompleted()
+
+    suspend fun setThemeMode(mode: ThemeMode)
 }

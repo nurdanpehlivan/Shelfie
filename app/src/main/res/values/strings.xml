@@ -141,6 +141,14 @@
     <string name="dashboard_rescue_title">Turn them into a meal</string>
     <string name="dashboard_rescue_subtitle">A 15-minute recipe with what\'s about to spoil</string>
     <string name="dashboard_rescue_action">Get recipe</string>
+    <string name="dashboard_subtitle">Your fridge, freezer and pantry in one place</string>
+    <string name="dashboard_use_soon">Use soon</string>
+    <string name="dashboard_quick_add">Quick add</string>
+    <!-- Unit shown next to a big count, so it carries no number itself. -->
+    <plurals name="dashboard_product_count">
+        <item quantity="one">product</item>
+        <item quantity="other">products</item>
+    </plurals>
 
     <string name="error_daily_quota">Today\'s free AI quota is used up. It resets tomorrow, or you can enable billing in Google AI Studio.</string>
 
@@ -346,4 +354,113 @@
     <string name="account_error_network">No connection. Check your internet and try again.</string>
     <string name="account_error_session_expired">Your session expired. Please sign in again.</string>
     <string name="account_error_server">Something went wrong on our side. Try again later.</string>
+
+    <!-- Storage places, search, item edits and "cook with what I have". -->
+    <string name="location_fridge">Fridge</string>
+    <string name="location_freezer">Freezer</string>
+    <string name="location_pantry">Pantry</string>
+    <string name="edit_location">Where is it kept?</string>
+    <string name="dashboard_location_all">All %1$d</string>
+    <string name="dashboard_search">Search</string>
+    <string name="dashboard_search_hint">Search products…</string>
+    <string name="dashboard_search_close">Close search</string>
+    <string name="dashboard_search_empty">No product matches “%1$s”.</string>
+    <string name="dashboard_action_use_half">Used half</string>
+    <string name="dashboard_action_freeze">Freeze</string>
+    <string name="dashboard_edit_hint">Or change the details below and save.</string>
+    <string name="dashboard_item_updated">%1$s updated</string>
+    <string name="dashboard_item_half_used">%1$s: half used</string>
+    <string name="dashboard_item_frozen">%1$s moved to the freezer, good until %2$s</string>
+    <string name="picker_title">Pick ingredients</string>
+    <string name="picker_select_prompt">Pick ingredients</string>
+    <string name="picker_empty">Nothing in your pantry is still good to cook with.</string>
+    <string name="picker_hint">Pick up to %1$d products and we\'ll make a quick recipe that uses them all.</string>
+    <string name="picker_entry_title">Cook with what I have</string>
+    <string name="picker_entry_subtitle">Pick any products from your pantry and get a recipe for them.</string>
+    <string name="scanner_source_receipt">Receipt</string>
+    <plurals name="picker_create">
+        <item quantity="one">Make a recipe with %d ingredient</item>
+        <item quantity="other">Make a recipe with %d ingredients</item>
+    </plurals>
+
+    <!-- Weekly meal plan. -->
+    <string name="plan_title">Weekly plan</string>
+    <string name="plan_entry_subtitle">Plan the week\'s meals with your recipes.</string>
+    <string name="plan_today">Today</string>
+    <string name="plan_add">Add</string>
+    <string name="plan_add_missing">Add the week\'s missing ingredients to the list</string>
+    <string name="plan_shopping_nothing">Nothing new to buy for this week.</string>
+    <string name="plan_previous_week">Previous week</string>
+    <string name="plan_next_week">Next week</string>
+    <string name="plan_open_recipe">Open recipe</string>
+    <string name="plan_clear">Clear</string>
+    <string name="plan_note">Note</string>
+    <string name="plan_note_hint">e.g. Eating out, leftovers</string>
+    <string name="plan_pick_recipe">Pick a recipe</string>
+    <string name="plan_no_recipes">No saved recipes yet. Get one first, then plan it here.</string>
+    <string name="plan_breakfast">Breakfast</string>
+    <string name="plan_lunch">Lunch</string>
+    <string name="plan_dinner">Dinner</string>
+
+    <!-- AI allowance, Premium and family sharing. -->
+    <string name="error_quota_free">You\'ve used today\'s free AI scans or recipes. They renew tomorrow, or go Premium for more.</string>
+    <string name="error_quota_premium">You\'ve reached today\'s fair-use limit. It renews tomorrow.</string>
+    <string name="premium_title">Shelfie Premium</string>
+    <string name="premium_upgrade">Go Premium</string>
+    <string name="premium_settings_subtitle">50 scans and recipes a day, for the whole household</string>
+    <string name="premium_hero_title">Rescue more food with Premium</string>
+    <string name="premium_active_title">Premium is active</string>
+    <string name="premium_active_until">Renews or ends on %1$s</string>
+    <string name="premium_benefit_ai">50 photo scans and 50 recipes a day</string>
+    <string name="premium_benefit_household">Covers everyone in your household</string>
+    <string name="premium_benefit_support">Supports an independent app</string>
+    <string name="premium_usage_title">Today\'s AI use</string>
+    <string name="premium_usage_scans">Photo scans</string>
+    <string name="premium_usage_recipes">Recipes</string>
+    <string name="premium_usage_resets">Renews at %1$s</string>
+    <string name="premium_plan_monthly">Monthly</string>
+    <string name="premium_plan_yearly">Yearly</string>
+    <string name="premium_price_per_month">%1$s / month</string>
+    <string name="premium_price_per_year">%1$s / year</string>
+    <string name="premium_intro_offer">Includes a trial or intro price</string>
+    <string name="premium_terms">Renews automatically until you cancel in Google Play. Prices include tax.</string>
+    <string name="premium_manage">Manage subscription</string>
+    <string name="premium_restore">Restore purchases</string>
+    <string name="premium_needs_account">Premium is linked to an account, so it works on all your phones and for your household.</string>
+    <string name="premium_unavailable">Subscriptions aren\'t available on this device right now.</string>
+    <string name="premium_granted">Welcome to Premium!</string>
+    <string name="premium_pending">Payment pending. Premium starts once Google Play confirms it.</string>
+    <string name="premium_failed">The purchase couldn\'t be completed.</string>
+    <string name="premium_nothing_to_restore">No active subscription found.</string>
+    <string name="household_title">Family sharing</string>
+    <string name="household_hint">Share one pantry, shopping list, recipes and weekly plan with your household.</string>
+    <string name="household_invite">Invite to household</string>
+    <string name="household_invite_new">New code</string>
+    <string name="household_invite_valid">Valid for 48 hours. Anyone with the code can join.</string>
+    <string name="household_share">Share code</string>
+    <string name="household_share_message">Join my pantry on Shelfie! Settings → Family sharing → code: %1$s</string>
+    <string name="household_code">Invite code</string>
+    <string name="household_join">Join</string>
+    <string name="household_leave">Leave household</string>
+    <string name="household_leave_title">Leave the household?</string>
+    <string name="household_leave_message">You keep a copy of everything on this phone; new changes are no longer shared.</string>
+    <string name="household_remove">Remove %1$s</string>
+    <string name="household_error_code">That code is wrong or expired.</string>
+    <string name="household_error_full">That household is full.</string>
+    <string name="household_error_own">That\'s your own household\'s code.</string>
+    <string name="household_error_has_members">Remove the members of your own household first.</string>
+
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_system">System</string>
+
+    <!-- Quick expiry choices, counted from today. -->
+    <string name="edit_expiry_in_3_days">3 days</string>
+    <string name="edit_expiry_in_week">1 week</string>
+    <string name="edit_expiry_in_month">1 month</string>
+    <string name="edit_expiry_in_3_months">3 months</string>
+
+    <string name="scanner_item_expiry_estimated">Estimated use-by %1$s</string>
+    <string name="edit_expiry_estimate_hint">Estimated from the product. Pick the date on the pack for an exact one.</string>
 </resources>

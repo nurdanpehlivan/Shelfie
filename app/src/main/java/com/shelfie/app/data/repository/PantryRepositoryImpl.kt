@@ -80,7 +80,10 @@ class PantryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updatePantryItem(item: PantryItem) {
-        val updatedRows = pantryDao.update(item.copy(updatedAt = now()).toEntity())
+        val existing = checkNotNull(pantryDao.getItemById(item.id)) { "PantryItem with id=${item.id} does not exist" }
+        // The domain model has no sync id; keep the stored one so the server sees an edit, not a
+        // new record (a fresh id would duplicate the item on every other device).
+        val updatedRows = pantryDao.update(item.copy(updatedAt = now()).toEntity().copy(syncId = existing.syncId))
         check(updatedRows == 1) { "PantryItem with id=${item.id} does not exist" }
     }
 

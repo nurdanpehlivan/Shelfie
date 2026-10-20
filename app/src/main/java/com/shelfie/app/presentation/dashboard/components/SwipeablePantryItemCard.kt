@@ -3,25 +3,19 @@ package com.shelfie.app.presentation.dashboard.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -36,17 +30,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.FreshnessStatus
+import com.shelfie.app.presentation.common.ShelfieCard
+import com.shelfie.app.presentation.common.displayEmoji
 import com.shelfie.app.presentation.common.foodEmoji
 import com.shelfie.app.presentation.common.formatQuantity
 import com.shelfie.app.presentation.common.labelRes
@@ -55,6 +52,8 @@ import com.shelfie.app.presentation.theme.freshnessPalette
 
 private val CardShape = RoundedCornerShape(20.dp)
 
+private val EmojiShadow = Shadow(color = Color.Black.copy(alpha = 0.35f), offset = Offset(0f, 6f), blurRadius = 12f)
+
 /** Swipe right → consumed, swipe left → wasted. */
 @Composable
 fun SwipeablePantryItemCard(
@@ -62,6 +61,7 @@ fun SwipeablePantryItemCard(
     onConsumed: () -> Unit,
     onWasted: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     val currentOnConsumed by rememberUpdatedState(onConsumed)
     val currentOnWasted by rememberUpdatedState(onWasted)
@@ -97,7 +97,7 @@ fun SwipeablePantryItemCard(
             )
         },
     ) {
-        PantryItemCard(entry = entry)
+        PantryItemCard(entry = entry, onClick = onClick)
     }
 }
 
@@ -109,14 +109,17 @@ private fun SwipeBackground(
     wastedLabel: String,
 ) {
     val palette = MaterialTheme.freshnessPalette
+    val scheme = MaterialTheme.colorScheme
     val (color, iconRes, label, alignment) = when (direction) {
         SwipeToDismissBoxValue.StartToEnd ->
             SwipeVisuals(palette.fresh.accent, R.drawable.ic_check, consumedLabel, Alignment.CenterStart)
         SwipeToDismissBoxValue.EndToStart ->
-            SwipeVisuals(MaterialTheme.colorScheme.error, R.drawable.ic_delete, wastedLabel, Alignment.CenterEnd)
+            SwipeVisuals(scheme.error, R.drawable.ic_delete, wastedLabel, Alignment.CenterEnd)
         SwipeToDismissBoxValue.Settled ->
             SwipeVisuals(Color.Transparent, null, null, Alignment.Center)
     }
+    // Light accents in dark mode need dark content; the card colour is the inverse in both modes.
+    val contentColor = if (direction == SwipeToDismissBoxValue.EndToStart) scheme.onError else scheme.surfaceContainerLowest
     val animatedColor by animateColorAsState(color, label = "swipeBackground")
     val iconScale by animateFloatAsState(if (progress > 0.4f) 1.15f else 0.85f, label = "swipeIcon")
 
@@ -133,11 +136,11 @@ private fun SwipeBackground(
                 Icon(
                     painter = painterResource(iconRes),
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = contentColor,
                     modifier = Modifier.scale(iconScale),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = label, color = Color.White, fontWeight = FontWeight.SemiBold)
+                Text(text = label, color = contentColor, style = MaterialTheme.typography.labelLarge)
             }
         }
     }
@@ -151,29 +154,28 @@ private data class SwipeVisuals(
 )
 
 /**
- * One pantry item: a calm white card for every group, so the list doesn't shout. Urgency is
- * carried by the coloured "days left" pill and the tinted emoji tile, plus the group header.
+ * One pantry item: a calm, flat white card for every group, so the list doesn't shout. Urgency
+ * is carried by the coloured "days left" pill and the tinted emoji tile, plus the group header.
  */
 @Composable
-fun PantryItemCard(entry: DashboardItem, modifier: Modifier = Modifier) {
+fun PantryItemCard(entry: DashboardItem, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
     val colors = MaterialTheme.freshnessPalette.forStatus(entry.status)
     val item = entry.item
     val isCritical = entry.status == FreshnessStatus.CRITICAL
 
-    Card(
+    // An opaque base under the glass, so the swipe colours don't shine through the card.
+    ShelfieCard(
+        onClick = onClick,
         shape = CardShape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background, CardShape),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 76.dp)
-                .padding(horizontal = 14.dp, vertical = 12.dp),
+                .heightIn(min = 72.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -182,12 +184,16 @@ fun PantryItemCard(entry: DashboardItem, modifier: Modifier = Modifier) {
                     .background(colors.container, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = foodEmoji(item.name, item.category), style = MaterialTheme.typography.headlineSmall)
+                // A soft drop shadow lifts the emoji off its tile, like a product photo.
+                Text(
+                    text = item.displayEmoji,
+                    style = MaterialTheme.typography.headlineSmall.copy(shadow = EmojiShadow),
+                )
             }
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 14.dp),
+                    .padding(horizontal = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
@@ -213,14 +219,14 @@ fun PantryItemCard(entry: DashboardItem, modifier: Modifier = Modifier) {
                 shape = CircleShape,
                 // Critical gets the solid accent so it stands out in a long list.
                 color = if (isCritical) colors.accent else colors.container,
-                contentColor = if (isCritical) Color.White else colors.onContainer,
+                contentColor = if (isCritical) MaterialTheme.colorScheme.surfaceContainerLowest else colors.onContainer,
             ) {
                 Text(
-                    text = daysLeftText(entry.daysLeft),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
+                    // "≈": no printed date, the expiry is an estimate from the product type.
+                    text = (if (item.isExpiryEstimated) "≈ " else "") + daysLeftText(entry.daysLeft),
+                    style = MaterialTheme.typography.labelMedium,
                     maxLines = 1,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                 )
             }
         }

@@ -3,6 +3,7 @@ package com.shelfie.app.presentation.scanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.R
+import com.shelfie.app.domain.model.PantryScanException
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.PhotoStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -108,6 +109,7 @@ class ScannerViewModel @Inject constructor(
                     imageUri = imageUri,
                     messageRes = error.toScanMessageRes(),
                     canRetry = error.isRetryableScanFailure(),
+                    canUpgrade = error is PantryScanException.QuotaExceeded && !error.isPremium,
                 )
             }
     }
@@ -125,6 +127,9 @@ class ScannerViewModel @Inject constructor(
                         unit = intent.unit,
                         category = intent.category,
                         expiryDate = intent.expiryDate,
+                        location = intent.location,
+                        emoji = detected.item.emoji.takeIf { name.equals(detected.item.name, ignoreCase = true) },
+                        isExpiryEstimated = detected.item.isExpiryEstimated && intent.expiryDate == detected.item.expiryDate,
                     ),
                 )
             }

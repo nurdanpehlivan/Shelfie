@@ -14,10 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
+import com.shelfie.app.presentation.common.ShelfieCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -38,7 +37,7 @@ fun ShimmerBlock(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(8.dp),
 ) {
-    val base = MaterialTheme.colorScheme.surfaceVariant
+    val base = MaterialTheme.colorScheme.surfaceContainerHigh
     val highlight = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
     val progress = rememberLoopingProgress(durationMillis = 1300, label = "shimmer")
 
@@ -64,13 +63,13 @@ fun ShimmerBlock(
 /** Placeholder shaped like [DetectedItemCard], shown while the photo is analysed. */
 @Composable
 fun DetectedItemPlaceholder(modifier: Modifier = Modifier) {
-    OutlinedCard(modifier = modifier.fillMaxWidth()) {
+    ShelfieCard(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            ShimmerBlock(modifier = Modifier.size(48.dp), shape = CircleShape)
+            ShimmerBlock(modifier = Modifier.size(48.dp), shape = RoundedCornerShape(14.dp))
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),

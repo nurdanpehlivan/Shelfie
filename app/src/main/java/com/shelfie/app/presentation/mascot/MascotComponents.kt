@@ -1,6 +1,8 @@
 package com.shelfie.app.presentation.mascot
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -107,8 +111,16 @@ fun MascotMessage(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Frizzy(mood = mood, size = 168.dp)
-        Spacer(modifier = Modifier.height(20.dp))
+        // A soft disc behind Frizzy grounds the mascot so it doesn't float on the page.
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Frizzy(mood = mood, size = 160.dp)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
@@ -122,14 +134,14 @@ fun MascotMessage(
             textAlign = TextAlign.Center,
         )
         if (primaryAction != null) {
-            Spacer(modifier = Modifier.height(28.dp))
-            Button(onClick = primaryAction.second, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(onClick = primaryAction.second, modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 Text(primaryAction.first)
             }
         }
         if (secondaryAction != null) {
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(onClick = secondaryAction.second, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            OutlinedButton(onClick = secondaryAction.second, modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 Text(secondaryAction.first)
             }
         }

@@ -7,6 +7,7 @@ import com.shelfie.app.R
 import com.shelfie.app.domain.model.Account
 import com.shelfie.app.domain.model.AccountException
 import com.shelfie.app.domain.model.AppSettings
+import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.model.SyncException
 import com.shelfie.app.domain.repository.AccountRepository
 import com.shelfie.app.domain.repository.SettingsRepository
@@ -47,6 +48,8 @@ class SettingsViewModel @Inject constructor(
     fun setCriticalDays(days: Long) = launch { setCriticalDays(days) }
 
     fun setAverageItemValue(value: Double) = launch { setAverageItemValue(value) }
+
+    fun setThemeMode(mode: ThemeMode) = launch { setThemeMode(mode) }
 
     fun openSignIn() = _accountUi.update { it.copy(isSheetOpen = true, formError = null) }
 

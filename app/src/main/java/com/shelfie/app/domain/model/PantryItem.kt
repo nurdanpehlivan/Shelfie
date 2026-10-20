@@ -10,6 +10,11 @@ data class PantryItem(
     val category: Category,
     val quantity: Double = 1.0,
     val unit: MeasurementUnit = MeasurementUnit.PIECE,
+    val location: StorageLocation = category.defaultLocation,
+    /** The emoji the AI chose when scanning; `null` for manual items (the icon comes from the name). */
+    val emoji: String? = null,
+    /** The expiry was estimated (fresh produce, no legible date) rather than read or chosen. */
+    val isExpiryEstimated: Boolean = false,
     /** Local content URI of the shelfie photo this item was detected in. */
     val imageUri: String? = null,
     val purchaseDate: LocalDate,

@@ -48,6 +48,7 @@ class SyncManager @Inject constructor(
         val session = accountStore.currentSession() ?: return Result.success(Unit)
         try {
             var cursor = session.cursor
+            var space = session.space
             repeat(MAX_ROUNDS) {
                 val outbox = syncDao.getOutbox(PUSH_BATCH)
                 val response = api.sync(
@@ -65,6 +66,20 @@ class SyncManager @Inject constructor(
                     }
                 }
                 cursor = response.cursor
+                val newSpace = response.space
+                if (newSpace != null && newSpace != space) {
+                    // First sync since spaces existed: just remember it. Otherwise the account
+                    // joined or left a household: upload what this phone has (that merges it
+                    // into the new space) and pull the new space from the start.
+                    val moved = space != null
+                    accountStore.saveSpace(session.token, newSpace, restart = moved)
+                    space = newSpace
+                    if (moved) {
+                        syncDao.enqueueAll()
+                        cursor = 0L
+                        return@repeat
+                    }
+                }
                 val done = !response.hasMore && outbox.size < PUSH_BATCH
                 accountStore.saveProgress(session.token, cursor, syncedAt = if (done) clock.millis() else null)
                 if (done) return Result.success(Unit)
@@ -102,6 +117,7 @@ class SyncManager @Inject constructor(
         val data = when (collection) {
             SyncCollections.PANTRY -> syncDao.getPantryItem(syncId)?.toRecord()
             SyncCollections.SHOPPING -> syncDao.getShoppingItem(syncId)?.toRecord()
+            SyncCollections.MEAL_PLAN -> syncDao.getMealPlan(syncId)?.toRecord()
             SyncCollections.RECIPES -> syncDao.getRecipe(syncId)?.let { recipe ->
                 val ids = SavedRecipeEntity.decodeIds(recipe.pantryItemIds)
                 recipe.toRecord(if (ids.isEmpty()) emptyList() else syncDao.getPantrySyncIds(ids).map { it.syncId })
@@ -136,6 +152,12 @@ class SyncManager @Inject constructor(
                         SyncRecordMapper.shoppingFromRecord(change.syncId, data, syncDao.getShoppingItem(change.syncId))
                             ?.let { syncDao.upsertShoppingItem(it) }
                     }
+                SyncCollections.MEAL_PLAN ->
+                    if (change.deleted || data == null) {
+                        syncDao.deleteMealPlan(change.syncId)
+                    } else {
+                        SyncRecordMapper.mealPlanFromRecord(change.syncId, data)?.let { syncDao.upsertMealPlan(it) }
+                    }
                 SyncCollections.RECIPES ->
                     if (change.deleted || data == null) {
                         syncDao.deleteRecipe(change.syncId)
@@ -154,6 +176,11 @@ class SyncManager @Inject constructor(
         /** Bounds one sync run; the rest follows on the next one. */
         const val MAX_ROUNDS = 50
         const val HTTP_UNAUTHORIZED = 401
-        val COLLECTION_ORDER = listOf(SyncCollections.PANTRY, SyncCollections.SHOPPING, SyncCollections.RECIPES)
+        val COLLECTION_ORDER = listOf(
+            SyncCollections.PANTRY,
+            SyncCollections.SHOPPING,
+            SyncCollections.RECIPES,
+            SyncCollections.MEAL_PLAN,
+        )
     }
 }

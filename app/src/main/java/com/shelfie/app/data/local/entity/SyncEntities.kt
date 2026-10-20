@@ -50,4 +50,5 @@ object SyncCollections {
     const val PANTRY = "pantry"
     const val SHOPPING = "shopping"
     const val RECIPES = "recipes"
+    const val MEAL_PLAN = "mealplan"
 }

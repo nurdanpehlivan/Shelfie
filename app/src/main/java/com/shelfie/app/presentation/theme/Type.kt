@@ -7,6 +7,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.shelfie.app.R
 
@@ -28,28 +30,44 @@ val Nunito = FontFamily(
     nunito(FontWeight.SemiBold),
     nunito(FontWeight.Bold),
     nunito(FontWeight.ExtraBold),
+    nunito(FontWeight.Black),
 )
 
 private val Default = Typography()
 
-private fun TextStyle.nunito(weight: FontWeight? = null) =
-    copy(fontFamily = Nunito, fontWeight = weight ?: fontWeight)
+/** Tabular figures, so counts and percentages don't jitter while they animate. */
+private const val TABULAR_FIGURES = "tnum"
 
-/** Material 3 sizes, in Nunito; headings a notch bolder for a warmer, more playful voice. */
+private fun TextStyle.nunito(
+    weight: FontWeight? = null,
+    letterSpacing: TextUnit = this.letterSpacing,
+    tabular: Boolean = false,
+) = copy(
+    fontFamily = Nunito,
+    fontWeight = weight ?: fontWeight,
+    letterSpacing = letterSpacing,
+    fontFeatureSettings = if (tabular) TABULAR_FIGURES else fontFeatureSettings,
+)
+
+/**
+ * Material 3 sizes in Nunito. Display and headline sizes are heavy and slightly tightened, as
+ * large rounded type looks loose at Material's default tracking. Labels and counts are set
+ * tight, like a modern UI face; body text keeps its spacing for readability.
+ */
 val Typography = Typography(
-    displayLarge = Default.displayLarge.nunito(FontWeight.ExtraBold),
-    displayMedium = Default.displayMedium.nunito(FontWeight.ExtraBold),
-    displaySmall = Default.displaySmall.nunito(FontWeight.Bold),
-    headlineLarge = Default.headlineLarge.nunito(FontWeight.ExtraBold),
-    headlineMedium = Default.headlineMedium.nunito(FontWeight.ExtraBold),
-    headlineSmall = Default.headlineSmall.nunito(FontWeight.Bold),
-    titleLarge = Default.titleLarge.nunito(FontWeight.Bold),
-    titleMedium = Default.titleMedium.nunito(FontWeight.Bold),
-    titleSmall = Default.titleSmall.nunito(FontWeight.Bold),
-    bodyLarge = Default.bodyLarge.nunito(),
-    bodyMedium = Default.bodyMedium.nunito(),
-    bodySmall = Default.bodySmall.nunito(),
-    labelLarge = Default.labelLarge.nunito(FontWeight.Bold),
-    labelMedium = Default.labelMedium.nunito(FontWeight.SemiBold),
-    labelSmall = Default.labelSmall.nunito(FontWeight.SemiBold),
+    displayLarge = Default.displayLarge.nunito(FontWeight.Black, (-0.02).em, tabular = true),
+    displayMedium = Default.displayMedium.nunito(FontWeight.Black, (-0.02).em, tabular = true),
+    displaySmall = Default.displaySmall.nunito(FontWeight.ExtraBold, (-0.01).em, tabular = true),
+    headlineLarge = Default.headlineLarge.nunito(FontWeight.ExtraBold, (-0.01).em, tabular = true),
+    headlineMedium = Default.headlineMedium.nunito(FontWeight.ExtraBold, (-0.01).em),
+    headlineSmall = Default.headlineSmall.nunito(FontWeight.ExtraBold, (-0.005).em),
+    titleLarge = Default.titleLarge.nunito(FontWeight.ExtraBold, (-0.01).em),
+    titleMedium = Default.titleMedium.nunito(FontWeight.Bold, (-0.005).em),
+    titleSmall = Default.titleSmall.nunito(FontWeight.Bold, 0.sp),
+    bodyLarge = Default.bodyLarge.nunito(FontWeight.Medium, 0.sp),
+    bodyMedium = Default.bodyMedium.nunito(FontWeight.Medium, 0.sp),
+    bodySmall = Default.bodySmall.nunito(FontWeight.Medium, 0.1.sp),
+    labelLarge = Default.labelLarge.nunito(FontWeight.Bold, 0.sp, tabular = true),
+    labelMedium = Default.labelMedium.nunito(FontWeight.Bold, 0.sp, tabular = true),
+    labelSmall = Default.labelSmall.nunito(FontWeight.Bold, 0.1.sp),
 )

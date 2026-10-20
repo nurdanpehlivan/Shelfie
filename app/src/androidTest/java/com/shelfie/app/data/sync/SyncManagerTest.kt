@@ -13,11 +13,18 @@ import com.shelfie.app.data.local.entity.PantryItemEntity
 import com.shelfie.app.data.local.entity.SavedRecipeEntity
 import com.shelfie.app.data.local.entity.ShoppingItemEntity
 import com.shelfie.app.data.remote.shelfie.CredentialsRequest
+import com.shelfie.app.data.remote.shelfie.HouseholdDto
+import com.shelfie.app.data.remote.shelfie.InviteDto
+import com.shelfie.app.data.remote.shelfie.JoinHouseholdRequest
+import com.shelfie.app.data.remote.shelfie.QuotaDto
+import com.shelfie.app.data.remote.shelfie.RemoveMemberRequest
 import com.shelfie.app.data.remote.shelfie.SessionResponse
 import com.shelfie.app.data.remote.shelfie.ShelfieApiService
 import com.shelfie.app.data.remote.shelfie.SyncChangeDto
 import com.shelfie.app.data.remote.shelfie.SyncRequest
 import com.shelfie.app.data.remote.shelfie.SyncResponse
+import com.shelfie.app.data.remote.shelfie.VerifyPurchaseRequest
+import com.shelfie.app.data.remote.shelfie.VerifyPurchaseResponse
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
 import kotlinx.coroutines.flow.first
@@ -179,6 +186,26 @@ class SyncManagerTest {
     }
 
     @Test
+    fun movingToAnotherSpace_reuploadsEverything_andPullsFromTheStart() = runTest {
+        database.pantryDao().insert(pantryItem("Milk"))
+        // First sync with spaces: the space is only remembered.
+        api.responses += SyncResponse(cursor = 5, hasMore = false, records = emptyList(), space = "me")
+        manager.sync()
+        assertEquals("me", accountStore.currentSession()!!.space)
+
+        // Joined a household: the server now syncs another space.
+        api.responses += SyncResponse(cursor = 40, hasMore = false, records = emptyList(), space = "family")
+        api.responses += SyncResponse(cursor = 3, hasMore = false, records = emptyList(), space = "family")
+        manager.sync()
+
+        val restart = api.requests.last()
+        assertEquals(0L, restart.cursor)
+        assertEquals(listOf("Milk"), restart.changes.map { it.data!!["name"]!!.jsonPrimitive.content })
+        assertEquals(3L, accountStore.currentSession()!!.cursor)
+        assertEquals("family", accountStore.currentSession()!!.space)
+    }
+
+    @Test
     fun rejectedSessionSignsOutLocally() = runTest {
         api.onSync = { throw HttpException(Response.error<Any>(401, "".toResponseBody())) }
 
@@ -232,6 +259,14 @@ class SyncManagerTest {
         override suspend fun login(request: CredentialsRequest): SessionResponse = error("unused")
         override suspend fun logout(bearer: String) = Unit
         override suspend fun deleteAccount(bearer: String) = Unit
+        override suspend fun household(bearer: String): HouseholdDto = error("unused")
+        override suspend fun createInvite(bearer: String): InviteDto = error("unused")
+        override suspend fun joinHousehold(bearer: String, request: JoinHouseholdRequest): HouseholdDto = error("unused")
+        override suspend fun leaveHousehold(bearer: String): HouseholdDto = error("unused")
+        override suspend fun removeMember(bearer: String, request: RemoveMemberRequest): HouseholdDto = error("unused")
+        override suspend fun quota(proxyToken: String, installId: String, bearer: String?): QuotaDto = error("unused")
+        override suspend fun verifyPurchase(bearer: String, request: VerifyPurchaseRequest): VerifyPurchaseResponse =
+            error("unused")
     }
 
     private companion object {

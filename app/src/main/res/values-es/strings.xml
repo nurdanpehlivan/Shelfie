@@ -46,6 +46,14 @@
     <string name="dashboard_rescue_title">Conviértelos en una comida</string>
     <string name="dashboard_rescue_subtitle">Una receta de 15 minutos con lo que está a punto de caducar</string>
     <string name="dashboard_rescue_action">Ver receta</string>
+    <string name="dashboard_subtitle">Tu nevera, congelador y despensa en un solo lugar</string>
+    <string name="dashboard_use_soon">Consumir pronto</string>
+    <string name="dashboard_quick_add">Añadir rápido</string>
+    <!-- Unit shown next to a big count, so it carries no number itself. -->
+    <plurals name="dashboard_product_count">
+        <item quantity="one">producto</item>
+        <item quantity="other">productos</item>
+    </plurals>
 
     <!-- Scanner -->
     <string name="scanner_title">Escanea tu estante</string>
@@ -339,4 +347,113 @@
     <string name="account_error_network">Sin conexión. Revisa tu internet y vuelve a intentarlo.</string>
     <string name="account_error_session_expired">Tu sesión ha caducado. Inicia sesión de nuevo.</string>
     <string name="account_error_server">Algo ha fallado por nuestra parte. Inténtalo más tarde.</string>
+
+    <!-- Storage places, search, item edits and "cook with what I have". -->
+    <string name="location_fridge">Nevera</string>
+    <string name="location_freezer">Congelador</string>
+    <string name="location_pantry">Despensa</string>
+    <string name="edit_location">¿Dónde se guarda?</string>
+    <string name="dashboard_location_all">Todo %1$d</string>
+    <string name="dashboard_search">Buscar</string>
+    <string name="dashboard_search_hint">Buscar productos…</string>
+    <string name="dashboard_search_close">Cerrar búsqueda</string>
+    <string name="dashboard_search_empty">Ningún producto coincide con «%1$s».</string>
+    <string name="dashboard_action_use_half">Usé la mitad</string>
+    <string name="dashboard_action_freeze">Congelar</string>
+    <string name="dashboard_edit_hint">O cambia los datos abajo y guarda.</string>
+    <string name="dashboard_item_updated">%1$s actualizado</string>
+    <string name="dashboard_item_half_used">%1$s: mitad usada</string>
+    <string name="dashboard_item_frozen">%1$s pasó al congelador, aguanta hasta el %2$s</string>
+    <string name="picker_title">Elige ingredientes</string>
+    <string name="picker_select_prompt">Elige ingredientes</string>
+    <string name="picker_empty">No queda nada en tu despensa apto para cocinar.</string>
+    <string name="picker_hint">Elige hasta %1$d productos y haremos una receta rápida que los use todos.</string>
+    <string name="picker_entry_title">Cocinar con lo que tengo</string>
+    <string name="picker_entry_subtitle">Elige productos de tu despensa y te damos una receta con ellos.</string>
+    <string name="scanner_source_receipt">Ticket</string>
+    <plurals name="picker_create">
+        <item quantity="one">Receta con %d ingrediente</item>
+        <item quantity="other">Receta con %d ingredientes</item>
+    </plurals>
+
+    <!-- Weekly meal plan. -->
+    <string name="plan_title">Plan semanal</string>
+    <string name="plan_entry_subtitle">Planifica las comidas de la semana con tus recetas.</string>
+    <string name="plan_today">Hoy</string>
+    <string name="plan_add">Añadir</string>
+    <string name="plan_add_missing">Añadir a la lista lo que falta esta semana</string>
+    <string name="plan_shopping_nothing">No hay nada nuevo que comprar esta semana.</string>
+    <string name="plan_previous_week">Semana anterior</string>
+    <string name="plan_next_week">Semana siguiente</string>
+    <string name="plan_open_recipe">Abrir receta</string>
+    <string name="plan_clear">Vaciar</string>
+    <string name="plan_note">Nota</string>
+    <string name="plan_note_hint">p. ej. Comer fuera, sobras</string>
+    <string name="plan_pick_recipe">Elige una receta</string>
+    <string name="plan_no_recipes">Aún no tienes recetas guardadas. Consigue una y planifícala aquí.</string>
+    <string name="plan_breakfast">Desayuno</string>
+    <string name="plan_lunch">Comida</string>
+    <string name="plan_dinner">Cena</string>
+
+    <!-- AI allowance, Premium and family sharing. -->
+    <string name="error_quota_free">Has usado los escaneos o recetas de IA gratis de hoy. Se renuevan mañana, o pásate a Premium para tener más.</string>
+    <string name="error_quota_premium">Has llegado al límite de uso razonable de hoy. Se renueva mañana.</string>
+    <string name="premium_title">Shelfie Premium</string>
+    <string name="premium_upgrade">Hazte Premium</string>
+    <string name="premium_settings_subtitle">50 escaneos y recetas al día, para todo el hogar</string>
+    <string name="premium_hero_title">Salva más comida con Premium</string>
+    <string name="premium_active_title">Premium está activo</string>
+    <string name="premium_active_until">Se renueva o termina el %1$s</string>
+    <string name="premium_benefit_ai">50 escaneos de fotos y 50 recetas al día</string>
+    <string name="premium_benefit_household">Vale para todo tu hogar</string>
+    <string name="premium_benefit_support">Apoya una app independiente</string>
+    <string name="premium_usage_title">Uso de IA de hoy</string>
+    <string name="premium_usage_scans">Escaneos de fotos</string>
+    <string name="premium_usage_recipes">Recetas</string>
+    <string name="premium_usage_resets">Se renueva a las %1$s</string>
+    <string name="premium_plan_monthly">Mensual</string>
+    <string name="premium_plan_yearly">Anual</string>
+    <string name="premium_price_per_month">%1$s / mes</string>
+    <string name="premium_price_per_year">%1$s / año</string>
+    <string name="premium_intro_offer">Incluye prueba o precio de lanzamiento</string>
+    <string name="premium_terms">Se renueva automáticamente hasta que canceles en Google Play. Impuestos incluidos.</string>
+    <string name="premium_manage">Gestionar suscripción</string>
+    <string name="premium_restore">Restaurar compras</string>
+    <string name="premium_needs_account">Premium va unido a una cuenta, así funciona en todos tus móviles y para tu hogar.</string>
+    <string name="premium_unavailable">Las suscripciones no están disponibles ahora en este dispositivo.</string>
+    <string name="premium_granted">¡Bienvenido a Premium!</string>
+    <string name="premium_pending">Pago pendiente. Premium empieza cuando Google Play lo confirme.</string>
+    <string name="premium_failed">No se pudo completar la compra.</string>
+    <string name="premium_nothing_to_restore">No se encontró ninguna suscripción activa.</string>
+    <string name="household_title">Compartir en familia</string>
+    <string name="household_hint">Comparte despensa, lista de la compra, recetas y plan semanal con tu hogar.</string>
+    <string name="household_invite">Invitar al hogar</string>
+    <string name="household_invite_new">Código nuevo</string>
+    <string name="household_invite_valid">Válido 48 horas. Cualquiera con el código puede unirse.</string>
+    <string name="household_share">Compartir código</string>
+    <string name="household_share_message">¡Únete a mi despensa en Shelfie! Ajustes → Compartir en familia → código: %1$s</string>
+    <string name="household_code">Código de invitación</string>
+    <string name="household_join">Unirme</string>
+    <string name="household_leave">Salir del hogar</string>
+    <string name="household_leave_title">¿Salir del hogar?</string>
+    <string name="household_leave_message">Te quedas una copia de todo en este móvil; los cambios nuevos ya no se comparten.</string>
+    <string name="household_remove">Quitar a %1$s</string>
+    <string name="household_error_code">Ese código es incorrecto o ha caducado.</string>
+    <string name="household_error_full">Ese hogar está lleno.</string>
+    <string name="household_error_own">Es el código de tu propio hogar.</string>
+    <string name="household_error_has_members">Primero quita a los miembros de tu propio hogar.</string>
+
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_theme_system">Sistema</string>
+
+    <!-- Quick expiry choices, counted from today. -->
+    <string name="edit_expiry_in_3_days">3 días</string>
+    <string name="edit_expiry_in_week">1 semana</string>
+    <string name="edit_expiry_in_month">1 mes</string>
+    <string name="edit_expiry_in_3_months">3 meses</string>
+
+    <string name="scanner_item_expiry_estimated">Caducidad estimada %1$s</string>
+    <string name="edit_expiry_estimate_hint">Estimada según el producto. Elige la fecha del envase para que sea exacta.</string>
 </resources>

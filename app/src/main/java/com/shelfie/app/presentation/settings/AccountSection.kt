@@ -28,12 +28,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -144,7 +144,11 @@ fun AccountSheet(
     val canSubmit = emailValid && passwordValid && !isWorking
     val submit = { if (canSubmit) onSubmit(email, password, isRegistration) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -155,7 +159,7 @@ fun AccountSheet(
         ) {
             Text(
                 text = stringResource(if (isRegistration) R.string.account_register_title else R.string.account_sign_in_title),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
             )
             Text(
                 text = stringResource(R.string.account_sheet_hint),
@@ -187,7 +191,7 @@ fun AccountSheet(
             if (errorRes != null) {
                 Text(stringResource(errorRes), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             }
-            Button(onClick = submit, enabled = canSubmit, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = submit, enabled = canSubmit, modifier = Modifier.fillMaxWidth().height(52.dp)) {
                 if (isWorking) {
                     CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))

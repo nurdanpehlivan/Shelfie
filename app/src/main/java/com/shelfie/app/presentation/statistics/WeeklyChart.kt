@@ -17,12 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.WeekStatistics
 import com.shelfie.app.presentation.theme.chartPalette
-import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -57,7 +56,7 @@ fun WeeklyChart(weeks: List<WeekStatistics>, modifier: Modifier = Modifier) {
     if (weeks.isEmpty()) return
     val palette = MaterialTheme.chartPalette
     val gridColor = MaterialTheme.colorScheme.outlineVariant
-    val selectionColor = MaterialTheme.colorScheme.surfaceVariant
+    val selectionColor = MaterialTheme.colorScheme.surfaceContainer
     val labelFormatter = remember { shortDateFormatter() }
     var selected by rememberSaveable(weeks.size) { mutableIntStateOf(weeks.lastIndex) }
     val selectedWeek = weeks[selected.coerceIn(weeks.indices)]

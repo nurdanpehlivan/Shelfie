@@ -27,7 +27,8 @@ class AccountStore @Inject constructor(
     @AccountPreferences private val dataStore: DataStore<Preferences>,
 ) {
 
-    data class Session(val token: String, val email: String, val cursor: Long, val lastSyncAt: Long?)
+    /** [space] is the server's data space last synced with (own account or household), if known. */
+    data class Session(val token: String, val email: String, val cursor: Long, val lastSyncAt: Long?, val space: String?)
 
     private val prefs: Flow<Preferences> = dataStore.data
         .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
@@ -35,7 +36,13 @@ class AccountStore @Inject constructor(
     val session: Flow<Session?> = prefs
         .map { p ->
             val token = p[TOKEN] ?: return@map null
-            Session(token = token, email = p[EMAIL].orEmpty(), cursor = p[CURSOR] ?: 0L, lastSyncAt = p[LAST_SYNC_AT])
+            Session(
+                token = token,
+                email = p[EMAIL].orEmpty(),
+                cursor = p[CURSOR] ?: 0L,
+                lastSyncAt = p[LAST_SYNC_AT],
+                space = p[SPACE],
+            )
         }
         .distinctUntilChanged()
 
@@ -58,6 +65,19 @@ class AccountStore @Inject constructor(
             p[EMAIL] = email
             p[CURSOR] = 0L
             p.remove(LAST_SYNC_AT)
+            p.remove(SPACE)
+        }
+    }
+
+    /**
+     * Records the data space the server synced with. A new space (joined or left a household)
+     * restarts the pull from the beginning; ignored if the session ended meanwhile.
+     */
+    suspend fun saveSpace(token: String, space: String, restart: Boolean) {
+        dataStore.edit { p ->
+            if (p[TOKEN] != token) return@edit
+            p[SPACE] = space
+            if (restart) p[CURSOR] = 0L
         }
     }
 
@@ -67,6 +87,7 @@ class AccountStore @Inject constructor(
             p.remove(EMAIL)
             p.remove(CURSOR)
             p.remove(LAST_SYNC_AT)
+            p.remove(SPACE)
         }
     }
 
@@ -85,5 +106,6 @@ class AccountStore @Inject constructor(
         val EMAIL = stringPreferencesKey("email")
         val CURSOR = longPreferencesKey("sync_cursor")
         val LAST_SYNC_AT = longPreferencesKey("last_sync_at")
+        val SPACE = stringPreferencesKey("sync_space")
     }
 }

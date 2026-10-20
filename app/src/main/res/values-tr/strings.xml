@@ -139,6 +139,14 @@
     <string name="dashboard_rescue_title">Bunları yemeğe dönüştür</string>
     <string name="dashboard_rescue_subtitle">Bozulmak üzere olanlarla 15 dakikalık tarif</string>
     <string name="dashboard_rescue_action">Tarif al</string>
+    <string name="dashboard_subtitle">Buzdolabın, dondurucun ve kilerin tek yerde</string>
+    <string name="dashboard_use_soon">Tüketilmesi gerekenler</string>
+    <string name="dashboard_quick_add">Hızlı ekle</string>
+    <!-- Unit shown next to a big count, so it carries no number itself. -->
+    <plurals name="dashboard_product_count">
+        <item quantity="one">ürün</item>
+        <item quantity="other">ürün</item>
+    </plurals>
 
     <string name="error_daily_quota">Bugünkü ücretsiz yapay zekâ kotası doldu. Yarın sıfırlanır; istersen Google AI Studio\'dan faturalandırmayı açabilirsin.</string>
 
@@ -342,4 +350,113 @@
     <string name="account_error_network">Bağlantı yok. İnternetini kontrol edip tekrar dene.</string>
     <string name="account_error_session_expired">Oturumunun süresi doldu. Lütfen tekrar giriş yap.</string>
     <string name="account_error_server">Bizim tarafımızda bir sorun oluştu. Daha sonra tekrar dene.</string>
+
+    <!-- Storage places, search, item edits and "cook with what I have". -->
+    <string name="location_fridge">Buzdolabı</string>
+    <string name="location_freezer">Dondurucu</string>
+    <string name="location_pantry">Kiler</string>
+    <string name="edit_location">Nerede duruyor?</string>
+    <string name="dashboard_location_all">Tümü %1$d</string>
+    <string name="dashboard_search">Ara</string>
+    <string name="dashboard_search_hint">Ürün ara…</string>
+    <string name="dashboard_search_close">Aramayı kapat</string>
+    <string name="dashboard_search_empty">“%1$s” ile eşleşen ürün yok.</string>
+    <string name="dashboard_action_use_half">Yarısını kullandım</string>
+    <string name="dashboard_action_freeze">Dondur</string>
+    <string name="dashboard_edit_hint">Ya da bilgileri aşağıdan değiştirip kaydet.</string>
+    <string name="dashboard_item_updated">%1$s güncellendi</string>
+    <string name="dashboard_item_half_used">%1$s: yarısı kullanıldı</string>
+    <string name="dashboard_item_frozen">%1$s dondurucuya taşındı, %2$s tarihine kadar dayanır</string>
+    <string name="picker_title">Malzeme seç</string>
+    <string name="picker_select_prompt">Malzeme seç</string>
+    <string name="picker_empty">Kilerinde pişirmeye uygun ürün kalmamış.</string>
+    <string name="picker_hint">En fazla %1$d ürün seç; hepsini kullanan hızlı bir tarif hazırlayalım.</string>
+    <string name="picker_entry_title">Elimdekilerle tarif</string>
+    <string name="picker_entry_subtitle">Kilerinden istediğin ürünleri seç, onlarla tarif yapalım.</string>
+    <string name="scanner_source_receipt">Fiş</string>
+    <plurals name="picker_create">
+        <item quantity="one">%d malzemeyle tarif yap</item>
+        <item quantity="other">%d malzemeyle tarif yap</item>
+    </plurals>
+
+    <!-- Weekly meal plan. -->
+    <string name="plan_title">Haftalık plan</string>
+    <string name="plan_entry_subtitle">Haftanın öğünlerini tariflerinle planla.</string>
+    <string name="plan_today">Bugün</string>
+    <string name="plan_add">Ekle</string>
+    <string name="plan_add_missing">Haftanın eksiklerini listeye ekle</string>
+    <string name="plan_shopping_nothing">Bu hafta için alınacak yeni bir şey yok.</string>
+    <string name="plan_previous_week">Önceki hafta</string>
+    <string name="plan_next_week">Sonraki hafta</string>
+    <string name="plan_open_recipe">Tarifi aç</string>
+    <string name="plan_clear">Temizle</string>
+    <string name="plan_note">Not</string>
+    <string name="plan_note_hint">ör. Dışarıda yemek, artanlar</string>
+    <string name="plan_pick_recipe">Tarif seç</string>
+    <string name="plan_no_recipes">Henüz kayıtlı tarifin yok. Önce bir tarif al, sonra burada planla.</string>
+    <string name="plan_breakfast">Kahvaltı</string>
+    <string name="plan_lunch">Öğle</string>
+    <string name="plan_dinner">Akşam</string>
+
+    <!-- AI allowance, Premium and family sharing. -->
+    <string name="error_quota_free">Bugünkü ücretsiz yapay zekâ tarama ya da tarif hakkın bitti. Yarın yenilenir; daha fazlası için Premium\'a geç.</string>
+    <string name="error_quota_premium">Bugünkü adil kullanım sınırına ulaştın. Yarın yenilenir.</string>
+    <string name="premium_title">Shelfie Premium</string>
+    <string name="premium_upgrade">Premium\'a geç</string>
+    <string name="premium_settings_subtitle">Günde 50 tarama ve tarif, tüm hane için</string>
+    <string name="premium_hero_title">Premium ile daha çok yemeği kurtar</string>
+    <string name="premium_active_title">Premium aktif</string>
+    <string name="premium_active_until">%1$s tarihinde yenilenir ya da sona erer</string>
+    <string name="premium_benefit_ai">Günde 50 fotoğraf tarama ve 50 tarif</string>
+    <string name="premium_benefit_household">Hanendeki herkes için geçerli</string>
+    <string name="premium_benefit_support">Bağımsız bir uygulamayı destekler</string>
+    <string name="premium_usage_title">Bugünkü yapay zekâ kullanımın</string>
+    <string name="premium_usage_scans">Fotoğraf tarama</string>
+    <string name="premium_usage_recipes">Tarif</string>
+    <string name="premium_usage_resets">%1$s\'de yenilenir</string>
+    <string name="premium_plan_monthly">Aylık</string>
+    <string name="premium_plan_yearly">Yıllık</string>
+    <string name="premium_price_per_month">%1$s / ay</string>
+    <string name="premium_price_per_year">%1$s / yıl</string>
+    <string name="premium_intro_offer">Deneme ya da tanıtım fiyatı içerir</string>
+    <string name="premium_terms">Google Play\'den iptal edene kadar otomatik yenilenir. Fiyatlara vergi dahildir.</string>
+    <string name="premium_manage">Aboneliği yönet</string>
+    <string name="premium_restore">Satın alımları geri yükle</string>
+    <string name="premium_needs_account">Premium bir hesaba bağlıdır; böylece tüm telefonlarında ve hanende çalışır.</string>
+    <string name="premium_unavailable">Abonelik şu anda bu cihazda kullanılamıyor.</string>
+    <string name="premium_granted">Premium\'a hoş geldin!</string>
+    <string name="premium_pending">Ödeme bekleniyor. Google Play onaylayınca Premium başlar.</string>
+    <string name="premium_failed">Satın alma tamamlanamadı.</string>
+    <string name="premium_nothing_to_restore">Aktif abonelik bulunamadı.</string>
+    <string name="household_title">Aile paylaşımı</string>
+    <string name="household_hint">Tek bir kileri, alışveriş listesini, tarifleri ve haftalık planı hanenle paylaş.</string>
+    <string name="household_invite">Haneye davet et</string>
+    <string name="household_invite_new">Yeni kod</string>
+    <string name="household_invite_valid">48 saat geçerli. Kodu bilen herkes katılabilir.</string>
+    <string name="household_share">Kodu paylaş</string>
+    <string name="household_share_message">Shelfie\'de kilerime katıl! Ayarlar → Aile paylaşımı → kod: %1$s</string>
+    <string name="household_code">Davet kodu</string>
+    <string name="household_join">Katıl</string>
+    <string name="household_leave">Haneden ayrıl</string>
+    <string name="household_leave_title">Haneden ayrılınsın mı?</string>
+    <string name="household_leave_message">Bu telefondaki her şeyin bir kopyası sende kalır; yeni değişiklikler artık paylaşılmaz.</string>
+    <string name="household_remove">%1$s kişisini çıkar</string>
+    <string name="household_error_code">Kod hatalı ya da süresi dolmuş.</string>
+    <string name="household_error_full">Bu hane dolu.</string>
+    <string name="household_error_own">Bu senin kendi hanenin kodu.</string>
+    <string name="household_error_has_members">Önce kendi hanendeki üyeleri çıkar.</string>
+
+    <string name="settings_section_appearance">Görünüm</string>
+    <string name="settings_theme_light">Açık</string>
+    <string name="settings_theme_dark">Koyu</string>
+    <string name="settings_theme_system">Sistem</string>
+
+    <!-- Quick expiry choices, counted from today. -->
+    <string name="edit_expiry_in_3_days">3 gün</string>
+    <string name="edit_expiry_in_week">1 hafta</string>
+    <string name="edit_expiry_in_month">1 ay</string>
+    <string name="edit_expiry_in_3_months">3 ay</string>
+
+    <string name="scanner_item_expiry_estimated">Tahmini SKT %1$s</string>
+    <string name="edit_expiry_estimate_hint">Ürüne göre tahmin edildi. Paketteki tarihi seçersen kesin olur.</string>
 </resources>

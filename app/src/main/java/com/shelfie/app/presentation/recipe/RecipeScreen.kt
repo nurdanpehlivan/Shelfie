@@ -1,29 +1,7 @@
 package com.shelfie.app.presentation.recipe
 
-import com.shelfie.app.presentation.common.foodEmoji
-import com.shelfie.app.presentation.mascot.MascotMessage
-import com.shelfie.app.presentation.mascot.FrizzyMood
-import com.shelfie.app.presentation.mascot.Frizzy
-import kotlinx.coroutines.launch
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.Lifecycle
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.AssistChip
-import androidx.compose.foundation.layout.size
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -35,8 +13,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -44,34 +22,50 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.Recipe
 import com.shelfie.app.domain.model.RecipeIngredient
 import com.shelfie.app.domain.model.RecipeStep
+import com.shelfie.app.presentation.common.BottomActionBar
+import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.ShelfieTopBar
+import com.shelfie.app.presentation.common.displayEmoji
 import com.shelfie.app.presentation.common.emoji
+import com.shelfie.app.presentation.common.foodEmoji
+import com.shelfie.app.presentation.mascot.Frizzy
+import com.shelfie.app.presentation.mascot.FrizzyMood
+import com.shelfie.app.presentation.mascot.MascotMessage
 import com.shelfie.app.presentation.recipe.components.CookingMode
 import com.shelfie.app.presentation.recipe.components.IngredientGrid
 import com.shelfie.app.presentation.recipe.components.IngredientTile
@@ -83,10 +77,12 @@ import com.shelfie.app.presentation.scanner.components.ShimmerBlock
 import com.shelfie.app.presentation.theme.ShelfieTheme
 import java.time.Instant
 import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 @Composable
 fun RecipeRoute(
     onNavigateUp: () -> Unit,
+    onOpenPremium: () -> Unit = {},
     viewModel: RecipeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -124,6 +120,7 @@ fun RecipeRoute(
         onIntent = viewModel::onIntent,
         onNavigateUp = onNavigateUp,
         snackbarHostState = snackbarHostState,
+        onOpenPremium = onOpenPremium,
     )
 }
 
@@ -135,6 +132,7 @@ fun RecipeScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onOpenPremium: () -> Unit = {},
 ) {
     val ready = state as? RecipeUiState.Ready
     val isCooking = ready?.cooking != null
@@ -145,30 +143,16 @@ fun RecipeScreen(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        stringResource(
-                            if (isCooking) R.string.recipe_cooking_title else R.string.recipe_title,
-                        ),
-                    )
+            ShelfieTopBar(
+                title = stringResource(if (isCooking) R.string.recipe_cooking_title else R.string.recipe_title),
+                onNavigateUp = if (isCooking) {
+                    { onIntent(RecipeIntent.ExitCooking) }
+                } else {
+                    onNavigateUp
                 },
-                navigationIcon = {
-                    IconButton(
-                        onClick = if (isCooking) {
-                            { onIntent(RecipeIntent.ExitCooking) }
-                        } else {
-                            onNavigateUp
-                        },
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = stringResource(
-                                if (isCooking) R.string.recipe_action_exit_cooking else R.string.action_navigate_up,
-                            ),
-                        )
-                    }
-                },
+                navigationContentDescription = stringResource(
+                    if (isCooking) R.string.recipe_action_exit_cooking else R.string.action_navigate_up,
+                ),
                 actions = {
                     if (ready != null && !isCooking) {
                         IconButton(onClick = { onIntent(RecipeIntent.ToggleFavorite) }) {
@@ -179,7 +163,7 @@ fun RecipeScreen(
                                 contentDescription = stringResource(
                                     if (ready.isFavorite) R.string.recipe_action_unfavorite else R.string.recipe_action_favorite,
                                 ),
-                                tint = if (ready.isFavorite) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                                tint = if (ready.isFavorite) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
                             )
                         }
                         if (!ready.isFromHistory) {
@@ -226,11 +210,12 @@ fun RecipeScreen(
                     mood = FrizzyMood.WORRIED,
                     title = stringResource(R.string.scanner_error_title),
                     message = stringResource(current.messageRes),
-                    primaryAction = if (current.canRetry) {
-                        stringResource(R.string.scanner_action_retry) to { onIntent(RecipeIntent.Retry) }
-                    } else {
-                        stringResource(R.string.recipe_action_done) to onNavigateUp
+                    primaryAction = when {
+                        current.canUpgrade -> stringResource(R.string.premium_upgrade) to onOpenPremium
+                        current.canRetry -> stringResource(R.string.scanner_action_retry) to { onIntent(RecipeIntent.Retry) }
+                        else -> stringResource(R.string.recipe_action_done) to onNavigateUp
                     },
+                    secondaryAction = if (current.canUpgrade) stringResource(R.string.recipe_action_done) to onNavigateUp else null,
                     modifier = contentModifier,
                 )
                 is RecipeUiState.Ready -> {
@@ -275,7 +260,7 @@ private fun RecipeOverview(
     Column(modifier = modifier) {
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(key = "hero") {
@@ -286,11 +271,13 @@ private fun RecipeOverview(
             }
             if (state.isCooked) {
                 item(key = "cooked") {
-                    AssistChip(
-                        onClick = {},
-                        enabled = false,
-                        label = { Text("✓ " + stringResource(R.string.recipe_badge_cooked)) },
-                    )
+                    Row {
+                        Pill(
+                            text = "✓ " + stringResource(R.string.recipe_badge_cooked),
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
                 }
             }
             if (recipe.rescuedIngredients.isNotEmpty()) {
@@ -305,7 +292,13 @@ private fun RecipeOverview(
                     IngredientGrid(ingredients = recipe.extraIngredients, pantryItems = state.ingredients)
                 }
                 item(key = "addMissing") {
-                    FilledTonalButton(onClick = onAddMissing) {
+                    FilledTonalButton(
+                        onClick = onAddMissing,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        ),
+                    ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_add_shopping),
                             contentDescription = null,
@@ -321,14 +314,7 @@ private fun RecipeOverview(
                 StepOverviewCard(number = index + 1, step = step)
             }
         }
-        Surface(tonalElevation = 3.dp, shadowElevation = 8.dp) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
+        BottomActionBar {
                 OutlinedButton(
                     onClick = onMarkCooked,
                     enabled = !state.isCooked && !state.isMarkingCooked,
@@ -343,11 +329,9 @@ private fun RecipeOverview(
                 Button(
                     onClick = onStartCooking,
                     modifier = Modifier.weight(1f).height(56.dp),
-                    shape = RoundedCornerShape(20.dp),
                 ) {
                     Text("👩‍🍳  " + stringResource(R.string.recipe_action_start))
                 }
-            }
         }
     }
 }
@@ -380,7 +364,7 @@ private fun LoadingContent(ingredients: List<PantryItem>, modifier: Modifier = M
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             ingredients.forEach { item ->
                 IngredientTile(
-                    emoji = foodEmoji(item.name, item.category),
+                    emoji = item.displayEmoji,
                     name = item.name,
                     amount = "",
                     isRescued = true,
@@ -395,7 +379,7 @@ private fun LoadingContent(ingredients: List<PantryItem>, modifier: Modifier = M
         )
         repeat(3) {
             Spacer(modifier = Modifier.height(12.dp))
-            ShimmerBlock(modifier = Modifier.fillMaxWidth().height(64.dp))
+            ShimmerBlock(modifier = Modifier.fillMaxWidth().height(64.dp), shape = MaterialTheme.shapes.large)
         }
     }
 }

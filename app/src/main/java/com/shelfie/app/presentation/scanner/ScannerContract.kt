@@ -3,6 +3,7 @@ package com.shelfie.app.presentation.scanner
 import androidx.annotation.StringRes
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
+import com.shelfie.app.domain.model.StorageLocation
 import com.shelfie.app.domain.model.PantryItem
 import java.time.LocalDate
 
@@ -30,6 +31,8 @@ sealed interface ScannerUiState {
         val imageUri: String?,
         @param:StringRes val messageRes: Int,
         val canRetry: Boolean,
+        /** The free daily allowance is used up; offer Premium. */
+        val canUpgrade: Boolean = false,
     ) : ScannerUiState
 }
 
@@ -52,6 +55,7 @@ sealed interface ScannerIntent {
         val unit: MeasurementUnit,
         val category: Category,
         val expiryDate: LocalDate,
+        val location: StorageLocation,
     ) : ScannerIntent
 
     data class DeleteItem(val key: Long) : ScannerIntent

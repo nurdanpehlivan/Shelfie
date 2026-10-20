@@ -7,6 +7,8 @@ import com.shelfie.app.data.remote.gemini.dto.ScannedItemDto
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.domain.model.StorageLocation
+import com.shelfie.app.domain.model.ShelfLife
 import com.shelfie.app.domain.model.PantryScanException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -20,7 +22,9 @@ import javax.inject.Inject
  * Model output is treated as untrusted input:
  * - tolerates markdown code fences, surrounding prose, unknown keys and quoted numbers;
  * - drops entries with a blank name or a confidence below [MIN_CONFIDENCE];
- * - clamps shelf life to a sane range, falling back to the category default when missing;
+ * - clamps shelf life to a sane range; an estimated one (no legible date) is also capped by
+ *   [ShelfLife], so a lettuce never gets three weeks, and falls back to it when missing;
+ * - keeps the model's emoji only if it is one (no letters or digits);
  * - merges duplicates of the same product into one item with a higher quantity.
  *
  * Only a structurally unusable answer fails (with [PantryScanException.MalformedResponse]);
@@ -55,22 +59,33 @@ class GeminiScanResultParser @Inject constructor(
             .groupBy { it.name.lowercase() to it.category }
             .map { (_, duplicates) ->
                 val first = duplicates.first()
+                // Be conservative: the soonest date among duplicates wins.
+                val soonest = duplicates.minBy { it.shelfLifeDays }
                 PantryItem(
                     name = first.name,
                     category = first.category,
                     quantity = duplicates.size.toDouble(),
                     unit = MeasurementUnit.PIECE,
+                    location = first.location,
+                    emoji = duplicates.firstNotNullOfOrNull { it.emoji },
+                    isExpiryEstimated = soonest.isEstimated,
                     imageUri = imageUri,
                     purchaseDate = today,
-                    // Be conservative: the soonest estimate among duplicates wins.
-                    expiryDate = today.plusDays(duplicates.minOf { it.shelfLifeDays }.toLong()),
+                    expiryDate = today.plusDays(soonest.shelfLifeDays.toLong()),
                     createdAt = now,
                     updatedAt = now,
                 )
             }
     }
 
-    private class ValidItem(val name: String, val category: Category, val shelfLifeDays: Int)
+    private class ValidItem(
+        val name: String,
+        val category: Category,
+        val location: StorageLocation,
+        val emoji: String?,
+        val shelfLifeDays: Int,
+        val isEstimated: Boolean,
+    )
 
     private fun ScannedItemDto.validate(): ValidItem? {
         val cleanName = name
@@ -84,13 +99,23 @@ class GeminiScanResultParser @Inject constructor(
         if (score < MIN_CONFIDENCE) return null
 
         val domainCategory = category.toDomainCategory()
-        val shelfLife = estimatedShelfLifeDays
+        val location = StorageLocation.fromNameOrNull(storage?.trim()) ?: domainCategory.defaultLocation
+        val isEstimated = !expirySource.equals(GeminiPrompts.EXPIRY_FROM_LABEL, ignoreCase = true)
+        val modelDays = estimatedShelfLifeDays
             ?.takeIf { it >= 0 }
             ?.coerceAtMost(GeminiPrompts.MAX_SHELF_LIFE_DAYS)
-            ?: domainCategory.defaultShelfLifeDays
+        val shelfLife = when {
+            !isEstimated && modelDays != null -> modelDays
+            else -> listOfNotNull(modelDays, ShelfLife.knownDays(cleanName, location)).minOrNull()
+                ?: ShelfLife.estimateDays(cleanName, domainCategory, location)
+        }
 
-        return ValidItem(cleanName, domainCategory, shelfLife)
+        return ValidItem(cleanName, domainCategory, location, emoji.validEmoji(), shelfLife, isEstimated)
     }
+
+    /** A short run of symbols; a word or a number means the model ignored the instruction. */
+    private fun String?.validEmoji(): String? =
+        this?.trim()?.takeIf { it.isNotEmpty() && it.length <= MAX_EMOJI_LENGTH && !it.any(Char::isLetterOrDigit) }
 
     /** Strips code fences or chatter around the JSON object, if the model added any. */
     private fun String.extractJsonObject(): String {
@@ -106,6 +131,9 @@ class GeminiScanResultParser @Inject constructor(
         const val MIN_CONFIDENCE = 0.5
         const val MAX_ITEMS = 100
         const val MAX_NAME_LENGTH = 60
+
+        /** One emoji, including skin-tone or ZWJ sequences. */
+        const val MAX_EMOJI_LENGTH = 16
         private val WHITESPACE = Regex("\\s+")
 
         /**

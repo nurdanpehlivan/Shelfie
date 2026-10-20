@@ -13,74 +13,96 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/** Warm cream page, white cards, leaf-green actions, carrot for cooking. */
 private val LightColorScheme = lightColorScheme(
-    primary = BrandGreen,
+    primary = Leaf,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFB8F0D2),
-    onPrimaryContainer = Color(0xFF002114),
-    secondary = Color(0xFF4E6356),
+    primaryContainer = Color(0xFFDDF5E3),
+    onPrimaryContainer = Color(0xFF0B3D1E),
+    inversePrimary = LeafLight,
+    secondary = Color(0xFF6B5E52),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFD1E8D8),
-    onSecondaryContainer = Color(0xFF0B1F15),
-    tertiary = Color(0xFF8B4F1E),
+    secondaryContainer = Color(0xFFF4EBE1),
+    onSecondaryContainer = Color(0xFF2E241B),
+    tertiary = Carrot,
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFFFDCC2),
-    onTertiaryContainer = Color(0xFF2F1500),
-    background = BrandCream,
-    onBackground = Color(0xFF1A1C19),
-    surface = BrandCream,
-    onSurface = Color(0xFF1A1C19),
-    surfaceVariant = Color(0xFFDDE5DC),
-    onSurfaceVariant = Color(0xFF414941),
-    outline = Color(0xFF717970),
-    outlineVariant = Color(0xFFC1C9BF),
+    tertiaryContainer = Color(0xFFFFE6D6),
+    onTertiaryContainer = Color(0xFF5A2408),
+    error = Color(0xFFD92D20),
+    onError = Color.White,
+    errorContainer = Color(0xFFFEE4E2),
+    onErrorContainer = Color(0xFF7A1712),
+    background = Cream,
+    onBackground = WarmInk,
+    surface = Cream,
+    onSurface = WarmInk,
+    surfaceVariant = Color(0xFFF2E8DC),
+    onSurfaceVariant = Color(0xFF7A6F66),
+    outline = Color(0xFFB8AA9C),
+    outlineVariant = Color(0xFFEFE5D8),
+    inverseSurface = WarmInk,
+    inverseOnSurface = Color(0xFFFFF4E8),
+    surfaceTint = Leaf,
     surfaceContainerLowest = Color.White,
-    surfaceContainerLow = Color(0xFFF6F3EC),
-    surfaceContainer = Color(0xFFF0EDE6),
-    surfaceContainerHigh = Color(0xFFEAE8E0),
-    surfaceContainerHighest = Color(0xFFE4E2DB),
+    surfaceContainerLow = Color(0xFFFFF4E8),
+    surfaceContainer = Color(0xFFFBEFE2),
+    surfaceContainerHigh = Color(0xFFF5E8DA),
+    surfaceContainerHighest = Color(0xFFEFE1D1),
 )
 
+/** Warm espresso rather than blue-black, so the dark theme still feels like a kitchen. */
 private val DarkColorScheme = darkColorScheme(
-    primary = BrandGreenLight,
-    onPrimary = Color(0xFF003822),
-    primaryContainer = Color(0xFF0F5236),
-    onPrimaryContainer = Color(0xFFABF5CB),
-    secondary = Color(0xFFB5CCBC),
-    onSecondary = Color(0xFF203529),
-    secondaryContainer = Color(0xFF374B3F),
-    onSecondaryContainer = Color(0xFFD1E8D8),
-    tertiary = Color(0xFFFFB77C),
-    onTertiary = Color(0xFF4D2600),
-    tertiaryContainer = Color(0xFF6E3908),
-    onTertiaryContainer = Color(0xFFFFDCC2),
-    background = Color(0xFF111411),
-    onBackground = Color(0xFFE2E3DD),
-    surface = Color(0xFF111411),
-    onSurface = Color(0xFFE2E3DD),
-    surfaceVariant = Color(0xFF414941),
-    onSurfaceVariant = Color(0xFFC1C9BF),
-    outline = Color(0xFF8B938A),
-    outlineVariant = Color(0xFF414941),
-    surfaceContainerLowest = Color(0xFF0C0F0C),
-    surfaceContainerLow = Color(0xFF1A1C19),
-    surfaceContainer = Color(0xFF1E201D),
-    surfaceContainerHigh = Color(0xFF282B27),
-    surfaceContainerHighest = Color(0xFF333532),
+    primary = LeafLight,
+    onPrimary = Color(0xFF053019),
+    primaryContainer = Color(0xFF12452A),
+    onPrimaryContainer = Color(0xFFC7F5D6),
+    inversePrimary = Leaf,
+    secondary = Color(0xFFD6C6B6),
+    onSecondary = Color(0xFF392D22),
+    secondaryContainer = Color(0xFF2E2721),
+    onSecondaryContainer = Color(0xFFF1E3D4),
+    tertiary = Color(0xFFFF9A62),
+    onTertiary = Color(0xFF4A1E06),
+    tertiaryContainer = Color(0xFF4A2513),
+    onTertiaryContainer = Color(0xFFFFDCC8),
+    error = Color(0xFFF87171),
+    onError = Color(0xFF450A0A),
+    errorContainer = Color(0xFF7A1712),
+    onErrorContainer = Color(0xFFFEE4E2),
+    background = Espresso,
+    onBackground = Color(0xFFF6EEE6),
+    surface = Espresso,
+    onSurface = Color(0xFFF6EEE6),
+    surfaceVariant = Color(0xFF3A332C),
+    onSurfaceVariant = Color(0xFFB5A99C),
+    outline = Color(0xFF8A7E72),
+    outlineVariant = Color(0xFF3A332C),
+    inverseSurface = Color(0xFFF6EEE6),
+    inverseOnSurface = Color(0xFF2A2420),
+    surfaceTint = LeafLight,
+    surfaceContainerLowest = Color(0xFF191511),
+    surfaceContainerLow = Color(0xFF1B1713),
+    surfaceContainer = Color(0xFF1E1A16),
+    surfaceContainerHigh = Color(0xFF29241F),
+    surfaceContainerHighest = Color(0xFF332D27),
 )
 
-/** Softer, rounder than the Material defaults, to match the mascot and the Nunito type. */
+/**
+ * One radius scale for the whole app: chips and fields 12, cards 16–24, sheets and heroes 28+.
+ * Buttons stay fully rounded (Material's default) so they never look like cards.
+ */
 private val ShelfieShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),
     small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(28.dp),
-    extraLarge = RoundedCornerShape(36.dp),
+    medium = RoundedCornerShape(18.dp),
+    large = RoundedCornerShape(24.dp),
+    extraLarge = RoundedCornerShape(32.dp),
 )
 
 /**
  * Brand colours always, not the wallpaper's dynamic colours: the app should look like Shelfie
- * on every phone, and the freshness red/amber/green must never clash with a random palette.
+ * on every phone, and the freshness red/honey/green must never clash with a random palette.
+ * [darkTheme] comes from the user's theme setting (light by default), see MainActivity.
  */
 @Composable
 fun ShelfieTheme(
@@ -90,6 +112,7 @@ fun ShelfieTheme(
     CompositionLocalProvider(
         LocalFreshnessPalette provides if (darkTheme) DarkFreshnessPalette else LightFreshnessPalette,
         LocalChartPalette provides if (darkTheme) DarkChartPalette else LightChartPalette,
+        LocalExtendedColors provides if (darkTheme) DarkExtendedColors else LightExtendedColors,
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
@@ -104,6 +127,8 @@ private val LocalFreshnessPalette = staticCompositionLocalOf { LightFreshnessPal
 
 private val LocalChartPalette = staticCompositionLocalOf { LightChartPalette }
 
+private val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }
+
 /** Colours for the rescued / thrown-away statistics chart, matching light/dark mode. */
 val MaterialTheme.chartPalette: ChartPalette
     @Composable
@@ -115,3 +140,9 @@ val MaterialTheme.freshnessPalette: FreshnessPalette
     @Composable
     @ReadOnlyComposable
     get() = LocalFreshnessPalette.current
+
+/** Brand colours outside Material's scheme, such as the evergreen hero surface. */
+val MaterialTheme.extendedColors: ShelfieExtendedColors
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalExtendedColors.current

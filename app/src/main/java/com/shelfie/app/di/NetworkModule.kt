@@ -80,13 +80,15 @@ object NetworkModule {
             .readTimeout(GEMINI_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(GEMINI_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .addInterceptor { chain ->
+                // OkHttp runs interceptors off the main thread. The install id is cached after the
+                // first read; the session tells the server whose daily allowance (and plan) applies.
+                val token = runBlocking { accountStore.currentSession()?.token }
                 chain.proceed(
                     chain.request().newBuilder()
                         .header(GeminiApiService.PROXY_TOKEN_HEADER, config.proxyToken)
-                        // For the usage dashboard; read from DataStore once, then cached.
-                        // OkHttp runs interceptors off the main thread.
                         .header(GeminiApiService.INSTALL_HEADER, runBlocking { accountStore.installId() })
                         .header(GeminiApiService.VERSION_HEADER, BuildConfig.VERSION_NAME)
+                        .apply { if (token != null) header(ShelfieApiService.AUTHORIZATION, ShelfieApiService.bearer(token)) }
                         .build(),
                 )
             }

@@ -4,21 +4,29 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.shelfie.app.domain.model.FreshnessStatus
 
-// region Brand: fresh mint green on warm cream, with an apricot accent (tertiary).
+// region Brand: "fresh market". Leaf green on warm cream, with a carrot accent (tertiary).
+//
+// The app is about food that's still good: the palette is light, warm and appetising, like a
+// market stall in the morning, not a dashboard. Green means fresh and "go"; carrot is the
+// cooking accent (recipes, the rescue banner). Status colours (red / honey / green) are only
+// ever paired with a label, so the carrot accent never has to carry meaning on its own.
 
-val BrandGreen = Color(0xFF2E7D5B)
-val BrandGreenLight = Color(0xFF8FD8B0)
-val BrandCream = Color(0xFFFBF8F1)
-val BrandApricot = Color(0xFFF2A65A)
+val Leaf = Color(0xFF23974F)
+val LeafDeep = Color(0xFF1B7A40)
+val LeafLight = Color(0xFF5BD48A)
+val Cream = Color(0xFFFFF9F2)
+val WarmInk = Color(0xFF2A2420)
+val Carrot = Color(0xFFE8692A)
+val Espresso = Color(0xFF15120F)
 
 // endregion
 
-/** Colours of one freshness group: [accent] for dots/bars, [container]/[onContainer] for cards. */
+/** Colours of one freshness group: [accent] for dots/bars, [container]/[onContainer] for tags. */
 @Immutable
 data class StatusColors(val accent: Color, val container: Color, val onContainer: Color)
 
 /**
- * Fixed red / amber / green palette for freshness groups. It deliberately ignores dynamic colour
+ * Fixed red / honey / green palette for freshness groups. It deliberately ignores dynamic colour
  * so "critical" always reads as red, whatever the wallpaper.
  */
 @Immutable
@@ -35,25 +43,70 @@ data class FreshnessPalette(
 }
 
 val LightFreshnessPalette = FreshnessPalette(
-    critical = StatusColors(Color(0xFFD32F2F), Color(0xFFFFDAD6), Color(0xFF410002)),
-    warning = StatusColors(Color(0xFFE6A100), Color(0xFFFFF0C2), Color(0xFF3D2E00)),
-    fresh = StatusColors(Color(0xFF2E7D32), Color(0xFFDCF3DD), Color(0xFF0B3D0F)),
+    critical = StatusColors(Color(0xFFDC2626), Color(0xFFFEE4E2), Color(0xFF7A1712)),
+    warning = StatusColors(Color(0xFFCA8A04), Color(0xFFFEF3C7), Color(0xFF713F12)),
+    fresh = StatusColors(Color(0xFF16A34A), Color(0xFFDCFCE7), Color(0xFF14532D)),
 )
 
 val DarkFreshnessPalette = FreshnessPalette(
-    critical = StatusColors(Color(0xFFFF8A80), Color(0xFF5C1714), Color(0xFFFFDAD6)),
-    warning = StatusColors(Color(0xFFFFD54F), Color(0xFF4A3B00), Color(0xFFFFF0C2)),
-    fresh = StatusColors(Color(0xFF81C784), Color(0xFF1B3D1E), Color(0xFFDCF3DD)),
+    critical = StatusColors(Color(0xFFF87171), Color(0xFF3B1A18), Color(0xFFFCA5A5)),
+    warning = StatusColors(Color(0xFFFACC15), Color(0xFF3A3010), Color(0xFFFDE68A)),
+    fresh = StatusColors(Color(0xFF4ADE80), Color(0xFF14321F), Color(0xFFBBF7D0)),
 )
 
 /**
  * Two-series chart colours (rescued vs thrown away). Teal/orange instead of the freshness
- * green/red because red-green pairs are indistinguishable for deutan/protan colour vision;
- * these pass a CVD separation check (ΔE ≥ 13) against each mode's surface.
+ * green/red because red-green pairs are indistinguishable for deutan/protan colour vision.
  */
 @Immutable
 data class ChartPalette(val rescued: Color, val wasted: Color)
 
-val LightChartPalette = ChartPalette(rescued = Color(0xFF00897B), wasted = Color(0xFFD84315))
+val LightChartPalette = ChartPalette(rescued = Color(0xFF0F9D7A), wasted = Color(0xFFEA580C))
 
-val DarkChartPalette = ChartPalette(rescued = Color(0xFF26A69A), wasted = Color(0xFFF4511E))
+val DarkChartPalette = ChartPalette(rescued = Color(0xFF2DD4BF), wasted = Color(0xFFFB923C))
+
+/**
+ * Colours Material's scheme has no slot for.
+ *
+ * - [hero]/[onHero]: the solid brand surface used once per screen at most (recipe header,
+ *   statistics headline, Premium); [heroTile] sits on it.
+ * - [glassTop]/[glassBottom]/[glassBorder]: the card surface. In light mode a white card with a
+ *   warm hairline on the cream page; in dark mode a faint sheen over the espresso background.
+ * - [glow]: coloured shadow of primary elements (the scan button, the active tab).
+ */
+@Immutable
+data class ShelfieExtendedColors(
+    val hero: Color,
+    val onHero: Color,
+    val onHeroVariant: Color,
+    val heroTile: Color,
+    val glassTop: Color,
+    val glassBottom: Color,
+    val glassBorder: Color,
+    val glow: Color,
+    val navBar: Color,
+)
+
+val LightExtendedColors = ShelfieExtendedColors(
+    hero = LeafDeep,
+    onHero = Color.White,
+    onHeroVariant = Color(0xFFD3F2DC),
+    heroTile = Color.White.copy(alpha = 0.16f),
+    glassTop = Color.White,
+    glassBottom = Color(0xFFFFFDF9),
+    glassBorder = Color(0xFFF0E6D8),
+    glow = Leaf.copy(alpha = 0.35f),
+    navBar = Color.White.copy(alpha = 0.97f),
+)
+
+val DarkExtendedColors = ShelfieExtendedColors(
+    hero = Color(0xFF164A2C),
+    onHero = Color.White,
+    onHeroVariant = Color(0xFFB9EBC9),
+    heroTile = Color.White.copy(alpha = 0.08f),
+    glassTop = Color.White.copy(alpha = 0.06f),
+    glassBottom = Color.White.copy(alpha = 0.03f),
+    glassBorder = Color.White.copy(alpha = 0.09f),
+    glow = LeafLight.copy(alpha = 0.45f),
+    navBar = Color(0xFF1E1A16).copy(alpha = 0.96f),
+)
