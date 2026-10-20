@@ -331,6 +331,21 @@ private fun ExpiryPicker(expiry: LocalDate, onExpiryChange: (LocalDate) -> Unit,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        var scanFailed by rememberSaveable { mutableStateOf(false) }
+        ExpiryScanButton(
+            onDate = {
+                scanFailed = false
+                onExpiryChange(it)
+            },
+            onFailed = { scanFailed = true },
+        )
+        if (scanFailed) {
+            Text(
+                text = stringResource(R.string.edit_expiry_scan_failed),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(
                 3L to R.string.edit_expiry_in_3_days,

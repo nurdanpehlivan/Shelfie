@@ -480,4 +480,9 @@
 
     <string name="notification_last_day_title">🕐 Heute letzter Tag</string>
     <string name="notification_last_day_text">Heute ist der letzte Tag für %1$s. Essen, kochen oder einfrieren.</string>
+
+    <!-- Reading the printed expiry date on the device. -->
+    <string name="edit_expiry_scan">Datum von der Packung lesen</string>
+    <string name="edit_expiry_reading">Wird gelesen…</string>
+    <string name="edit_expiry_scan_failed">Kein Datum gefunden. Näher am Etikett versuchen oder oben wählen.</string>
 </resources>

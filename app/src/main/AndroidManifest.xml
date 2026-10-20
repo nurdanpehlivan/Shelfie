@@ -39,10 +39,11 @@
             </intent-filter>
         </activity>
 
-        <!-- Downloads the barcode scanner module at install time instead of on first use. -->
+        <!-- Downloads the barcode scanner and text recognition (expiry dates) modules at install
+             time instead of on first use, so both work offline. -->
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="barcode_ui" />
+            android:value="barcode_ui,ocr" />
 
         <!-- WorkManager is initialised on demand with Hilt's worker factory (ShelfieApplication). -->
         <provider

@@ -102,6 +102,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // Shelfie Premium subscription; purchases are verified by the backend (backend/src/billing.ts).
     implementation(libs.play.billing)
+    // On-device reading of printed expiry dates; the model comes from Play services.
+    implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.play.services.code.scanner)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

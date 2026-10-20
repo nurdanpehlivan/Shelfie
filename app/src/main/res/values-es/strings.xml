@@ -480,4 +480,9 @@
 
     <string name="notification_last_day_title">🕐 Hoy es el último día</string>
     <string name="notification_last_day_text">Hoy es el último día para %1$s. Cómelo, cocínalo o congélalo.</string>
+
+    <!-- Reading the printed expiry date on the device. -->
+    <string name="edit_expiry_scan">Leer la fecha del envase</string>
+    <string name="edit_expiry_reading">Leyendo…</string>
+    <string name="edit_expiry_scan_failed">No se encontró la fecha. Prueba más cerca de la etiqueta o elígela arriba.</string>
 </resources>

@@ -483,4 +483,9 @@
 
     <string name="notification_last_day_title">🕐 Bugün son gün</string>
     <string name="notification_last_day_text">%1$s için bugün son gün. Ye, pişir ya da dondur.</string>
+
+    <!-- Reading the printed expiry date on the device. -->
+    <string name="edit_expiry_scan">Paketteki tarihi okut</string>
+    <string name="edit_expiry_reading">Okunuyor…</string>
+    <string name="edit_expiry_scan_failed">Tarih bulunamadı. Etikete daha yakından dene ya da yukarıdan seç.</string>
 </resources>

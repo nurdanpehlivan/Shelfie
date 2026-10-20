@@ -19,6 +19,7 @@ datastore = "1.1.7"
 # Google Play services
 codeScanner = "16.1.0"
 billing = "8.0.0"
+mlkitTextRecognition = "19.0.1"
 
 # Dependency injection
 hilt = "2.60.1"
@@ -44,6 +45,7 @@ turbine = "1.2.1"
 mockk = "1.14.11"
 
 [libraries]
+play-services-mlkit-text-recognition = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition", version.ref = "mlkitTextRecognition" }
 play-billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
 # AndroidX core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -487,4 +487,9 @@
 
     <string name="notification_last_day_title">🕐 Last day today</string>
     <string name="notification_last_day_text">Today is the last day for your %1$s. Eat it, cook it or freeze it.</string>
+
+    <!-- Reading the printed expiry date on the device. -->
+    <string name="edit_expiry_scan">Read the date from the pack</string>
+    <string name="edit_expiry_reading">Reading…</string>
+    <string name="edit_expiry_scan_failed">No date found. Try again closer to the label, or pick it above.</string>
 </resources>
