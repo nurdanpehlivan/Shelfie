@@ -468,4 +468,16 @@
         <item quantity="one">Pasar %d a la despensa</item>
         <item quantity="other">Pasar %d a la despensa</item>
     </plurals>
+
+    <!-- Cooking timer and leftovers. -->
+    <string name="recipe_timer_done">¡Listo! Toca para reiniciar</string>
+    <plurals name="recipe_timer_start">
+        <item quantity="one">Iniciar temporizador de %d minuto</item>
+        <item quantity="other">Iniciar temporizador de %d minutos</item>
+    </plurals>
+    <string name="recipe_action_save_leftovers">Guardar las sobras en la nevera</string>
+    <string name="recipe_leftovers_saved">Las sobras están 3 días en tu despensa</string>
+
+    <string name="notification_last_day_title">🕐 Hoy es el último día</string>
+    <string name="notification_last_day_text">Hoy es el último día para %1$s. Cómelo, cocínalo o congélalo.</string>
 </resources>

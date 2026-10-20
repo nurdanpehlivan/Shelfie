@@ -475,4 +475,16 @@
         <item quantity="one">Put %d in the pantry</item>
         <item quantity="other">Put %d in the pantry</item>
     </plurals>
+
+    <!-- Cooking timer and leftovers. -->
+    <string name="recipe_timer_done">Done! Tap to restart</string>
+    <plurals name="recipe_timer_start">
+        <item quantity="one">Start %d-minute timer</item>
+        <item quantity="other">Start %d-minute timer</item>
+    </plurals>
+    <string name="recipe_action_save_leftovers">Put leftovers in the fridge</string>
+    <string name="recipe_leftovers_saved">Leftovers are in your pantry for 3 days</string>
+
+    <string name="notification_last_day_title">🕐 Last day today</string>
+    <string name="notification_last_day_text">Today is the last day for your %1$s. Eat it, cook it or freeze it.</string>
 </resources>

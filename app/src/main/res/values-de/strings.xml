@@ -468,4 +468,16 @@
         <item quantity="one">%d in den Vorrat</item>
         <item quantity="other">%d in den Vorrat</item>
     </plurals>
+
+    <!-- Cooking timer and leftovers. -->
+    <string name="recipe_timer_done">Fertig! Tippen zum Neustart</string>
+    <plurals name="recipe_timer_start">
+        <item quantity="one">%d-Minuten-Timer starten</item>
+        <item quantity="other">%d-Minuten-Timer starten</item>
+    </plurals>
+    <string name="recipe_action_save_leftovers">Reste in den Kühlschrank</string>
+    <string name="recipe_leftovers_saved">Die Reste sind 3 Tage in deinem Vorrat</string>
+
+    <string name="notification_last_day_title">🕐 Heute letzter Tag</string>
+    <string name="notification_last_day_text">Heute ist der letzte Tag für %1$s. Essen, kochen oder einfrieren.</string>
 </resources>

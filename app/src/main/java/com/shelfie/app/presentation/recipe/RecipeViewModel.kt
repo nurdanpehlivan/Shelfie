@@ -14,6 +14,7 @@ import com.shelfie.app.domain.repository.RecipeRepository
 import com.shelfie.app.domain.repository.ShoppingListRepository
 import com.shelfie.app.domain.usecase.CookRecipeUseCase
 import com.shelfie.app.domain.usecase.GetExpiringIngredientsUseCase
+import com.shelfie.app.domain.usecase.SaveLeftoversUseCase
 import com.shelfie.app.presentation.navigation.RecipeDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -38,6 +39,7 @@ class RecipeViewModel @Inject constructor(
     private val pantryRepository: PantryRepository,
     private val shoppingListRepository: ShoppingListRepository,
     private val cookRecipe: CookRecipeUseCase,
+    private val saveLeftovers: SaveLeftoversUseCase,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -81,6 +83,7 @@ class RecipeViewModel @Inject constructor(
             RecipeIntent.ToggleFavorite -> toggleFavorite()
             RecipeIntent.MarkCooked -> markCooked()
             RecipeIntent.AddMissingToShoppingList -> addMissingToShoppingList()
+            RecipeIntent.SaveLeftovers -> saveLeftovers()
         }
     }
 
@@ -167,6 +170,17 @@ class RecipeViewModel @Inject constructor(
             val consumed = cookRecipe(ready.savedRecipeId)
             updateReady { it.copy(isCooked = true, isMarkingCooked = false) }
             _effects.send(RecipeEffect.Cooked(consumed))
+        }
+    }
+
+    private fun saveLeftovers() {
+        val ready = _uiState.value as? RecipeUiState.Ready ?: return
+        if (ready.leftoversSaved) return
+        updateReady { it.copy(leftoversSaved = true) }
+        launchSafely(onError = { updateReady { it.copy(leftoversSaved = false) } }) {
+            val saved = recipeRepository.getSavedRecipe(ready.savedRecipeId) ?: return@launchSafely
+            saveLeftovers(saved)
+            _effects.send(RecipeEffect.LeftoversSaved)
         }
     }
 

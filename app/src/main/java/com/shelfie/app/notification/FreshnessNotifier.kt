@@ -93,6 +93,44 @@ class FreshnessNotifier @Inject constructor(
         }
     }
 
+    /**
+     * "Last day today: milk and yogurt." Separate from the recipe notification, which only
+     * covers food that can be cooked. Opens the pantry. Does nothing for an empty list.
+     */
+    fun showLastDay(items: List<PantryItem>) {
+        if (!canPostNotifications() || items.isEmpty()) return
+        val locale = Locale.getDefault()
+        val names = joinNames(
+            items.take(MAX_NAMES).map { item ->
+                item.name.trim().let { if (locale.language == "de") it else it.lowercase(locale) }
+            },
+        )
+        val text = context.getString(R.string.notification_last_day_text, names)
+        val intent = Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.notification_last_day_title))
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    context,
+                    REQUEST_CODE_PANTRY,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                ),
+            )
+            .setAutoCancel(true)
+            .build()
+        try {
+            notificationManager.notify(NOTIFICATION_ID_LAST_DAY, notification)
+        } catch (e: SecurityException) {
+            // Permission revoked between the check and the call.
+        }
+    }
+
     private fun canPostNotifications(): Boolean {
         if (!notificationManager.areNotificationsEnabled()) return false
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
@@ -135,5 +173,10 @@ class FreshnessNotifier @Inject constructor(
         const val CHANNEL_ID = "freshness_alerts"
         const val NOTIFICATION_ID = 1001
         const val REQUEST_CODE_RECIPE = 1
+        const val NOTIFICATION_ID_LAST_DAY = 1002
+        const val REQUEST_CODE_PANTRY = 2
+
+        /** More names than this stop fitting a notification line. */
+        const val MAX_NAMES = 4
     }
 }

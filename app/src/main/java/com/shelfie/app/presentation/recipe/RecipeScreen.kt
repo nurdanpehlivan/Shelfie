@@ -109,6 +109,7 @@ fun RecipeRoute(
                         )
                     }
                     is RecipeEffect.ShowMessage -> context.getString(effect.messageRes)
+                    RecipeEffect.LeftoversSaved -> context.getString(R.string.recipe_leftovers_saved)
                 }
                 launch { snackbarHostState.showSnackbar(message) }
             }
@@ -240,6 +241,8 @@ fun RecipeScreen(
                             onBackToRecipe = { onIntent(RecipeIntent.ExitCooking) },
                             onFinish = onNavigateUp,
                             modifier = contentModifier,
+                            leftoversSaved = current.leftoversSaved,
+                            onSaveLeftovers = { onIntent(RecipeIntent.SaveLeftovers) },
                         )
                     }
                 }

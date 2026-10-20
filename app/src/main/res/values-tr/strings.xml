@@ -471,4 +471,16 @@
         <item quantity="one">%d ürünü kilere ekle</item>
         <item quantity="other">%d ürünü kilere ekle</item>
     </plurals>
+
+    <!-- Cooking timer and leftovers. -->
+    <string name="recipe_timer_done">Süre doldu! Yeniden başlatmak için dokun</string>
+    <plurals name="recipe_timer_start">
+        <item quantity="one">%d dakikalık zamanlayıcıyı başlat</item>
+        <item quantity="other">%d dakikalık zamanlayıcıyı başlat</item>
+    </plurals>
+    <string name="recipe_action_save_leftovers">Artanı buzdolabına ekle</string>
+    <string name="recipe_leftovers_saved">Artan, 3 günlüğüne kilerine eklendi</string>
+
+    <string name="notification_last_day_title">🕐 Bugün son gün</string>
+    <string name="notification_last_day_text">%1$s için bugün son gün. Ye, pişir ya da dondur.</string>
 </resources>

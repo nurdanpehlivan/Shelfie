@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.PantryScanException
+import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.RecipeRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.domain.usecase.GetExpiringIngredientsUseCase
@@ -15,6 +16,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import java.time.Clock
+import java.time.LocalDate
 import java.time.LocalTime
 
 /**
@@ -27,6 +29,7 @@ class FreshnessCheckWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val getExpiringIngredients: GetExpiringIngredientsUseCase,
+    private val pantryRepository: PantryRepository,
     private val recipeRepository: RecipeRepository,
     private val settingsRepository: SettingsRepository,
     private val notifier: FreshnessNotifier,
@@ -37,6 +40,12 @@ class FreshnessCheckWorker @AssistedInject constructor(
         // The schedule is cancelled when notifications are turned off; this covers a run that
         // was already pending at that moment.
         if (!settingsRepository.settings.first().notificationsEnabled) return Result.success()
+
+        // Whatever's on its last day, drinks and snacks included (they're never in a recipe).
+        val today = LocalDate.now(clock)
+        val lastDay = runCatching { pantryRepository.observePantryItems().first() }.getOrDefault(emptyList())
+            .filter { it.expiryDate == today }
+        notifier.showLastDay(lastDay)
 
         val ingredients = try {
             getExpiringIngredients()

@@ -469,4 +469,16 @@
         <item quantity="one">Ranger %d au placard</item>
         <item quantity="other">Ranger %d au placard</item>
     </plurals>
+
+    <!-- Cooking timer and leftovers. -->
+    <string name="recipe_timer_done">Terminé ! Touche pour relancer</string>
+    <plurals name="recipe_timer_start">
+        <item quantity="one">Lancer le minuteur de %d minute</item>
+        <item quantity="other">Lancer le minuteur de %d minutes</item>
+    </plurals>
+    <string name="recipe_action_save_leftovers">Mettre les restes au frigo</string>
+    <string name="recipe_leftovers_saved">Les restes sont dans ton placard pour 3 jours</string>
+
+    <string name="notification_last_day_title">🕐 Dernier jour aujourd\'hui</string>
+    <string name="notification_last_day_text">C\'est le dernier jour pour %1$s. Mange-le, cuisine-le ou congèle-le.</string>
 </resources>

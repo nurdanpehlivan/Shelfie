@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -64,6 +65,8 @@ fun CookingMode(
     onBackToRecipe: () -> Unit,
     onFinish: () -> Unit,
     modifier: Modifier = Modifier,
+    leftoversSaved: Boolean = false,
+    onSaveLeftovers: () -> Unit = {},
 ) {
     KeepScreenOn()
     Column(modifier = modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
@@ -88,6 +91,8 @@ fun CookingMode(
                     onMarkCooked = onMarkCooked,
                     onBackToRecipe = onBackToRecipe,
                     onFinish = onFinish,
+                    leftoversSaved = leftoversSaved,
+                    onSaveLeftovers = onSaveLeftovers,
                 )
             } else {
                 StepContent(
@@ -140,15 +145,7 @@ private fun StepContent(
                 )
                 if (step.durationMinutes > 0) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "⏲ " + pluralStringResource(
-                            R.plurals.recipe_step_wait,
-                            step.durationMinutes,
-                            step.durationMinutes,
-                        ),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
+                    StepTimer(minutes = step.durationMinutes, stepIndex = index)
                 }
             }
         }
@@ -182,6 +179,8 @@ private fun FinishedContent(
     onMarkCooked: () -> Unit,
     onBackToRecipe: () -> Unit,
     onFinish: () -> Unit,
+    leftoversSaved: Boolean,
+    onSaveLeftovers: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
@@ -214,6 +213,17 @@ private fun FinishedContent(
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onFinish, modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 Text(stringResource(R.string.recipe_action_done))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            // Leftovers go to the fridge list, so they are eaten rather than forgotten.
+            FilledTonalButton(
+                onClick = onSaveLeftovers,
+                enabled = !leftoversSaved,
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+            ) {
+                Text(
+                    stringResource(if (leftoversSaved) R.string.recipe_leftovers_saved else R.string.recipe_action_save_leftovers),
+                )
             }
         } else {
             // The point of the whole flow: the rescued items leave the pantry as eaten.

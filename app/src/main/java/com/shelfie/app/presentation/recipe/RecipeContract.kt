@@ -30,6 +30,7 @@ sealed interface RecipeUiState {
         val recipe: Recipe,
         val isFavorite: Boolean = false,
         val isCooked: Boolean = false,
+        val leftoversSaved: Boolean = false,
         /** Opened from the history: "another recipe" makes no sense there. */
         val isFromHistory: Boolean = false,
         val isMarkingCooked: Boolean = false,
@@ -69,6 +70,9 @@ sealed interface RecipeIntent {
 
     /** Puts the extra (non-pantry) ingredients on the shopping list. */
     data object AddMissingToShoppingList : RecipeIntent
+
+    /** What wasn't eaten goes into the fridge as a pantry item. */
+    data object SaveLeftovers : RecipeIntent
 }
 
 sealed interface RecipeEffect {
@@ -76,6 +80,8 @@ sealed interface RecipeEffect {
     data class Cooked(val consumedCount: Int) : RecipeEffect
 
     data class AddedToShoppingList(val addedCount: Int) : RecipeEffect
+
+    data object LeftoversSaved : RecipeEffect
 
     data class ShowMessage(@param:StringRes val messageRes: Int) : RecipeEffect
 }
