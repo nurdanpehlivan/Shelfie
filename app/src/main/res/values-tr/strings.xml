@@ -494,4 +494,8 @@
     <string name="widget_description">En yakında bitecek ürünler</string>
     <string name="widget_title">⏳ Bitmek üzere</string>
     <string name="widget_empty">Hepsi taze 🎉 Yakında biten bir şey yok.</string>
+
+    <string name="onboarding_family_title">Haftayı planla, ailenle paylaş</string>
+    <string name="onboarding_family_body">Haftanın öğünlerini tariflerinle planla, eksikleri listeye ekle ve tek bir kileri hanenle paylaş.</string>
+    <string name="settings_privacy">Gizlilik politikası</string>
 </resources>

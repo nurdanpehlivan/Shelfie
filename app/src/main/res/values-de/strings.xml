@@ -491,4 +491,8 @@
     <string name="widget_description">Was zuerst abläuft</string>
     <string name="widget_title">⏳ Bald verbrauchen</string>
     <string name="widget_empty">Alles frisch 🎉 Nichts läuft bald ab.</string>
+
+    <string name="onboarding_family_title">Woche planen, mit der Familie teilen</string>
+    <string name="onboarding_family_body">Plane die Mahlzeiten der Woche mit deinen Rezepten, setz Fehlendes auf die Liste und teile einen Vorrat mit deinem Haushalt.</string>
+    <string name="settings_privacy">Datenschutzerklärung</string>
 </resources>

@@ -54,6 +54,7 @@ private val pages = listOf(
     OnboardingPage(FrizzyMood.HAPPY, R.string.onboarding_welcome_title, R.string.onboarding_welcome_body),
     OnboardingPage(FrizzyMood.WORRIED, R.string.onboarding_track_title, R.string.onboarding_track_body),
     OnboardingPage(FrizzyMood.CHEF, R.string.onboarding_recipes_title, R.string.onboarding_recipes_body),
+    OnboardingPage(FrizzyMood.HAPPY, R.string.onboarding_family_title, R.string.onboarding_family_body),
     OnboardingPage(FrizzyMood.CELEBRATING, R.string.onboarding_notify_title, R.string.onboarding_notify_body),
 )
 

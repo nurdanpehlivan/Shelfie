@@ -57,7 +57,10 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 shrinks and obfuscates; libraries ship their own keep rules (serialization,
+            // Retrofit, Room, Hilt, ML Kit, Billing), proguard-rules.pro holds the app's.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

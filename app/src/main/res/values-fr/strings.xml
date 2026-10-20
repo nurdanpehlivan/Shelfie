@@ -492,4 +492,8 @@
     <string name="widget_description">Ce qui périme en premier</string>
     <string name="widget_title">⏳ À consommer vite</string>
     <string name="widget_empty">Tout est frais 🎉 Rien ne périme bientôt.</string>
+
+    <string name="onboarding_family_title">Planifie la semaine, partage en famille</string>
+    <string name="onboarding_family_body">Planifie les repas de la semaine avec tes recettes, note ce qui manque et partage un placard avec ton foyer.</string>
+    <string name="settings_privacy">Politique de confidentialité</string>
 </resources>

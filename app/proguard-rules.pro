@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Readable stack traces from release builds (crash reports, Play Console vitals); upload the
+# mapping file (app/build/outputs/mapping/release/mapping.txt) with each release.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

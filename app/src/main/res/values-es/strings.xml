@@ -491,4 +491,8 @@
     <string name="widget_description">Lo que caduca antes</string>
     <string name="widget_title">⏳ Consumir pronto</string>
     <string name="widget_empty">Todo fresco 🎉 Nada caduca pronto.</string>
+
+    <string name="onboarding_family_title">Planifica la semana y comparte</string>
+    <string name="onboarding_family_body">Planifica las comidas de la semana con tus recetas, apunta lo que falta y comparte una despensa con tu hogar.</string>
+    <string name="settings_privacy">Política de privacidad</string>
 </resources>

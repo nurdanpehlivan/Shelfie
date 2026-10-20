@@ -498,4 +498,8 @@
     <string name="widget_description">The products that run out soonest</string>
     <string name="widget_title">⏳ Use soon</string>
     <string name="widget_empty">All fresh 🎉 Nothing runs out soon.</string>
+
+    <string name="onboarding_family_title">Plan the week, share with family</string>
+    <string name="onboarding_family_body">Plan the week\'s meals with your recipes, put what\'s missing on the list, and share one pantry with your household.</string>
+    <string name="settings_privacy">Privacy policy</string>
 </resources>
