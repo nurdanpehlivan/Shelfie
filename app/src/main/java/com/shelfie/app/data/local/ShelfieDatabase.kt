@@ -1,18 +1,18 @@
 package com.shelfie.app.data.local
 
 import androidx.room.AutoMigration
-import androidx.room.migration.AutoMigrationSpec
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.shelfie.app.data.local.dao.MealPlanDao
-import com.shelfie.app.data.local.entity.MealPlanEntity
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.shelfie.app.data.local.converter.ShelfieTypeConverters
+import com.shelfie.app.data.local.dao.MealPlanDao
 import com.shelfie.app.data.local.dao.PantryDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
 import com.shelfie.app.data.local.dao.SyncDao
+import com.shelfie.app.data.local.entity.MealPlanEntity
 import com.shelfie.app.data.local.entity.PantryItemEntity
 import com.shelfie.app.data.local.entity.SavedRecipeEntity
 import com.shelfie.app.data.local.entity.ShoppingItemEntity

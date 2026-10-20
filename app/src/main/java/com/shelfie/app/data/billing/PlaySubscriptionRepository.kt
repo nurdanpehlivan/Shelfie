@@ -13,55 +13,44 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.shelfie.app.domain.repository.HouseholdRepository
+import com.shelfie.app.BuildConfig
+import com.shelfie.app.data.remote.gemini.GeminiConfig
+import com.shelfie.app.data.remote.shelfie.ShelfieApiService
+import com.shelfie.app.data.remote.shelfie.VerifyPurchaseRequest
+import com.shelfie.app.data.sync.AccountStore
+import com.shelfie.app.domain.model.PremiumOffer
+import com.shelfie.app.domain.model.PurchaseEvent
+import com.shelfie.app.domain.model.PurchaseHost
+import com.shelfie.app.domain.model.QuotaStatus
+import com.shelfie.app.domain.repository.SubscriptionRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-/** One way to pay for Premium, e.g. the monthly or the yearly base plan. */
-data class PremiumOffer(
-    val basePlanId: String,
-    /** Play's localized price of the recurring phase, e.g. "₺49,99". */
-    val formattedPrice: String,
-    /** ISO 8601 period of that phase: "P1M", "P1Y". */
-    val billingPeriod: String,
-    /** A free trial or intro price comes first. */
-    val hasIntroOffer: Boolean,
-    internal val offerToken: String,
-    internal val details: ProductDetails,
-)
-
-sealed interface PurchaseEvent {
-    data object Granted : PurchaseEvent
-
-    /** Paid by a slow method (cash, bank); Premium starts once Play confirms it. */
-    data object Pending : PurchaseEvent
-
-    data object Cancelled : PurchaseEvent
-
-    /** Play said no, or the server couldn't confirm the purchase. */
-    data object Failed : PurchaseEvent
-}
-
 /**
- * Google Play Billing for the Premium subscription. Play takes the payment; the backend checks
- * the purchase with Google (backend/src/billing.ts) and only then is it acknowledged here, so an
- * unconfirmed purchase is refunded by Play after three days instead of granting nothing.
+ * Premium on Google Play. Play takes the payment; the backend checks the purchase with Google
+ * (backend/src/billing.ts) and only then is it acknowledged here, so an unconfirmed purchase is
+ * refunded by Play after three days instead of granting nothing.
  */
 @Singleton
-class PlayBillingManager @Inject constructor(
+class PlaySubscriptionRepository @Inject constructor(
     @ApplicationContext context: Context,
-    private val householdRepository: HouseholdRepository,
-) : PurchasesUpdatedListener {
+    private val api: ShelfieApiService,
+    private val accountStore: AccountStore,
+    private val config: GeminiConfig,
+) : SubscriptionRepository, PurchasesUpdatedListener {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -71,11 +60,13 @@ class PlayBillingManager @Inject constructor(
         .enableAutoServiceReconnection()
         .build()
 
-    private val _events = MutableSharedFlow<PurchaseEvent>(extraBufferCapacity = 4)
-    val events: SharedFlow<PurchaseEvent> = _events.asSharedFlow()
+    /** Play's product for each offer token, needed to launch the purchase. */
+    private val productsByOfferToken = ConcurrentHashMap<String, ProductDetails>()
 
-    /** Available offers, cheapest period first; empty if Play or the product isn't available. */
-    suspend fun loadOffers(): List<PremiumOffer> {
+    private val _events = MutableSharedFlow<PurchaseEvent>(extraBufferCapacity = 4)
+    override val events: Flow<PurchaseEvent> = _events.asSharedFlow()
+
+    override suspend fun offers(): List<PremiumOffer> {
         if (!connect()) return emptyList()
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
@@ -96,13 +87,13 @@ class PlayBillingManager @Inject constructor(
             product.subscriptionOfferDetails.orEmpty().mapNotNull { offer ->
                 val phases = offer.pricingPhases.pricingPhaseList
                 val recurring = phases.lastOrNull() ?: return@mapNotNull null
+                productsByOfferToken[offer.offerToken] = product
                 PremiumOffer(
                     basePlanId = offer.basePlanId,
                     formattedPrice = recurring.formattedPrice,
                     billingPeriod = recurring.billingPeriod,
                     hasIntroOffer = phases.size > 1,
                     offerToken = offer.offerToken,
-                    details = product,
                 )
             }
         }
@@ -112,23 +103,27 @@ class PlayBillingManager @Inject constructor(
             .sortedBy { it.billingPeriod.periodDays() }
     }
 
-    fun launch(activity: Activity, offer: PremiumOffer) {
+    override fun purchase(host: PurchaseHost, offer: PremiumOffer) {
+        val activity = host.platformHost as? Activity
+        val product = productsByOfferToken[offer.offerToken]
+        if (activity == null || product == null) {
+            _events.tryEmit(PurchaseEvent.Failed)
+            return
+        }
         val params = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(offer.details)
+                        .setProductDetails(product)
                         .setOfferToken(offer.offerToken)
                         .build(),
                 ),
             )
             .build()
-        val result = client.launchBillingFlow(activity, params)
-        if (!result.isOk) _events.tryEmit(PurchaseEvent.Failed)
+        if (!client.launchBillingFlow(activity, params).isOk) _events.tryEmit(PurchaseEvent.Failed)
     }
 
-    /** Re-sends active subscriptions to the server, e.g. after reinstalling or signing in again. */
-    suspend fun restore(): Boolean {
+    override suspend fun restore(): Boolean {
         if (!connect()) return false
         val purchases = suspendCancellableCoroutine { continuation ->
             client.queryPurchasesAsync(
@@ -139,6 +134,33 @@ class PlayBillingManager @Inject constructor(
         for (purchase in purchases) if (handle(purchase) == PurchaseEvent.Granted) granted = true
         return granted
     }
+
+    override suspend fun quota(): Result<QuotaStatus> = try {
+        val session = accountStore.currentSession()
+        val dto = api.quota(
+            proxyToken = config.proxyToken,
+            installId = accountStore.installId(),
+            bearer = session?.let { ShelfieApiService.bearer(it.token) },
+        )
+        Result.success(
+            QuotaStatus(
+                isPremium = dto.plan == "premium",
+                premiumUntil = dto.premiumUntil?.let(Instant::ofEpochMilli),
+                resetsAt = Instant.ofEpochMilli(dto.resetsAt),
+                scansUsed = dto.scan.used,
+                scanLimit = dto.scan.limit,
+                recipesUsed = dto.recipe.used,
+                recipeLimit = dto.recipe.limit,
+            ),
+        )
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    override fun manageUrl(): String =
+        "https://play.google.com/store/account/subscriptions?sku=$PREMIUM_PRODUCT_ID&package=${BuildConfig.APPLICATION_ID}"
 
     override fun onPurchasesUpdated(result: BillingResult, purchases: MutableList<Purchase>?) {
         when (result.responseCode) {
@@ -153,11 +175,21 @@ class PlayBillingManager @Inject constructor(
     private suspend fun handle(purchase: Purchase): PurchaseEvent {
         if (purchase.purchaseState == Purchase.PurchaseState.PENDING) return PurchaseEvent.Pending
         if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) return PurchaseEvent.Failed
-        val productId = purchase.products.firstOrNull() ?: PREMIUM_PRODUCT_ID
-        val entitled = householdRepository.verifyPurchase(productId, purchase.purchaseToken).getOrDefault(false)
-        if (!entitled) return PurchaseEvent.Failed
+        if (!verify(purchase.products.firstOrNull() ?: PREMIUM_PRODUCT_ID, purchase.purchaseToken)) return PurchaseEvent.Failed
         if (!purchase.isAcknowledged) acknowledge(purchase.purchaseToken)
         return PurchaseEvent.Granted
+    }
+
+    /** Premium needs an account; the server checks the token with Google. */
+    private suspend fun verify(productId: String, purchaseToken: String): Boolean {
+        val session = accountStore.currentSession() ?: return false
+        return try {
+            api.verifyPurchase(ShelfieApiService.bearer(session.token), VerifyPurchaseRequest(productId, purchaseToken)).entitled
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            false
+        }
     }
 
     private suspend fun acknowledge(token: String) = suspendCancellableCoroutine { continuation ->
@@ -197,7 +229,7 @@ class PlayBillingManager @Inject constructor(
         }
     }
 
-    companion object {
+    private companion object {
         /** Play Console subscription id; keep in sync with PREMIUM_PRODUCT_IDS on the server. */
         const val PREMIUM_PRODUCT_ID = "shelfie_premium"
     }

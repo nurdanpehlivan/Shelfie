@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.PantryScanException
+import com.shelfie.app.domain.model.edited
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.PhotoStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -121,16 +122,7 @@ class ScannerViewModel @Inject constructor(
             items.map { detected ->
                 if (detected.key != intent.key) return@map detected
                 detected.copy(
-                    item = detected.item.copy(
-                        name = name,
-                        quantity = intent.quantity,
-                        unit = intent.unit,
-                        category = intent.category,
-                        expiryDate = intent.expiryDate,
-                        location = intent.location,
-                        emoji = detected.item.emoji.takeIf { name.equals(detected.item.name, ignoreCase = true) },
-                        isExpiryEstimated = detected.item.isExpiryEstimated && intent.expiryDate == detected.item.expiryDate,
-                    ),
+                    item = detected.item.edited(name, intent.quantity, intent.unit, intent.category, intent.expiryDate, intent.location),
                 )
             }
         }

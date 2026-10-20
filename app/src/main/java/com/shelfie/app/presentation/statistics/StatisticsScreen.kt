@@ -26,12 +26,12 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -42,8 +42,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.PantryStatistics
 import com.shelfie.app.domain.model.StatisticsPeriod
-import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.ScreenHeader
+import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.emoji
 import com.shelfie.app.presentation.common.labelRes
 import com.shelfie.app.presentation.common.shelfieSegmentedColors

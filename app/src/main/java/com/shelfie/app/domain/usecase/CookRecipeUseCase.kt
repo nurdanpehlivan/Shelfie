@@ -1,8 +1,8 @@
 package com.shelfie.app.domain.usecase
 
+import com.shelfie.app.domain.model.SavedRecipe
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.RecipeRepository
-import com.shelfie.app.domain.model.SavedRecipe
 import java.util.Locale
 import javax.inject.Inject
 

@@ -7,7 +7,7 @@ import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.SavedRecipe
 import com.shelfie.app.domain.repository.MealPlanRepository
 import com.shelfie.app.domain.repository.RecipeRepository
-import com.shelfie.app.domain.repository.ShoppingListRepository
+import com.shelfie.app.domain.usecase.AddMealPlanShoppingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -50,7 +50,7 @@ sealed interface MealPlanEffect {
 class MealPlanViewModel @Inject constructor(
     private val mealPlanRepository: MealPlanRepository,
     recipeRepository: RecipeRepository,
-    private val shoppingListRepository: ShoppingListRepository,
+    private val addMealPlanShopping: AddMealPlanShoppingUseCase,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -95,18 +95,10 @@ class MealPlanViewModel @Inject constructor(
         viewModelScope.launch { mealPlanRepository.clear(date, mealType) }
     }
 
-    /** Only meals from today on: past days are already cooked (or not). */
     fun addMissingToShoppingList() {
-        val state = uiState.value
-        val items = state.days
-            .filter { !it.date.isBefore(today) }
-            .flatMap { day -> day.meals.values.mapNotNull { it.recipe } }
-            .distinctBy { it.id }
-            .flatMap { it.recipe.extraIngredients }
-            .map { it.name to it.amount }
+        val entries = uiState.value.days.flatMap { it.meals.values }
         viewModelScope.launch {
-            val added = if (items.isEmpty()) 0 else shoppingListRepository.addItems(items)
-            _effects.send(MealPlanEffect.AddedToShoppingList(added))
+            _effects.send(MealPlanEffect.AddedToShoppingList(addMealPlanShopping(entries, today)))
         }
     }
 

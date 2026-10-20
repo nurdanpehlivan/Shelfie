@@ -75,9 +75,9 @@ import com.shelfie.app.presentation.recipe.components.StepOverviewCard
 import com.shelfie.app.presentation.recipe.components.ingredientEmoji
 import com.shelfie.app.presentation.scanner.components.ShimmerBlock
 import com.shelfie.app.presentation.theme.ShelfieTheme
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
-import kotlinx.coroutines.launch
 
 @Composable
 fun RecipeRoute(

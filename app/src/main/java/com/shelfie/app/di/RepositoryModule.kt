@@ -1,23 +1,25 @@
 package com.shelfie.app.di
 
+import com.shelfie.app.data.billing.PlaySubscriptionRepository
 import com.shelfie.app.data.local.image.LocalPhotoStorage
 import com.shelfie.app.data.repository.AccountRepositoryImpl
 import com.shelfie.app.data.repository.HouseholdRepositoryImpl
 import com.shelfie.app.data.repository.MealPlanRepositoryImpl
-import com.shelfie.app.domain.repository.HouseholdRepository
-import com.shelfie.app.domain.repository.MealPlanRepository
 import com.shelfie.app.data.repository.PantryRepositoryImpl
 import com.shelfie.app.data.repository.ProductLookupRepositoryImpl
 import com.shelfie.app.data.repository.RecipeRepositoryImpl
 import com.shelfie.app.data.repository.SettingsRepositoryImpl
 import com.shelfie.app.data.repository.ShoppingListRepositoryImpl
 import com.shelfie.app.domain.repository.AccountRepository
+import com.shelfie.app.domain.repository.HouseholdRepository
+import com.shelfie.app.domain.repository.MealPlanRepository
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.PhotoStorage
 import com.shelfie.app.domain.repository.ProductLookupRepository
 import com.shelfie.app.domain.repository.RecipeRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.domain.repository.ShoppingListRepository
+import com.shelfie.app.domain.repository.SubscriptionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -63,4 +65,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindHouseholdRepository(impl: HouseholdRepositoryImpl): HouseholdRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSubscriptionRepository(impl: PlaySubscriptionRepository): SubscriptionRepository
 }

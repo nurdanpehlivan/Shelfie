@@ -9,18 +9,14 @@ import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.ShelfLife
 import com.shelfie.app.domain.model.StorageLocation
+import com.shelfie.app.domain.model.edited
+import com.shelfie.app.domain.model.frozen
+import com.shelfie.app.domain.model.halved
+import com.shelfie.app.domain.model.hasEstimatedExpiry
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.ProductLookupRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.Clock
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.time.temporal.ChronoUnit
-import java.util.Locale
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -38,6 +34,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Clock
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
+import java.util.Locale
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
@@ -235,20 +239,16 @@ class DashboardViewModel @Inject constructor(
         dismissAddItem()
         viewModelScope.launch {
             try {
-                pantryRepository.addPantryItem(
-                    draft.copy(
-                        name = intent.name,
-                        quantity = intent.quantity,
-                        unit = intent.unit,
-                        category = intent.category,
-                        expiryDate = intent.expiryDate,
-                        location = intent.location,
-                        // Kept the date the sheet worked out for the product: still an estimate.
-                        isExpiryEstimated = intent.expiryDate == draft.purchaseDate.plusDays(
-                            ShelfLife.estimateDays(intent.name, intent.category, intent.location).toLong(),
-                        ),
-                    ),
+                val item = draft.copy(
+                    name = intent.name,
+                    quantity = intent.quantity,
+                    unit = intent.unit,
+                    category = intent.category,
+                    expiryDate = intent.expiryDate,
+                    location = intent.location,
                 )
+                // Kept the date the sheet worked out for the product: still an estimate.
+                pantryRepository.addPantryItem(item.copy(isExpiryEstimated = item.hasEstimatedExpiry()))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -263,17 +263,7 @@ class DashboardViewModel @Inject constructor(
         val item = uiState.value.findItem(intent.itemId) ?: return
         _editItem.value = null
         updateItem(
-            item.copy(
-                name = intent.name,
-                quantity = intent.quantity,
-                unit = intent.unit,
-                category = intent.category,
-                expiryDate = intent.expiryDate,
-                location = intent.location,
-                // The scanned emoji belongs to the old name; the new one finds its own.
-                emoji = item.emoji.takeIf { intent.name.equals(item.name, ignoreCase = true) },
-                isExpiryEstimated = item.isExpiryEstimated && intent.expiryDate == item.expiryDate,
-            ),
+            item.edited(intent.name, intent.quantity, intent.unit, intent.category, intent.expiryDate, intent.location),
             DashboardEffect.ShowItemMessage(R.string.dashboard_item_updated, intent.name),
         )
     }
@@ -282,27 +272,21 @@ class DashboardViewModel @Inject constructor(
         val item = uiState.value.findItem(itemId) ?: return
         _editItem.value = null
         updateItem(
-            item.copy(quantity = item.quantity / 2),
+            item.halved(),
             DashboardEffect.ShowItemMessage(R.string.dashboard_item_half_used, item.name),
         )
     }
 
-    /** Never shortens the date: something already good for longer keeps its own expiry. */
     private fun freeze(itemId: Long) {
         val item = uiState.value.findItem(itemId) ?: return
         _editItem.value = null
-        val frozenUntil = LocalDate.now(clock).plusDays(item.category.freezerShelfLifeDays.toLong())
-        val expiry = maxOf(item.expiryDate, frozenUntil)
+        val frozen = item.frozen(LocalDate.now(clock))
         updateItem(
-            item.copy(
-                location = StorageLocation.FREEZER,
-                expiryDate = expiry,
-                isExpiryEstimated = if (expiry == item.expiryDate) item.isExpiryEstimated else true,
-            ),
+            frozen,
             DashboardEffect.ShowItemMessage(
                 R.string.dashboard_item_frozen,
                 item.name,
-                expiry.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
+                frozen.expiryDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
             ),
         )
     }

@@ -3,8 +3,8 @@ package com.shelfie.app.presentation.scanner
 import androidx.annotation.StringRes
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
-import com.shelfie.app.domain.model.StorageLocation
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.domain.model.StorageLocation
 import java.time.LocalDate
 
 /**

@@ -1,6 +1,5 @@
 package com.shelfie.app.presentation.premium
 
-import android.app.Activity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,10 +39,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.shelfie.app.BuildConfig
 import com.shelfie.app.R
-import com.shelfie.app.data.billing.PlayBillingManager
-import com.shelfie.app.data.billing.PremiumOffer
+import com.shelfie.app.domain.model.PremiumOffer
+import com.shelfie.app.domain.model.PurchaseHost
 import com.shelfie.app.domain.model.QuotaStatus
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.ShelfieTopBar
@@ -75,7 +73,8 @@ fun PremiumRoute(
         onNavigateUp = onNavigateUp,
         onOpenSettings = onOpenSettings,
         onSelect = viewModel::select,
-        onBuy = { (context as? Activity)?.let(viewModel::buy) },
+        onBuy = { viewModel.buy(PurchaseHost(context)) },
+        manageUrl = viewModel.manageUrl,
         onRestore = viewModel::restore,
     )
 }
@@ -89,6 +88,7 @@ fun PremiumScreen(
     onSelect: (PremiumOffer) -> Unit,
     onBuy: () -> Unit,
     onRestore: () -> Unit,
+    manageUrl: String = "",
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val uriHandler = LocalUriHandler.current
@@ -110,12 +110,7 @@ fun PremiumScreen(
 
             when {
                 isPremium -> OutlinedButton(
-                    onClick = {
-                        uriHandler.openUri(
-                            "https://play.google.com/store/account/subscriptions" +
-                                "?sku=${PlayBillingManager.PREMIUM_PRODUCT_ID}&package=${BuildConfig.APPLICATION_ID}",
-                        )
-                    },
+                    onClick = { uriHandler.openUri(manageUrl) },
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                 ) { Text(stringResource(R.string.premium_manage)) }
 
@@ -255,7 +250,7 @@ private fun UsageRow(label: String, used: Int, limit: Int) {
 @Composable
 private fun OfferCard(offer: PremiumOffer, selected: Boolean, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
-    val isYearly = offer.billingPeriod.endsWith("Y")
+    val isYearly = offer.isYearly
     ShelfieCard(
         onClick = onClick,
         border = BorderStroke(if (selected) 2.dp else 1.dp, if (selected) scheme.primary else MaterialTheme.extendedColors.glassBorder),

@@ -36,14 +36,3 @@ sealed class HouseholdException(message: String, cause: Throwable? = null) : Exc
 
     class Server(cause: Throwable) : HouseholdException("Server error", cause)
 }
-
-/** The plan and today's AI usage, as counted by the server. */
-data class QuotaStatus(
-    val isPremium: Boolean,
-    val premiumUntil: Instant?,
-    val resetsAt: Instant,
-    val scansUsed: Int,
-    val scanLimit: Int,
-    val recipesUsed: Int,
-    val recipeLimit: Int,
-)

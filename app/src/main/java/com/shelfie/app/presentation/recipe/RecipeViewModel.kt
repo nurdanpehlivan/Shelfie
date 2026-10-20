@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.shelfie.app.R
-import com.shelfie.app.domain.model.PantryScanException
 import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.domain.model.PantryScanException
 import com.shelfie.app.domain.model.SavedRecipe
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.RecipeRepository

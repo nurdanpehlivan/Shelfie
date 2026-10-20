@@ -7,9 +7,9 @@ import com.shelfie.app.data.remote.gemini.dto.ScannedItemDto
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
-import com.shelfie.app.domain.model.StorageLocation
-import com.shelfie.app.domain.model.ShelfLife
 import com.shelfie.app.domain.model.PantryScanException
+import com.shelfie.app.domain.model.ShelfLife
+import com.shelfie.app.domain.model.StorageLocation
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.time.Clock

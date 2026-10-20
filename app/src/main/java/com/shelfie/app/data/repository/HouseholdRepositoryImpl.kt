@@ -1,12 +1,10 @@
 package com.shelfie.app.data.repository
 
-import com.shelfie.app.data.remote.gemini.GeminiConfig
 import com.shelfie.app.data.remote.shelfie.HouseholdDto
 import com.shelfie.app.data.remote.shelfie.InviteDto
 import com.shelfie.app.data.remote.shelfie.JoinHouseholdRequest
 import com.shelfie.app.data.remote.shelfie.RemoveMemberRequest
 import com.shelfie.app.data.remote.shelfie.ShelfieApiService
-import com.shelfie.app.data.remote.shelfie.VerifyPurchaseRequest
 import com.shelfie.app.data.sync.AccountStore
 import com.shelfie.app.data.sync.SyncManager
 import com.shelfie.app.domain.model.Household
@@ -14,7 +12,6 @@ import com.shelfie.app.domain.model.HouseholdException
 import com.shelfie.app.domain.model.HouseholdInvite
 import com.shelfie.app.domain.model.HouseholdMember
 import com.shelfie.app.domain.model.HouseholdRole
-import com.shelfie.app.domain.model.QuotaStatus
 import com.shelfie.app.domain.repository.HouseholdRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
@@ -31,7 +28,6 @@ class HouseholdRepositoryImpl @Inject constructor(
     private val api: ShelfieApiService,
     private val accountStore: AccountStore,
     private val syncManager: SyncManager,
-    private val config: GeminiConfig,
 ) : HouseholdRepository {
 
     override suspend fun household(): Result<Household> = call { api.household(it).toDomain() }
@@ -45,27 +41,6 @@ class HouseholdRepositoryImpl @Inject constructor(
 
     override suspend fun removeMember(email: String): Result<Household> =
         call { api.removeMember(it, RemoveMemberRequest(email)).toDomain() }
-
-    override suspend fun quota(): Result<QuotaStatus> = guarded {
-        val session = accountStore.currentSession()
-        val dto = api.quota(
-            proxyToken = config.proxyToken,
-            installId = accountStore.installId(),
-            bearer = session?.let { ShelfieApiService.bearer(it.token) },
-        )
-        QuotaStatus(
-            isPremium = dto.plan == "premium",
-            premiumUntil = dto.premiumUntil?.let(Instant::ofEpochMilli),
-            resetsAt = Instant.ofEpochMilli(dto.resetsAt),
-            scansUsed = dto.scan.used,
-            scanLimit = dto.scan.limit,
-            recipesUsed = dto.recipe.used,
-            recipeLimit = dto.recipe.limit,
-        )
-    }
-
-    override suspend fun verifyPurchase(productId: String, purchaseToken: String): Result<Boolean> =
-        call { api.verifyPurchase(it, VerifyPurchaseRequest(productId, purchaseToken)).entitled }
 
     /** Moving between households changes the sync space; syncing now merges the data at once. */
     private suspend fun <T> Result<T>.alsoSync(): Result<T> {

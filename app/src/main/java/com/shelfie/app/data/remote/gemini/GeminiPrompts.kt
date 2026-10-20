@@ -7,13 +7,13 @@ import com.shelfie.app.data.remote.gemini.dto.InlineData
 import com.shelfie.app.data.remote.gemini.dto.Part
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.StorageLocation
-import java.util.Locale
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
+import java.util.Locale
 
 /**
  * Prompt + structured-output configuration for pantry photo analysis.

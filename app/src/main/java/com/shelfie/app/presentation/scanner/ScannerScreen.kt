@@ -1,7 +1,5 @@
 package com.shelfie.app.presentation.scanner
 
-import com.shelfie.app.presentation.mascot.FrizzyMood
-import com.shelfie.app.presentation.mascot.Frizzy
 import android.content.ActivityNotFoundException
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,18 +41,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import com.shelfie.app.presentation.common.BottomActionBar
-import com.shelfie.app.presentation.common.Pill
-import com.shelfie.app.presentation.common.ShelfieTopBar
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,6 +71,11 @@ import com.shelfie.app.R
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.presentation.common.BottomActionBar
+import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.ShelfieTopBar
+import com.shelfie.app.presentation.mascot.Frizzy
+import com.shelfie.app.presentation.mascot.FrizzyMood
 import com.shelfie.app.presentation.scanner.components.DetectedItemCard
 import com.shelfie.app.presentation.scanner.components.DetectedItemPlaceholder
 import com.shelfie.app.presentation.scanner.components.EditItemSheet
