@@ -485,4 +485,10 @@
     <string name="edit_expiry_scan">Leer la fecha del envase</string>
     <string name="edit_expiry_reading">Leyendo…</string>
     <string name="edit_expiry_scan_failed">No se encontró la fecha. Prueba más cerca de la etiqueta o elígela arriba.</string>
+
+    <!-- Home-screen widget. -->
+    <string name="widget_label">Shelfie: consumir pronto</string>
+    <string name="widget_description">Lo que caduca antes</string>
+    <string name="widget_title">⏳ Consumir pronto</string>
+    <string name="widget_empty">Todo fresco 🎉 Nada caduca pronto.</string>
 </resources>

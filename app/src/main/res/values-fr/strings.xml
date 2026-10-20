@@ -486,4 +486,10 @@
     <string name="edit_expiry_scan">Lire la date sur l\'emballage</string>
     <string name="edit_expiry_reading">Lecture…</string>
     <string name="edit_expiry_scan_failed">Aucune date trouvée. Réessaie plus près de l\'étiquette ou choisis-la au-dessus.</string>
+
+    <!-- Home-screen widget. -->
+    <string name="widget_label">Shelfie : à consommer vite</string>
+    <string name="widget_description">Ce qui périme en premier</string>
+    <string name="widget_title">⏳ À consommer vite</string>
+    <string name="widget_empty">Tout est frais 🎉 Rien ne périme bientôt.</string>
 </resources>

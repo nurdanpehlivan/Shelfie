@@ -39,6 +39,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Home-screen widget: what runs out soonest. -->
+        <receiver
+            android:name=".presentation.widget.PantryWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pantry_widget_info" />
+        </receiver>
+
         <!-- Downloads the barcode scanner and text recognition (expiry dates) modules at install
              time instead of on first use, so both work offline. -->
         <meta-data

@@ -1,13 +1,16 @@
 package com.shelfie.app
 
 import android.app.Application
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.shelfie.app.data.local.dao.SyncDao
 import com.shelfie.app.data.sync.AccountStore
 import com.shelfie.app.di.ApplicationScope
+import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.notification.FreshnessNotifier
+import com.shelfie.app.presentation.widget.PantryWidget
 import com.shelfie.app.work.FreshnessCheckScheduler
 import com.shelfie.app.work.SyncScheduler
 import dagger.hilt.android.HiltAndroidApp
@@ -45,6 +48,8 @@ class ShelfieApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var syncScheduler: SyncScheduler
 
+    @Inject lateinit var pantryRepository: PantryRepository
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -55,6 +60,16 @@ class ShelfieApplication : Application(), Configuration.Provider {
         freshnessNotifier.createChannel()
         keepDailyCheckInSyncWithSettings()
         syncLocalChanges()
+        keepWidgetInSyncWithPantry()
+    }
+
+    /** Redraws the home-screen widget whenever the pantry changes (a no-op without widgets). */
+    private fun keepWidgetInSyncWithPantry() {
+        applicationScope.launch {
+            pantryRepository.observePantryItems()
+                .distinctUntilChanged()
+                .collect { runCatching { PantryWidget().updateAll(this@ShelfieApplication) } }
+        }
     }
 
     /**

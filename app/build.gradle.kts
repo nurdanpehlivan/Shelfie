@@ -104,6 +104,8 @@ dependencies {
     implementation(libs.play.billing)
     // On-device reading of printed expiry dates; the model comes from Play services.
     implementation(libs.play.services.mlkit.text.recognition)
+    // Home-screen widget (presentation/widget).
+    implementation(libs.androidx.glance.appwidget)
     implementation(libs.play.services.code.scanner)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

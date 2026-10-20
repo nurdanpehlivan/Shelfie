@@ -492,4 +492,10 @@
     <string name="edit_expiry_scan">Read the date from the pack</string>
     <string name="edit_expiry_reading">Reading…</string>
     <string name="edit_expiry_scan_failed">No date found. Try again closer to the label, or pick it above.</string>
+
+    <!-- Home-screen widget. -->
+    <string name="widget_label">Shelfie: use soon</string>
+    <string name="widget_description">The products that run out soonest</string>
+    <string name="widget_title">⏳ Use soon</string>
+    <string name="widget_empty">All fresh 🎉 Nothing runs out soon.</string>
 </resources>
