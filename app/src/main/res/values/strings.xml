@@ -311,4 +311,39 @@
     <string name="unit_kilogram">kg</string>
     <string name="unit_milliliter">ml</string>
     <string name="unit_liter">L</string>
+
+    <!-- Account & sync (settings) -->
+    <string name="settings_section_account">Account &amp; sync</string>
+    <string name="account_signed_out_hint">Optional: sign in to back up your pantry, shopping list and recipes, use them on several phones and on the web.</string>
+    <string name="account_sign_in_or_register">Sign in or create an account</string>
+    <string name="account_last_sync">Last synced %1$s</string>
+    <string name="account_never_synced">Not synced yet</string>
+    <string name="account_sync_now">Sync now</string>
+    <string name="account_open_web_panel">Open web panel</string>
+    <string name="account_sign_out">Sign out</string>
+    <string name="account_delete">Delete account</string>
+    <string name="account_delete_title">Delete your account?</string>
+    <string name="account_delete_message">Your account and its copy on the server are deleted. The data on this phone stays. This can\'t be undone.</string>
+    <string name="account_delete_confirm">Delete</string>
+    <string name="account_register_title">Create an account</string>
+    <string name="account_sign_in_title">Sign in</string>
+    <string name="account_sheet_hint">Use the same account on your other phones and on the web panel.</string>
+    <string name="account_email">Email</string>
+    <string name="account_password">Password</string>
+    <string name="account_password_hint">At least %1$d characters</string>
+    <string name="account_register">Create account</string>
+    <string name="account_sign_in">Sign in</string>
+    <string name="account_switch_to_sign_in">I already have an account</string>
+    <string name="account_switch_to_register">I\'m new here: create an account</string>
+    <string name="account_signed_in">Signed in. Syncing your pantry…</string>
+    <string name="account_sync_done">Everything is in sync</string>
+    <string name="account_signed_out">Signed out. Your data stays on this phone.</string>
+    <string name="account_deleted">Account deleted</string>
+    <string name="account_error_credentials">Wrong email or password.</string>
+    <string name="account_error_email_taken">There\'s already an account with this email. Try signing in.</string>
+    <string name="account_error_input">Check the email address and use a password of at least 8 characters.</string>
+    <string name="account_error_too_many">Too many attempts. Try again in a few minutes.</string>
+    <string name="account_error_network">No connection. Check your internet and try again.</string>
+    <string name="account_error_session_expired">Your session expired. Please sign in again.</string>
+    <string name="account_error_server">Something went wrong on our side. Try again later.</string>
 </resources>

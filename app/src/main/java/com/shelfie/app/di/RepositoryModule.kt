@@ -1,11 +1,13 @@
 package com.shelfie.app.di
 
 import com.shelfie.app.data.local.image.LocalPhotoStorage
+import com.shelfie.app.data.repository.AccountRepositoryImpl
 import com.shelfie.app.data.repository.PantryRepositoryImpl
 import com.shelfie.app.data.repository.ProductLookupRepositoryImpl
 import com.shelfie.app.data.repository.RecipeRepositoryImpl
 import com.shelfie.app.data.repository.SettingsRepositoryImpl
 import com.shelfie.app.data.repository.ShoppingListRepositoryImpl
+import com.shelfie.app.domain.repository.AccountRepository
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.PhotoStorage
 import com.shelfie.app.domain.repository.ProductLookupRepository
@@ -45,4 +47,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindProductLookupRepository(impl: ProductLookupRepositoryImpl): ProductLookupRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAccountRepository(impl: AccountRepositoryImpl): AccountRepository
 }

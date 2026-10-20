@@ -304,4 +304,39 @@
     <string name="unit_kilogram">kg</string>
     <string name="unit_milliliter">ml</string>
     <string name="unit_liter">l</string>
+
+    <!-- Account & sync (settings) -->
+    <string name="settings_section_account">Konto &amp; Synchronisierung</string>
+    <string name="account_signed_out_hint">Optional: Melde dich an, um Vorrat, Einkaufsliste und Rezepte zu sichern und auf mehreren Handys und im Web zu nutzen.</string>
+    <string name="account_sign_in_or_register">Anmelden oder Konto erstellen</string>
+    <string name="account_last_sync">Zuletzt synchronisiert %1$s</string>
+    <string name="account_never_synced">Noch nicht synchronisiert</string>
+    <string name="account_sync_now">Jetzt synchronisieren</string>
+    <string name="account_open_web_panel">Web-Ansicht öffnen</string>
+    <string name="account_sign_out">Abmelden</string>
+    <string name="account_delete">Konto löschen</string>
+    <string name="account_delete_title">Konto löschen?</string>
+    <string name="account_delete_message">Dein Konto und die Kopie auf dem Server werden gelöscht. Die Daten auf diesem Handy bleiben. Das kann nicht rückgängig gemacht werden.</string>
+    <string name="account_delete_confirm">Löschen</string>
+    <string name="account_register_title">Konto erstellen</string>
+    <string name="account_sign_in_title">Anmelden</string>
+    <string name="account_sheet_hint">Nutze dasselbe Konto auf deinen anderen Handys und in der Web-Ansicht.</string>
+    <string name="account_email">E-Mail</string>
+    <string name="account_password">Passwort</string>
+    <string name="account_password_hint">Mindestens %1$d Zeichen</string>
+    <string name="account_register">Konto erstellen</string>
+    <string name="account_sign_in">Anmelden</string>
+    <string name="account_switch_to_sign_in">Ich habe schon ein Konto</string>
+    <string name="account_switch_to_register">Ich bin neu: Konto erstellen</string>
+    <string name="account_signed_in">Angemeldet. Dein Vorrat wird synchronisiert…</string>
+    <string name="account_sync_done">Alles ist synchron</string>
+    <string name="account_signed_out">Abgemeldet. Deine Daten bleiben auf diesem Handy.</string>
+    <string name="account_deleted">Konto gelöscht</string>
+    <string name="account_error_credentials">E-Mail oder Passwort falsch.</string>
+    <string name="account_error_email_taken">Mit dieser E-Mail gibt es schon ein Konto. Versuche dich anzumelden.</string>
+    <string name="account_error_input">Prüfe die E-Mail-Adresse und nutze ein Passwort mit mindestens 8 Zeichen.</string>
+    <string name="account_error_too_many">Zu viele Versuche. Versuche es in ein paar Minuten erneut.</string>
+    <string name="account_error_network">Keine Verbindung. Prüfe dein Internet und versuche es erneut.</string>
+    <string name="account_error_session_expired">Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.</string>
+    <string name="account_error_server">Bei uns ist etwas schiefgelaufen. Versuche es später erneut.</string>
 </resources>

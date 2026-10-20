@@ -15,6 +15,7 @@ import java.time.LocalDate
         Index(value = [PantryItemEntity.COLUMN_EXPIRY_DATE]),
         Index(value = [PantryItemEntity.COLUMN_CATEGORY]),
         Index(value = [PantryItemEntity.COLUMN_IS_CONSUMED, PantryItemEntity.COLUMN_EXPIRY_DATE]),
+        Index(value = [PantryItemEntity.COLUMN_SYNC_ID], unique = true),
     ],
 )
 data class PantryItemEntity(
@@ -60,6 +61,10 @@ data class PantryItemEntity(
     /** Stored as epoch milliseconds. */
     @ColumnInfo(name = COLUMN_UPDATED_AT)
     val updatedAt: Instant,
+
+    /** Stable id across devices for sync; the auto-generated [id] is only local. */
+    @ColumnInfo(name = COLUMN_SYNC_ID, defaultValue = "''")
+    val syncId: String = newSyncId(),
 ) {
     companion object {
         const val TABLE_NAME = "pantry_items"
@@ -76,5 +81,6 @@ data class PantryItemEntity(
         const val COLUMN_IS_WASTED = "is_wasted"
         const val COLUMN_CREATED_AT = "created_at"
         const val COLUMN_UPDATED_AT = "updated_at"
+        const val COLUMN_SYNC_ID = "sync_id"
     }
 }

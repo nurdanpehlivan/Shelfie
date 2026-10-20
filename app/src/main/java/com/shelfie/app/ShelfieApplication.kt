@@ -3,13 +3,22 @@ package com.shelfie.app
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.shelfie.app.data.local.dao.SyncDao
+import com.shelfie.app.data.sync.AccountStore
 import com.shelfie.app.di.ApplicationScope
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.notification.FreshnessNotifier
 import com.shelfie.app.work.FreshnessCheckScheduler
+import com.shelfie.app.work.SyncScheduler
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,6 +39,12 @@ class ShelfieApplication : Application(), Configuration.Provider {
 
     @Inject @ApplicationScope lateinit var applicationScope: CoroutineScope
 
+    @Inject lateinit var accountStore: AccountStore
+
+    @Inject lateinit var syncDao: SyncDao
+
+    @Inject lateinit var syncScheduler: SyncScheduler
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -39,6 +54,26 @@ class ShelfieApplication : Application(), Configuration.Provider {
         super.onCreate()
         freshnessNotifier.createChannel()
         keepDailyCheckInSyncWithSettings()
+        syncLocalChanges()
+    }
+
+    /**
+     * While signed in: syncs once at start-up (to pick up changes made elsewhere), then shortly
+     * after every local change, which the database's triggers put in the outbox.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun syncLocalChanges() {
+        applicationScope.launch {
+            accountStore.session
+                .map { it != null }
+                .distinctUntilChanged()
+                .flatMapLatest { signedIn ->
+                    if (!signedIn) return@flatMapLatest emptyFlow()
+                    syncScheduler.requestSync(delaySeconds = 0)
+                    syncDao.observeOutboxCount().filter { it > 0 }
+                }
+                .collect { syncScheduler.requestSync() }
+        }
     }
 
     /**

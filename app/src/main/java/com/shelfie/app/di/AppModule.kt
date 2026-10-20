@@ -21,6 +21,11 @@ import javax.inject.Singleton
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationScope
 
+/** The account DataStore (session, install id), separate from settings so it can skip backups. */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AccountPreferences
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -36,5 +41,13 @@ object AppModule {
     fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("settings") },
+        )
+
+    @Provides
+    @Singleton
+    @AccountPreferences
+    fun provideAccountDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            produceFile = { context.preferencesDataStoreFile("account") },
         )
 }

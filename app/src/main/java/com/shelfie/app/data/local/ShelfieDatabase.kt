@@ -8,12 +8,21 @@ import com.shelfie.app.data.local.converter.ShelfieTypeConverters
 import com.shelfie.app.data.local.dao.PantryDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
+import com.shelfie.app.data.local.dao.SyncDao
 import com.shelfie.app.data.local.entity.PantryItemEntity
 import com.shelfie.app.data.local.entity.SavedRecipeEntity
 import com.shelfie.app.data.local.entity.ShoppingItemEntity
+import com.shelfie.app.data.local.entity.SyncApplyingEntity
+import com.shelfie.app.data.local.entity.SyncOutboxEntity
 
 @Database(
-    entities = [PantryItemEntity::class, SavedRecipeEntity::class, ShoppingItemEntity::class],
+    entities = [
+        PantryItemEntity::class,
+        SavedRecipeEntity::class,
+        ShoppingItemEntity::class,
+        SyncOutboxEntity::class,
+        SyncApplyingEntity::class,
+    ],
     version = ShelfieDatabase.VERSION,
     exportSchema = true,
     autoMigrations = [
@@ -21,6 +30,7 @@ import com.shelfie.app.data.local.entity.ShoppingItemEntity
         AutoMigration(from = 1, to = 2),
         // 2 -> 3: adds the saved_recipes and shopping_items tables.
         AutoMigration(from = 2, to = 3),
+        // 3 -> 4 is manual (MIGRATION_3_4): it fills sync ids and creates triggers.
     ],
 )
 @TypeConverters(ShelfieTypeConverters::class)
@@ -32,8 +42,10 @@ abstract class ShelfieDatabase : RoomDatabase() {
 
     abstract fun shoppingItemDao(): ShoppingItemDao
 
+    abstract fun syncDao(): SyncDao
+
     companion object {
         const val NAME = "shelfie.db"
-        const val VERSION = 3
+        const val VERSION = 4
     }
 }

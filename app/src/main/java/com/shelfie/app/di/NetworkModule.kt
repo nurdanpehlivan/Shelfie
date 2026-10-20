@@ -4,10 +4,13 @@ import com.shelfie.app.BuildConfig
 import com.shelfie.app.data.remote.gemini.GeminiApiService
 import com.shelfie.app.data.remote.gemini.GeminiConfig
 import com.shelfie.app.data.remote.openfoodfacts.OpenFoodFactsApi
+import com.shelfie.app.data.remote.shelfie.ShelfieApiService
+import com.shelfie.app.data.sync.AccountStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -26,6 +29,8 @@ object NetworkModule {
     /** Vision requests with thinking models can take a while to respond. */
     private const val GEMINI_READ_TIMEOUT_SECONDS = 90L
 
+    private const val SYNC_TIMEOUT_SECONDS = 30L
+
     @Provides
     @Singleton
     fun provideJson(): Json = Json {
@@ -36,7 +41,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideGeminiConfig(): GeminiConfig = GeminiConfig(
-        apiKey = BuildConfig.GEMINI_API_KEY,
+        baseUrl = BuildConfig.SHELFIE_PROXY_URL.let { if (it.endsWith('/')) it else "$it/" },
+        proxyToken = BuildConfig.SHELFIE_PROXY_TOKEN,
         models = (listOf(BuildConfig.GEMINI_MODEL) + BuildConfig.GEMINI_FALLBACK_MODELS.split(','))
             .map { it.trim() }
             .filter { it.isNotEmpty() }
@@ -54,7 +60,8 @@ object NetworkModule {
                 addInterceptor(
                     HttpLoggingInterceptor().apply {
                         level = HttpLoggingInterceptor.Level.HEADERS
-                        redactHeader(GeminiApiService.API_KEY_HEADER)
+                        redactHeader(GeminiApiService.PROXY_TOKEN_HEADER)
+                        redactHeader(ShelfieApiService.AUTHORIZATION)
                     },
                 )
             }
@@ -67,6 +74,7 @@ object NetworkModule {
         okHttpClient: OkHttpClient,
         json: Json,
         config: GeminiConfig,
+        accountStore: AccountStore,
     ): GeminiApiService {
         val geminiClient = okHttpClient.newBuilder()
             .readTimeout(GEMINI_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -74,19 +82,39 @@ object NetworkModule {
             .addInterceptor { chain ->
                 chain.proceed(
                     chain.request().newBuilder()
-                        .header(GeminiApiService.API_KEY_HEADER, config.apiKey)
+                        .header(GeminiApiService.PROXY_TOKEN_HEADER, config.proxyToken)
+                        // For the usage dashboard; read from DataStore once, then cached.
+                        // OkHttp runs interceptors off the main thread.
+                        .header(GeminiApiService.INSTALL_HEADER, runBlocking { accountStore.installId() })
+                        .header(GeminiApiService.VERSION_HEADER, BuildConfig.VERSION_NAME)
                         .build(),
                 )
             }
             .build()
 
         return Retrofit.Builder()
-            .baseUrl(GeminiApiService.BASE_URL)
+            .baseUrl(config.baseUrl)
             .client(geminiClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(GeminiApiService::class.java)
     }
+
+    /** Accounts and sync, served by the same Worker as the Gemini proxy. */
+    @Provides
+    @Singleton
+    fun provideShelfieApiService(okHttpClient: OkHttpClient, json: Json, config: GeminiConfig): ShelfieApiService =
+        Retrofit.Builder()
+            .baseUrl(config.baseUrl)
+            .client(
+                okHttpClient.newBuilder()
+                    .readTimeout(SYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .writeTimeout(SYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .build(),
+            )
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(ShelfieApiService::class.java)
 
     @Provides
     @Singleton

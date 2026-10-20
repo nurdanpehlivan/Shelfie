@@ -11,6 +11,7 @@ import java.time.Instant
     indices = [
         Index(value = [SavedRecipeEntity.COLUMN_CREATED_AT]),
         Index(value = [SavedRecipeEntity.COLUMN_PANTRY_ITEM_IDS]),
+        Index(value = [SavedRecipeEntity.COLUMN_SYNC_ID], unique = true),
     ],
 )
 data class SavedRecipeEntity(
@@ -39,6 +40,10 @@ data class SavedRecipeEntity(
 
     @ColumnInfo(name = COLUMN_COOKED_AT)
     val cookedAt: Instant? = null,
+
+    /** Stable id across devices for sync; the auto-generated [id] is only local. */
+    @ColumnInfo(name = COLUMN_SYNC_ID, defaultValue = "''")
+    val syncId: String = newSyncId(),
 ) {
     companion object {
         const val TABLE_NAME = "saved_recipes"
@@ -50,6 +55,7 @@ data class SavedRecipeEntity(
         const val COLUMN_IS_FAVORITE = "is_favorite"
         const val COLUMN_CREATED_AT = "created_at"
         const val COLUMN_COOKED_AT = "cooked_at"
+        const val COLUMN_SYNC_ID = "sync_id"
 
         fun encodeIds(ids: Collection<Long>): String = ids.distinct().sorted().joinToString(",")
 

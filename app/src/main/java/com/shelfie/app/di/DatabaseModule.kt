@@ -2,10 +2,15 @@ package com.shelfie.app.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.shelfie.app.data.local.MIGRATION_3_4
 import com.shelfie.app.data.local.ShelfieDatabase
+import com.shelfie.app.data.local.SyncTriggers
 import com.shelfie.app.data.local.dao.PantryDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
+import com.shelfie.app.data.local.dao.SyncDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +26,13 @@ object DatabaseModule {
     @Singleton
     fun provideShelfieDatabase(@ApplicationContext context: Context): ShelfieDatabase =
         Room.databaseBuilder(context, ShelfieDatabase::class.java, ShelfieDatabase.NAME)
+            .addMigrations(MIGRATION_3_4)
+            .addCallback(
+                object : RoomDatabase.Callback() {
+                    // Upgraded databases get their triggers from MIGRATION_3_4.
+                    override fun onCreate(db: SupportSQLiteDatabase) = SyncTriggers.create(db)
+                },
+            )
             .build()
 
     @Provides
@@ -31,4 +43,7 @@ object DatabaseModule {
 
     @Provides
     fun provideShoppingItemDao(database: ShelfieDatabase): ShoppingItemDao = database.shoppingItemDao()
+
+    @Provides
+    fun provideSyncDao(database: ShelfieDatabase): SyncDao = database.syncDao()
 }

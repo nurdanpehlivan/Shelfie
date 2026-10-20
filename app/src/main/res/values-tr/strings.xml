@@ -307,4 +307,39 @@
     <string name="unit_kilogram">kg</string>
     <string name="unit_milliliter">ml</string>
     <string name="unit_liter">L</string>
+
+    <!-- Account & sync (settings) -->
+    <string name="settings_section_account">Hesap ve senkronizasyon</string>
+    <string name="account_signed_out_hint">İsteğe bağlı: kilerini, alışveriş listeni ve tariflerini yedeklemek, birden çok telefonda ve web\'de kullanmak için giriş yap.</string>
+    <string name="account_sign_in_or_register">Giriş yap ya da hesap oluştur</string>
+    <string name="account_last_sync">Son senkronizasyon: %1$s</string>
+    <string name="account_never_synced">Henüz senkronize edilmedi</string>
+    <string name="account_sync_now">Şimdi senkronize et</string>
+    <string name="account_open_web_panel">Web panelini aç</string>
+    <string name="account_sign_out">Çıkış yap</string>
+    <string name="account_delete">Hesabı sil</string>
+    <string name="account_delete_title">Hesabın silinsin mi?</string>
+    <string name="account_delete_message">Hesabın ve sunucudaki kopyası silinir. Bu telefondaki veriler kalır. Bu işlem geri alınamaz.</string>
+    <string name="account_delete_confirm">Sil</string>
+    <string name="account_register_title">Hesap oluştur</string>
+    <string name="account_sign_in_title">Giriş yap</string>
+    <string name="account_sheet_hint">Aynı hesabı diğer telefonlarında ve web panelinde kullan.</string>
+    <string name="account_email">E-posta</string>
+    <string name="account_password">Şifre</string>
+    <string name="account_password_hint">En az %1$d karakter</string>
+    <string name="account_register">Hesap oluştur</string>
+    <string name="account_sign_in">Giriş yap</string>
+    <string name="account_switch_to_sign_in">Zaten hesabım var</string>
+    <string name="account_switch_to_register">Yeniyim: hesap oluştur</string>
+    <string name="account_signed_in">Giriş yapıldı. Kilerin senkronize ediliyor…</string>
+    <string name="account_sync_done">Her şey güncel</string>
+    <string name="account_signed_out">Çıkış yapıldı. Verilerin bu telefonda kalıyor.</string>
+    <string name="account_deleted">Hesap silindi</string>
+    <string name="account_error_credentials">E-posta ya da şifre hatalı.</string>
+    <string name="account_error_email_taken">Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.</string>
+    <string name="account_error_input">E-posta adresini kontrol et ve en az 8 karakterli bir şifre kullan.</string>
+    <string name="account_error_too_many">Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.</string>
+    <string name="account_error_network">Bağlantı yok. İnternetini kontrol edip tekrar dene.</string>
+    <string name="account_error_session_expired">Oturumunun süresi doldu. Lütfen tekrar giriş yap.</string>
+    <string name="account_error_server">Bizim tarafımızda bir sorun oluştu. Daha sonra tekrar dene.</string>
 </resources>

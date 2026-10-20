@@ -9,7 +9,8 @@ plugins {
     alias(libs.plugins.room)
 }
 
-// Secrets live in the untracked local.properties, e.g. GEMINI_API_KEY=your-key
+// Settings live in the untracked local.properties, e.g. SHELFIE_PROXY_TOKEN=your-token.
+// The Gemini API key itself is never in the app; it is a secret of the Cloudflare Worker in backend/.
 val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
 }
@@ -33,8 +34,13 @@ android {
 
         buildConfigField(
             "String",
-            "GEMINI_API_KEY",
-            "\"${localProperties.getProperty("GEMINI_API_KEY", "").trim()}\"",
+            "SHELFIE_PROXY_URL",
+            "\"${localProperties.getProperty("SHELFIE_PROXY_URL", "https://shelfie-gemini-proxy.shelfie-app.workers.dev/").trim()}\"",
+        )
+        buildConfigField(
+            "String",
+            "SHELFIE_PROXY_TOKEN",
+            "\"${localProperties.getProperty("SHELFIE_PROXY_TOKEN", "").trim()}\"",
         )
         buildConfigField(
             "String",

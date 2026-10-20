@@ -52,7 +52,7 @@ class GeminiRemoteDataSource @Inject constructor(
             imageMimeType = image.mimeType,
             locale = locale,
         )
-        return generate(request)
+        return generate(request, GeminiApiService.FEATURE_SCAN)
     }
 
     /** Returns the JSON of a quick recipe using up [ingredients] (see [RecipePrompts]). */
@@ -63,18 +63,18 @@ class GeminiRemoteDataSource @Inject constructor(
         locale: Locale = Locale.getDefault(),
     ): String {
         requireConfigured()
-        return generate(RecipePrompts.buildRequest(ingredients, mealType, today, locale))
+        return generate(RecipePrompts.buildRequest(ingredients, mealType, today, locale), GeminiApiService.FEATURE_RECIPE)
     }
 
     private fun requireConfigured() {
-        if (config.apiKey.isBlank()) {
-            throw PantryScanException.NotConfigured("GEMINI_API_KEY is missing in local.properties")
+        if (config.proxyToken.isBlank()) {
+            throw PantryScanException.NotConfigured("SHELFIE_PROXY_TOKEN is missing in local.properties")
         }
     }
 
-    private suspend fun generate(request: GenerateContentRequest): String {
+    private suspend fun generate(request: GenerateContentRequest, feature: String): String {
         val response = try {
-            callWithRetry(request)
+            callWithRetry(request, feature)
         } catch (e: HttpException) {
             throw PantryScanException.Api(
                 httpCode = e.code(),
@@ -98,14 +98,14 @@ class GeminiRemoteDataSource @Inject constructor(
      * or stays overloaded (503 even after retries) the next one usually still answers.
      * The last model's error is the one reported.
      */
-    private suspend fun callWithRetry(request: GenerateContentRequest): GenerateContentResponse {
+    private suspend fun callWithRetry(request: GenerateContentRequest, feature: String): GenerateContentResponse {
         val available = config.models.filter { model -> cooldowns[model]?.hasPassedNow() ?: true }
         // If every model is cooling down, try them all anyway rather than fail without asking.
         val candidates = available.ifEmpty { config.models }
         var lastError: HttpException? = null
         for (model in candidates) {
             try {
-                return callModelWithRetry(model, request)
+                return callModelWithRetry(model, request, feature)
             } catch (e: HttpException) {
                 if (e.code() != HTTP_TOO_MANY_REQUESTS && e.code() !in TRANSIENT_HTTP_CODES) throw e
                 cooldowns[model] = TimeSource.Monotonic.markNow() + MODEL_COOLDOWN
@@ -122,16 +122,17 @@ class GeminiRemoteDataSource @Inject constructor(
     private suspend fun callModelWithRetry(
         model: String,
         request: GenerateContentRequest,
+        feature: String,
     ): GenerateContentResponse {
         RETRY_DELAYS.forEach { retryDelay ->
             try {
-                return api.generateContent(model = model, request = request)
+                return api.generateContent(model = model, request = request, feature = feature)
             } catch (e: HttpException) {
                 if (e.code() !in TRANSIENT_HTTP_CODES) throw e
             }
             delay(retryDelay)
         }
-        return api.generateContent(model = model, request = request)
+        return api.generateContent(model = model, request = request, feature = feature)
     }
 
     /** Gemini names the exhausted quota in the error body, e.g. "...RequestsPerDayPerProjectPerModel...". */
