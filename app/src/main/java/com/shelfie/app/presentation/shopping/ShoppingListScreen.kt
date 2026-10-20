@@ -29,6 +29,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
@@ -36,13 +40,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -57,15 +64,43 @@ import com.shelfie.app.domain.model.ShoppingItem
 import com.shelfie.app.presentation.common.ScreenHeader
 import com.shelfie.app.presentation.common.SectionHeader
 import com.shelfie.app.presentation.common.ShelfieCard
+import com.shelfie.app.presentation.common.emoji
+import com.shelfie.app.presentation.common.labelRes
 import com.shelfie.app.presentation.mascot.Frizzy
 import com.shelfie.app.presentation.mascot.FrizzyMood
 import com.shelfie.app.presentation.theme.extendedColors
+import kotlinx.coroutines.launch
 
 @Composable
 fun ShoppingListRoute(viewModel: ShoppingListViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is ShoppingEffect.Bought -> launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    val result = snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.shopping_bought_one, effect.item.name),
+                        actionLabel = context.getString(R.string.shopping_action_to_pantry),
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) viewModel.stockUp(effect.item)
+                }
+                is ShoppingEffect.StockedUp -> launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(
+                        context.resources.getQuantityString(R.plurals.shopping_stocked_up, effect.count, effect.count),
+                    )
+                }
+            }
+        }
+    }
     ShoppingListScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
+        onStockUpBought = viewModel::stockUpBought,
         onAdd = { viewModel.add(it) },
         onCheckedChange = viewModel::setChecked,
         onDelete = viewModel::delete,
@@ -81,6 +116,8 @@ fun ShoppingListScreen(
     onCheckedChange: (ShoppingItem, Boolean) -> Unit,
     onDelete: (ShoppingItem) -> Unit,
     onClearBought: () -> Unit,
+    onStockUpBought: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     var newItem by rememberSaveable { mutableStateOf("") }
     fun submit() {
@@ -88,7 +125,7 @@ fun ShoppingListScreen(
         newItem = ""
     }
 
-    Scaffold { padding ->
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) { CircularProgressIndicator() }
             return@Scaffold
@@ -187,12 +224,31 @@ fun ShoppingListScreen(
                     }
                 }
             }
-            items(state.toBuy, key = { it.id }) { item ->
-                ShoppingRow(item, onCheckedChange, onDelete, Modifier.animateItem())
+            // One aisle header per group, in walking order; a single group needs no header.
+            state.aisles.forEach { aisle ->
+                if (state.aisles.size > 1) {
+                    item(key = "aisle_${aisle.category}") {
+                        Text(
+                            text = "${aisle.category.emoji}  ${stringResource(aisle.category.labelRes)}",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 4.dp, top = 8.dp),
+                        )
+                    }
+                }
+                items(aisle.items, key = { it.id }) { item ->
+                    ShoppingRow(item, onCheckedChange, onDelete, Modifier.animateItem())
+                }
             }
 
             if (state.bought.isNotEmpty()) {
-                item(key = "boughtTitle") { SectionHeader(stringResource(R.string.shopping_bought)) }
+                item(key = "boughtTitle") {
+                    SectionHeader(stringResource(R.string.shopping_bought)) {
+                        TextButton(onClick = onStockUpBought) {
+                            Text(pluralStringResource(R.plurals.shopping_stock_up_all, state.bought.size, state.bought.size))
+                        }
+                    }
+                }
                 items(state.bought, key = { it.id }) { item ->
                     ShoppingRow(item, onCheckedChange, onDelete, Modifier.animateItem())
                 }

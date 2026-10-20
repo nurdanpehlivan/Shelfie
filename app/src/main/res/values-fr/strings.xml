@@ -457,4 +457,16 @@
 
     <string name="scanner_item_expiry_estimated">À consommer vers le %1$s (estimé)</string>
     <string name="edit_expiry_estimate_hint">Estimé d\'après le produit. Choisis la date de l\'emballage pour qu\'elle soit exacte.</string>
+
+    <!-- Shopping list → pantry. -->
+    <string name="shopping_bought_one">%1$s acheté</string>
+    <string name="shopping_action_to_pantry">Au placard</string>
+    <plurals name="shopping_stocked_up">
+        <item quantity="one">%d produit ajouté au placard</item>
+        <item quantity="other">%d produits ajoutés au placard</item>
+    </plurals>
+    <plurals name="shopping_stock_up_all">
+        <item quantity="one">Ranger %d au placard</item>
+        <item quantity="other">Ranger %d au placard</item>
+    </plurals>
 </resources>

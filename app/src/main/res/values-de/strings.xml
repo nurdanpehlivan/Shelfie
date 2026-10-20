@@ -456,4 +456,16 @@
 
     <string name="scanner_item_expiry_estimated">Geschätzt haltbar bis %1$s</string>
     <string name="edit_expiry_estimate_hint">Nach dem Produkt geschätzt. Wähle das Datum auf der Packung für ein genaues.</string>
+
+    <!-- Shopping list → pantry. -->
+    <string name="shopping_bought_one">%1$s gekauft</string>
+    <string name="shopping_action_to_pantry">In den Vorrat</string>
+    <plurals name="shopping_stocked_up">
+        <item quantity="one">%d Produkt im Vorrat</item>
+        <item quantity="other">%d Produkte im Vorrat</item>
+    </plurals>
+    <plurals name="shopping_stock_up_all">
+        <item quantity="one">%d in den Vorrat</item>
+        <item quantity="other">%d in den Vorrat</item>
+    </plurals>
 </resources>

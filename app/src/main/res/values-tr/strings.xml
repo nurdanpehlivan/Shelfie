@@ -459,4 +459,16 @@
 
     <string name="scanner_item_expiry_estimated">Tahmini SKT %1$s</string>
     <string name="edit_expiry_estimate_hint">Ürüne göre tahmin edildi. Paketteki tarihi seçersen kesin olur.</string>
+
+    <!-- Shopping list → pantry. -->
+    <string name="shopping_bought_one">%1$s alındı</string>
+    <string name="shopping_action_to_pantry">Kilere ekle</string>
+    <plurals name="shopping_stocked_up">
+        <item quantity="one">%d ürün kilere eklendi</item>
+        <item quantity="other">%d ürün kilere eklendi</item>
+    </plurals>
+    <plurals name="shopping_stock_up_all">
+        <item quantity="one">%d ürünü kilere ekle</item>
+        <item quantity="other">%d ürünü kilere ekle</item>
+    </plurals>
 </resources>

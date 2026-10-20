@@ -463,4 +463,16 @@
 
     <string name="scanner_item_expiry_estimated">Estimated use-by %1$s</string>
     <string name="edit_expiry_estimate_hint">Estimated from the product. Pick the date on the pack for an exact one.</string>
+
+    <!-- Shopping list → pantry. -->
+    <string name="shopping_bought_one">%1$s bought</string>
+    <string name="shopping_action_to_pantry">To pantry</string>
+    <plurals name="shopping_stocked_up">
+        <item quantity="one">%d product added to the pantry</item>
+        <item quantity="other">%d products added to the pantry</item>
+    </plurals>
+    <plurals name="shopping_stock_up_all">
+        <item quantity="one">Put %d in the pantry</item>
+        <item quantity="other">Put %d in the pantry</item>
+    </plurals>
 </resources>
