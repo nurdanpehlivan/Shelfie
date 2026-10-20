@@ -1,5 +1,6 @@
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
+import { spaceOf } from "./household.ts";
 import { error, readJson } from "./http.ts";
 
 /**
@@ -7,10 +8,13 @@ import { error, readJson } from "./http.ts";
  *
  * Each record is identified by (collection, syncId) and carries its whole state as JSON.
  * Conflicts resolve by last write wins on the writer's `changedAt`. Every accepted write gets the
- * next per-user `rev`; a client pulls everything above the highest `rev` it has seen.
+ * next per-space `rev`; a client pulls everything above the highest `rev` it has seen.
+ *
+ * Records live in a data space: the user's own id, or their household owner's (household.ts).
+ * The sync response names the space, so a client notices when it changes and starts over.
  */
 
-export const COLLECTIONS = ["pantry", "shopping", "recipes"] as const;
+export const COLLECTIONS = ["pantry", "shopping", "recipes", "mealplan"] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 const MAX_CHANGES_PER_REQUEST = 200;
@@ -58,7 +62,8 @@ export async function handleSync(request: Request, user: User): Promise<Response
 		changes.push(change);
 	}
 
-	await applyChanges(user.id, changes);
+	const space = await spaceOf(user.id);
+	await applyChanges(space, changes);
 
 	const d = await db();
 	const { results } = await d
@@ -66,12 +71,13 @@ export async function handleSync(request: Request, user: User): Promise<Response
 			`SELECT collection, sync_id, data, deleted, changed_at, rev FROM sync_records
 			 WHERE user_id = ? AND rev > ? ORDER BY rev LIMIT ?`,
 		)
-		.bind(user.id, cursor, MAX_RECORDS_PER_PULL + 1)
+		.bind(space, cursor, MAX_RECORDS_PER_PULL + 1)
 		.all<RecordRow>();
 	const hasMore = results.length > MAX_RECORDS_PER_PULL;
 	const page = results.slice(0, MAX_RECORDS_PER_PULL);
 
 	return Response.json({
+		space,
 		cursor: page.length ? page[page.length - 1].rev : cursor,
 		hasMore,
 		records: page.map(toChange),
@@ -129,20 +135,22 @@ function toChange(row: RecordRow): Change {
 	};
 }
 
-/** `GET /api/web/data`: the signed-in user's live records, for the web panel. */
+/** `GET /api/web/data`: the live records of the signed-in user's space, for the web panel. */
 export async function handleWebData(user: User): Promise<Response> {
+	const space = await spaceOf(user.id);
 	const d = await db();
 	const { results } = await d
 		.prepare(
 			`SELECT collection, sync_id, data, deleted, changed_at, rev FROM sync_records
 			 WHERE user_id = ? AND deleted = 0`,
 		)
-		.bind(user.id)
+		.bind(space)
 		.all<RecordRow>();
 	const grouped: Record<Collection, Array<{ syncId: string; changedAt: number } & Record<string, unknown>>> = {
 		pantry: [],
 		shopping: [],
 		recipes: [],
+		mealplan: [],
 	};
 	for (const row of results) {
 		grouped[row.collection]?.push({ ...JSON.parse(row.data ?? "{}"), syncId: row.sync_id, changedAt: row.changed_at });
@@ -157,6 +165,6 @@ export async function handleWebWrite(request: Request, user: User): Promise<Resp
 	const now = Date.now();
 	const change = body && parseChange({ ...body, syncId: body.syncId ?? crypto.randomUUID(), changedAt: now }, now);
 	if (!change) return error(400, "Invalid record");
-	await applyChanges(user.id, [change]);
+	await applyChanges(await spaceOf(user.id), [change]);
 	return Response.json({ syncId: change.syncId, changedAt: change.changedAt });
 }

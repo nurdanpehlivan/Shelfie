@@ -1,5 +1,8 @@
 import { handleAdminAuth, handleDeleteUser, handleStats, isAdmin } from "./admin.ts";
 import { authenticate, deleteAccount, handleAuth } from "./auth.ts";
+import { handleBillingVerify } from "./billing.ts";
+import { handleHousehold } from "./household.ts";
+import { handleQuota } from "./quota.ts";
 import { cleanup } from "./db.ts";
 import { error, html, isSameOrigin } from "./http.ts";
 import { LANDING_HTML } from "./landing.ts";
@@ -12,6 +15,8 @@ import { handleSync, handleWebData, handleWebWrite } from "./sync.ts";
  * Routes:
  * - `POST /v1beta/models/{model}:generateContent`: Gemini proxy (app token), see proxy.ts
  * - `/api/auth/*`, `/api/sync`, `/api/account`: the app's account and sync API (bearer token)
+ * - `/api/household/*`, `/api/billing/verify`: family sharing and Play subscriptions (bearer token)
+ * - `GET /api/quota`: plan and today's AI usage (app token, optional bearer), see quota.ts
  * - `/panel` + `/api/web/*`: the user's web panel (session cookie)
  * - `/admin` + `/admin/api/*`: operator dashboard (ADMIN_PASSWORD)
  */
@@ -49,6 +54,14 @@ async function route(request: Request, url: URL, path: string): Promise<Response
 	// App API (bearer token).
 	const appAuth = /^\/api\/auth\/(register|login|logout)$/.exec(path);
 	if (appAuth) return handleAuth(request, appAuth[1], "app");
+	if (path === "/api/quota" && request.method === "GET") return handleQuota(request);
+	const household = /^\/api\/household(?:\/(invite|join|leave|remove))?$/.exec(path);
+	if (household || path === "/api/billing/verify") {
+		const user = await authenticate(request, "app");
+		if (!user) return error(401, "Unauthorized");
+		if (household) return handleHousehold(request, household[1] ?? "", user);
+		return handleBillingVerify(request, user);
+	}
 	if (path === "/api/sync" || path === "/api/account" || path === "/api/me") {
 		const user = await authenticate(request, "app");
 		if (!user) return error(401, "Unauthorized");

@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { db } from "./db.ts";
 import { clientIp, error, safeEqual } from "./http.ts";
+import { checkQuota, parseFeature, recordUse, subjectOf } from "./quota.ts";
 
 /**
  * Thin proxy in front of Gemini so the Gemini API key never ships inside the app.
@@ -9,13 +10,15 @@ import { clientIp, error, safeEqual } from "./http.ts";
  * swaps the base URL and sends its app token instead of the Gemini key. Status codes and error
  * bodies are passed through unchanged; the app relies on them (429 + "PerDay", 503 retries).
  *
- * Every call is logged to D1 (no prompt or photo content, only counts) for the admin dashboard.
+ * Every call is logged to D1 (no prompt or photo content, only counts) for the admin dashboard,
+ * and successful ones count towards the caller's daily allowance (quota.ts): over the limit,
+ * the proxy answers 402 before calling Gemini.
  */
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com";
 export const APP_TOKEN_HEADER = "x-shelfie-token";
 /** Random id per app install, so the dashboard can count active installs without accounts. */
-const INSTALL_HEADER = "x-shelfie-install";
+export const INSTALL_HEADER = "x-shelfie-install";
 /** What the call is for: "scan", "recipe", … */
 const FEATURE_HEADER = "x-shelfie-feature";
 const VERSION_HEADER = "x-shelfie-version";
@@ -40,6 +43,14 @@ export async function handleProxy(request: Request, model: string, ctx: Executio
 	if (!success) {
 		ctx.waitUntil(logUsage(request, model, 429, 0, undefined));
 		return error(429, "Too many requests to the Shelfie proxy");
+	}
+
+	const feature = parseFeature(request.headers.get(FEATURE_HEADER));
+	const subject = await subjectOf(request);
+	const overQuota = await checkQuota(subject, feature);
+	if (overQuota) {
+		ctx.waitUntil(logUsage(request, model, 402, 0, undefined));
+		return overQuota;
 	}
 
 	const declaredLength = Number(request.headers.get("content-length") ?? 0);
@@ -69,6 +80,7 @@ export async function handleProxy(request: Request, model: string, ctx: Executio
 		}
 	}
 	ctx.waitUntil(logUsage(request, model, upstream.status, latency, usage));
+	if (upstream.ok) ctx.waitUntil(recordUse(subject.key, feature));
 
 	return new Response(text, {
 		status: upstream.status,

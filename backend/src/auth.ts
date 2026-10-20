@@ -187,10 +187,16 @@ export async function authenticate(request: Request, client: Client): Promise<Us
 		.first<User>();
 }
 
-/** `DELETE /api/account`: removes the user, their sessions and every synced record. */
+/**
+ * `DELETE /api/account`: removes the user, their sessions and every synced record. An owner's
+ * household ends with it; the members' apps notice the new space and re-upload their copies.
+ */
 export async function deleteAccount(user: User): Promise<Response> {
 	const d = await db();
 	await d.batch([
+		d.prepare("DELETE FROM household_members WHERE member_id = ?1 OR owner_id = ?1").bind(user.id),
+		d.prepare("DELETE FROM household_invites WHERE owner_id = ?").bind(user.id),
+		d.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sync_records WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM users WHERE id = ?").bind(user.id),

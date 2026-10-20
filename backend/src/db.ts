@@ -68,6 +68,39 @@ const SCHEMA = [
 		count INTEGER NOT NULL,
 		window_start INTEGER NOT NULL
 	)`,
+
+	// Households (household.ts): a member syncs in the owner's data space. One household per member.
+	`CREATE TABLE IF NOT EXISTS household_members (
+		member_id TEXT PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
+		owner_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+		joined_at INTEGER NOT NULL
+	)`,
+	`CREATE INDEX IF NOT EXISTS household_members_owner ON household_members (owner_id)`,
+	`CREATE TABLE IF NOT EXISTS household_invites (
+		code TEXT PRIMARY KEY,
+		owner_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+		expires_at INTEGER NOT NULL
+	)`,
+
+	// Successful AI calls per UTC day, per account ("u:<id>") or install ("i:<id>"); see quota.ts.
+	`CREATE TABLE IF NOT EXISTS ai_usage (
+		day TEXT NOT NULL,
+		subject TEXT NOT NULL,
+		feature TEXT NOT NULL,
+		count INTEGER NOT NULL,
+		PRIMARY KEY (day, subject, feature)
+	)`,
+
+	// Play subscriptions (billing.ts); only the SHA-256 of the purchase token is stored.
+	`CREATE TABLE IF NOT EXISTS subscriptions (
+		token_hash TEXT PRIMARY KEY,
+		user_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+		product_id TEXT NOT NULL,
+		state TEXT NOT NULL,
+		expires_at INTEGER NOT NULL,
+		updated_at INTEGER NOT NULL
+	)`,
+	`CREATE INDEX IF NOT EXISTS subscriptions_user ON subscriptions (user_id, expires_at)`,
 ];
 
 let ready: Promise<void> | undefined;
@@ -89,7 +122,7 @@ export async function db(): Promise<D1Database> {
 export const USAGE_RETENTION_DAYS = 180;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Daily housekeeping (cron): old usage rows, expired sessions, stale login counters, old tombstones. */
+/** Daily housekeeping (cron): old usage rows, sessions, login counters, tombstones, invites, quota days. */
 export async function cleanup(now = Date.now()): Promise<void> {
 	const d = await db();
 	await d.batch([
@@ -98,5 +131,8 @@ export async function cleanup(now = Date.now()): Promise<void> {
 		d.prepare("DELETE FROM login_failures WHERE window_start < ?").bind(now - DAY_MS),
 		// A device offline for a year re-uploads everything on its next sync anyway.
 		d.prepare("DELETE FROM sync_records WHERE deleted = 1 AND changed_at < ?").bind(now - 365 * DAY_MS),
+		d.prepare("DELETE FROM household_invites WHERE expires_at < ?").bind(now),
+		// Days are ISO strings, so they compare as text.
+		d.prepare("DELETE FROM ai_usage WHERE day < ?").bind(new Date(now - 40 * DAY_MS).toISOString().slice(0, 10)),
 	]);
 }

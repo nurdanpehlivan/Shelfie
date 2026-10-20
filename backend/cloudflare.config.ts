@@ -21,6 +21,16 @@ export default defineConfig({
 			PASSWORD_ITERATIONS: bindings.text("20000"),
 			// Keep in sync with GEMINI_MODEL / GEMINI_FALLBACK_MODELS in the app.
 			ALLOWED_MODELS: bindings.text("gemini-3.8-flash,gemini-3.5-flash,gemini-3.5-flash-lite,gemini-3.1-flash-lite"),
+			// Daily AI allowance (src/quota.ts). Premium is a live Play subscription in the household.
+			FREE_DAILY_SCANS: bindings.text("3"),
+			FREE_DAILY_RECIPES: bindings.text("3"),
+			PREMIUM_DAILY_LIMIT: bindings.text("50"),
+			// Play subscriptions (src/billing.ts). The secret is a service account's JSON key with
+			// access to the app in Play Console; without it, purchases can't be verified (503).
+			GOOGLE_SERVICE_ACCOUNT: bindings.secret(),
+			PLAY_PACKAGE_NAME: bindings.text("com.shelfie.app"),
+			// Comma-separated Play product ids that grant Premium; keep in sync with the app.
+			PREMIUM_PRODUCT_IDS: bindings.text("shelfie_premium"),
 			// Per client IP, per Cloudflare location. Also guards the login and register endpoints.
 			RATE_LIMITER: bindings.rateLimit({
 				namespace: "1001",
