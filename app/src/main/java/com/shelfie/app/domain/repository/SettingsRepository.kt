@@ -22,4 +22,9 @@ interface SettingsRepository {
     suspend fun setOnboardingCompleted()
 
     suspend fun setThemeMode(mode: ThemeMode)
+
+    /** One-time data repairs that already ran on this install, by key. */
+    suspend fun isMaintenanceDone(key: String): Boolean
+
+    suspend fun markMaintenanceDone(key: String)
 }

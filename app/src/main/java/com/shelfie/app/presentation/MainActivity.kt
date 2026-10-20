@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.repository.SettingsRepository
+import com.shelfie.app.domain.usecase.RepairCategoriesUseCase
 import com.shelfie.app.presentation.navigation.ShelfieNavHost
 import com.shelfie.app.presentation.onboarding.OnboardingScreen
 import com.shelfie.app.presentation.theme.ShelfieTheme
@@ -87,7 +88,13 @@ class MainActivity : ComponentActivity() {
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
+    repairCategories: RepairCategoriesUseCase,
 ) : ViewModel() {
+
+    init {
+        // Cheap and once per install; a failure just tries again next launch.
+        viewModelScope.launch { runCatching { repairCategories() } }
+    }
 
     /** `null` until DataStore has been read. */
     val onboardingCompleted: StateFlow<Boolean?> = settingsRepository.settings

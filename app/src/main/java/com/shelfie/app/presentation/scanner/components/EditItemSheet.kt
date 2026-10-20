@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.FoodCategories
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.ShelfLife
@@ -93,6 +94,8 @@ fun EditItemSheet(
     var quantityText by rememberSaveable(item) { mutableStateOf(formatQuantity(item.quantity)) }
     var unit by rememberSaveable(item) { mutableStateOf(item.unit) }
     var category by rememberSaveable(item) { mutableStateOf(item.category) }
+    // A blank (new) item takes its category from what the user types, until they pick one.
+    var categoryTouched by rememberSaveable(item) { mutableStateOf(item.name.isNotBlank()) }
     var location by rememberSaveable(item) { mutableStateOf(item.location) }
     // Until the user picks a place, it follows the category (milk → fridge, rice → pantry).
     var locationTouched by rememberSaveable(item) { mutableStateOf(item.id != PantryItem.NEW_ITEM_ID) }
@@ -137,6 +140,12 @@ fun EditItemSheet(
                 value = name,
                 onValueChange = {
                     name = it
+                    if (!categoryTouched) {
+                        FoodCategories.guess(it)?.let { guess ->
+                            category = guess
+                            if (!locationTouched) location = guess.defaultLocation
+                        }
+                    }
                     reestimate()
                 },
                 label = { Text(stringResource(R.string.scanner_edit_name)) },
@@ -184,6 +193,7 @@ fun EditItemSheet(
                         selected = option == category,
                         onClick = {
                             category = option
+                            categoryTouched = true
                             if (!locationTouched) location = option.defaultLocation
                             reestimate()
                         },

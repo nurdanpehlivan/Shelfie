@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.first
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.shelfie.app.domain.model.AppSettings
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.ThemeMode
@@ -67,6 +69,13 @@ class SettingsRepositoryImpl @Inject constructor(
         dataStore.edit { it[THEME_MODE] = mode.name }
     }
 
+    override suspend fun isMaintenanceDone(key: String): Boolean =
+        dataStore.data.first()[MAINTENANCE_DONE].orEmpty().contains(key)
+
+    override suspend fun markMaintenanceDone(key: String) {
+        dataStore.edit { it[MAINTENANCE_DONE] = it[MAINTENANCE_DONE].orEmpty() + key }
+    }
+
     private fun Int.clampHour() = coerceIn(AppSettings.MIN_REMINDER_HOUR, AppSettings.MAX_REMINDER_HOUR)
 
     private fun Long.clampDays() =
@@ -79,6 +88,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val AVERAGE_ITEM_VALUE = doublePreferencesKey("average_item_value")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val THEME_MODE = stringPreferencesKey("theme_mode")
+        val MAINTENANCE_DONE = stringSetPreferencesKey("maintenance_done")
         const val MAX_AVERAGE_ITEM_VALUE = 1_000_000.0
     }
 }
