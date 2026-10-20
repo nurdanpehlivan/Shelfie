@@ -27,6 +27,7 @@ class FoodCategoriesTest {
     @Test
     fun `look-alike words don't mislead`() {
         assertEquals(Category.DAIRY, FoodCategories.guess("Tereyağı"))
+        assertEquals(Category.DAIRY, FoodCategories.guess("Parmesan"))
         assertEquals(Category.FRUITS, FoodCategories.guess("Hindistan cevizi"))
         assertEquals(Category.SEAFOOD, FoodCategories.guess("Balık"))
         assertEquals(Category.CONDIMENTS, FoodCategories.guess("Bal"))

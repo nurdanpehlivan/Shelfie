@@ -45,6 +45,7 @@ object FoodCategories {
         ),
         Category.DAIRY to listOf(
             "süt", "yoğurt", "ayran", "kefir", "peynir", "kaşar", "lor", "tereyağ", "krema", "kaymak", "yumurta", "milk",
+            "parmesan", "mozzarella", "feta", "cheddar", "ricotta", "labne", "tulum", "hellim", "halloumi", "gouda",
             "yogurt", "yoghurt", "cheese", "butter", "cream", "egg", "eggs", "milch", "joghurt", "käse", "eier", "leche",
             "queso", "huevo", "lait", "fromage", "beurre", "œuf", "oeuf",
         ),
