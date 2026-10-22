@@ -6,13 +6,13 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.shelfie.app.data.local.dao.SyncDao
 import com.shelfie.app.data.sync.AccountStore
+import com.shelfie.app.data.sync.SyncScheduler
 import com.shelfie.app.di.ApplicationScope
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.notification.FreshnessNotifier
 import com.shelfie.app.presentation.widget.PantryWidget
 import com.shelfie.app.work.FreshnessCheckScheduler
-import com.shelfie.app.work.SyncScheduler
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

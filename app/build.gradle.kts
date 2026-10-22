@@ -1,18 +1,10 @@
-import java.util.Properties
-
+// The app shell: activity, navigation between the features, the widget, notifications and
+// background work. Everything else lives in core/ and feature/ modules.
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.room)
-}
-
-// Settings live in the untracked local.properties, e.g. SHELFIE_PROXY_TOKEN=your-token.
-// The Gemini API key itself is never in the app; it is a secret of the Cloudflare Worker in backend/.
-val localProperties = Properties().apply {
-    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
+    alias(libs.plugins.shelfie.hilt)
 }
 
 android {
@@ -31,28 +23,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField(
-            "String",
-            "SHELFIE_PROXY_URL",
-            "\"${localProperties.getProperty("SHELFIE_PROXY_URL", "https://shelfie-gemini-proxy.shelfie-app.workers.dev/").trim()}\"",
-        )
-        buildConfigField(
-            "String",
-            "SHELFIE_PROXY_TOKEN",
-            "\"${localProperties.getProperty("SHELFIE_PROXY_TOKEN", "").trim()}\"",
-        )
-        buildConfigField(
-            "String",
-            "GEMINI_MODEL",
-            "\"${localProperties.getProperty("GEMINI_MODEL", "gemini-3.8-flash").trim()}\"",
-        )
-        // Comma-separated; each model has its own free-tier quota.
-        buildConfigField(
-            "String",
-            "GEMINI_FALLBACK_MODELS",
-            "\"${localProperties.getProperty("GEMINI_FALLBACK_MODELS", "gemini-3.5-flash-lite,gemini-3.1-flash-lite").trim()}\"",
-        )
     }
 
     buildTypes {
@@ -80,17 +50,21 @@ android {
         compose = true
         buildConfig = true
     }
-    sourceSets {
-        // Exported Room schemas are used by MigrationTestHelper in instrumented tests.
-        getByName("androidTest").assets.directories.add("$projectDir/schemas")
-    }
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
+    implementation(project(":core:domain"))
+    implementation(project(":core:data"))
+    implementation(project(":core:ui"))
+    implementation(project(":feature:pantry"))
+    implementation(project(":feature:scanner"))
+    implementation(project(":feature:recipe"))
+    implementation(project(":feature:mealplan"))
+    implementation(project(":feature:shopping"))
+    implementation(project(":feature:statistics"))
+    implementation(project(":feature:settings"))
+    implementation(project(":feature:onboarding"))
+
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // AndroidX & Compose
@@ -100,49 +74,26 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.datastore.preferences)
-    // Shelfie Premium subscription; purchases are verified by the backend (backend/src/billing.ts).
-    implementation(libs.play.billing)
-    // On-device reading of printed expiry dates; the model comes from Play services.
-    implementation(libs.play.services.mlkit.text.recognition)
     // Home-screen widget (presentation/widget).
     implementation(libs.androidx.glance.appwidget)
-    implementation(libs.play.services.code.scanner)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    // Hilt (the plugin adds hilt-android and its compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
 
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    // Networking & serialization
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
-    implementation(platform(libs.okhttp.bom))
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
-
-    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    // Image loading
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
+    // The debug-only demo data receiver writes through the DAOs.
+    debugImplementation(libs.androidx.room.runtime)
 
     // Unit tests
     testImplementation(libs.junit)
@@ -152,15 +103,7 @@ dependencies {
 
     // Instrumented tests
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.room.testing)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.turbine)
-    androidTestImplementation(libs.hilt.android.testing)
-    kspAndroidTest(libs.hilt.compiler)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

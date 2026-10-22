@@ -26,7 +26,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.shelfie.app.R
+import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.repository.PantryRepository

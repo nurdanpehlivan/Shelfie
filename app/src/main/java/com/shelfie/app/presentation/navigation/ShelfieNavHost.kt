@@ -47,11 +47,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import com.shelfie.app.R
+import com.shelfie.app.core.ui.R
 import com.shelfie.app.presentation.dashboard.DashboardRoute
 import com.shelfie.app.presentation.history.RecipeHistoryRoute
 import com.shelfie.app.presentation.mealplan.MealPlanRoute
 import com.shelfie.app.presentation.premium.PremiumRoute
+import com.shelfie.app.presentation.recipe.RecipeDestination
 import com.shelfie.app.presentation.recipe.RecipeRoute
 import com.shelfie.app.presentation.recipe.picker.IngredientPickerRoute
 import com.shelfie.app.presentation.scanner.ScannerRoute
@@ -67,21 +68,6 @@ data object DashboardDestination
 
 @Serializable
 data object ScannerDestination
-
-/**
- * Without [savedRecipeId] the screen picks today's critical items and gets a recipe for them;
- * with one it shows that recipe from the history. [ingredientIds] (comma-separated pantry ids)
- * asks for a recipe with exactly those items instead.
- */
-@Serializable
-data class RecipeDestination(
-    val savedRecipeId: Long = NO_SAVED_RECIPE,
-    val ingredientIds: String = "",
-) {
-    companion object {
-        const val NO_SAVED_RECIPE = -1L
-    }
-}
 
 @Serializable
 data object RecipeHistoryDestination

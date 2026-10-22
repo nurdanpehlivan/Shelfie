@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import com.shelfie.app.R
+import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.SavedRecipe

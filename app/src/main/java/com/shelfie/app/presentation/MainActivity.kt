@@ -15,6 +15,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,9 +23,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.shelfie.app.BuildConfig
 import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.domain.usecase.RepairCategoriesUseCase
+import com.shelfie.app.presentation.common.AppInfo
+import com.shelfie.app.presentation.common.LocalAppInfo
 import com.shelfie.app.presentation.navigation.ShelfieNavHost
 import com.shelfie.app.presentation.onboarding.OnboardingScreen
 import com.shelfie.app.presentation.theme.ShelfieTheme
@@ -67,23 +71,30 @@ class MainActivity : ComponentActivity() {
                 onDispose {}
             }
             ShelfieTheme(darkTheme = darkTheme) {
-                val onboardingCompleted by viewModel.onboardingCompleted.collectAsStateWithLifecycle()
-                AnimatedContent(
-                    targetState = onboardingCompleted,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() },
-                    label = "onboarding",
-                ) { completed ->
-                    when (completed) {
-                        // Settings still loading: plain brand background, no flash of either screen.
-                        null -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
-                        false -> OnboardingScreen(onFinished = viewModel::completeOnboarding)
-                        true -> ShelfieNavHost()
+                CompositionLocalProvider(LocalAppInfo provides APP_INFO) {
+                    val onboardingCompleted by viewModel.onboardingCompleted.collectAsStateWithLifecycle()
+                    AnimatedContent(
+                        targetState = onboardingCompleted,
+                        transitionSpec = { fadeIn() togetherWith fadeOut() },
+                        label = "onboarding",
+                    ) { completed ->
+                        when (completed) {
+                            // Settings still loading: plain brand background, no flash of either screen.
+                            null -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+                            false -> OnboardingScreen(onFinished = viewModel::completeOnboarding)
+                            true -> ShelfieNavHost()
+                        }
                     }
                 }
             }
         }
     }
 }
+
+private val APP_INFO = AppInfo(
+    versionName = BuildConfig.VERSION_NAME,
+    webBaseUrl = com.shelfie.app.core.data.BuildConfig.SHELFIE_PROXY_URL,
+)
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
