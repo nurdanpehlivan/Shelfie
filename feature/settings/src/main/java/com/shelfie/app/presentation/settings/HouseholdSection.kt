@@ -37,13 +37,15 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.HouseholdRole
+import com.shelfie.app.presentation.common.LocalAppInfo
 
 /** Content of the "Family sharing" settings card. */
 @Composable
 fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var code by rememberSaveable { mutableStateOf("") }
+    var code by rememberSaveable(state.linkCode) { mutableStateOf(state.linkCode) }
+    val appInfo = LocalAppInfo.current
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
 
     Text(
@@ -54,7 +56,11 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
     if (!state.isSignedIn) {
         // Sharing goes through accounts: say what to do instead of showing nothing.
         Text(
-            text = stringResource(R.string.household_sign_in_first),
+            text = if (state.linkCode.isNotEmpty()) {
+                stringResource(R.string.household_code_ready, state.linkCode.chunked(4).joinToString(" "))
+            } else {
+                stringResource(R.string.household_sign_in_first)
+            },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -121,6 +127,11 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
+                    text = stringResource(R.string.household_limit, household.maxMembers),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
                     text = stringResource(R.string.household_invite_valid),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -133,7 +144,7 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
                 if (invite != null) {
                     Button(
                         onClick = {
-                            val text = context.getString(R.string.household_share_message, invite.code)
+                            val text = context.getString(R.string.household_share_message, invite.code, appInfo.inviteUrl(invite.code))
                             val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
                             context.startActivity(Intent.createChooser(send, null))
                         },

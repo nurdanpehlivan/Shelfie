@@ -61,6 +61,7 @@ import com.shelfie.app.presentation.common.ScreenHeader
 import com.shelfie.app.presentation.common.rangeText
 import com.shelfie.app.presentation.common.titleRes
 import com.shelfie.app.presentation.dashboard.components.AddItemSheet
+import com.shelfie.app.presentation.dashboard.components.FreshnessBar
 import com.shelfie.app.presentation.dashboard.components.ItemEditSheet
 import com.shelfie.app.presentation.dashboard.components.LocationChips
 import com.shelfie.app.presentation.dashboard.components.PantryOverviewCards
@@ -278,6 +279,13 @@ fun DashboardScreen(
                         warningCount = state.warning.size,
                         selectedFilter = state.selectedFilter,
                         onFilterSelected = { onIntent(DashboardIntent.SelectFilter(it)) },
+                    )
+                }
+                item(key = "freshnessBar") {
+                    FreshnessBar(
+                        safeCount = state.fresh.size,
+                        warningCount = state.warning.size,
+                        criticalCount = state.critical.size,
                     )
                 }
                 if (state.hasRescuableItems) {

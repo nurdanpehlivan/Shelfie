@@ -407,7 +407,7 @@
     <string name="premium_active_title">Premium aktif</string>
     <string name="premium_active_until">%1$s tarihinde yenilenir ya da sona erer</string>
     <string name="premium_benefit_ai">Günde 50 fotoğraf tarama ve 50 tarif</string>
-    <string name="premium_benefit_household">Hanendeki herkes için geçerli</string>
+    <string name="premium_benefit_household">6 kişiye kadar aile paylaşımı</string>
     <string name="premium_benefit_support">Bağımsız bir uygulamayı destekler</string>
     <string name="premium_usage_title">Bugünkü yapay zekâ kullanımın</string>
     <string name="premium_usage_scans">Fotoğraf tarama</string>
@@ -433,7 +433,7 @@
     <string name="household_invite_new">Yeni kod</string>
     <string name="household_invite_valid">48 saat geçerli. Kodu bilen herkes katılabilir.</string>
     <string name="household_share">Kodu paylaş</string>
-    <string name="household_share_message">Shelfie\'de kilerime katıl! Ayarlar → Aile paylaşımı → kod: %1$s</string>
+    <string name="household_share_message">Shelfie\'de kilerime katıl! %2$s bağlantısını aç ya da Ayarlar → Aile paylaşımı\'na %1$s kodunu gir.</string>
     <string name="household_code">Davet kodu</string>
     <string name="household_join">Katıl</string>
     <string name="household_leave">Haneden ayrıl</string>
@@ -512,4 +512,16 @@
     <string name="scanner_spoiled_keep">Yine de ekle</string>
     <string name="scanner_spoiled_discard">Atıyorum</string>
     <string name="scanner_spoiled_discarded">Atıldı, istatistiklerine işlendi</string>
+    <string name="dashboard_freshness_title">Kilerin bir bakışta</string>
+    <string name="dashboard_freshness_bar">%1$d güvende, %2$d dikkat, %3$d kritik</string>
+    <plurals name="dashboard_product_count_total">
+        <item quantity="one">%d ürün</item>
+        <item quantity="other">%d ürün</item>
+    </plurals>
+    <string name="settings_language_title">Dil</string>
+    <string name="settings_language_system">Telefonun dili</string>
+    <string name="settings_language_hint">Shelfie telefonunun dilinde açılır; o dil listede yoksa İngilizce. Sadece Shelfie için değiştirmek istersen birini seç.</string>
+    <string name="household_code_ready">Davet kodu %1$s hazır. Yukarıdan giriş yap ya da hesap oluştur, sonra Katıl\'a dokun.</string>
+    <string name="household_error_full_free">Bu hane dolu: ücretsiz hanede 2 kişi olabilir. Premium ile 6 kişiye kadar.</string>
+    <string name="household_limit">Hanende en fazla %1$d kişi olabilir. Premium ile 6 kişi.</string>
 </resources>

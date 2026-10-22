@@ -1,6 +1,7 @@
 package com.shelfie.app.presentation.settings
 
 import androidx.annotation.StringRes
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.core.ui.R
@@ -25,21 +26,27 @@ data class HouseholdUiState(
     @param:StringRes val errorRes: Int? = null,
     /** Set right after joining: the shared data is on its way to this phone. */
     val justJoined: Boolean = false,
+    /** A code from an invite link, to fill in; it waits through signing in. */
+    val linkCode: String = "",
 )
 
 @HiltViewModel
 class HouseholdViewModel @Inject constructor(
     private val householdRepository: HouseholdRepository,
     accountRepository: AccountRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HouseholdUiState())
+    /** The settings route's `joinCode` argument, set when an invite link opened the app. */
+    private val linkCode: String = savedStateHandle.get<String>(JOIN_CODE_ARG).orEmpty()
+
+    private val _uiState = MutableStateFlow(HouseholdUiState(linkCode = linkCode))
     val uiState: StateFlow<HouseholdUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             accountRepository.account.map { it != null }.distinctUntilChanged().collect { signedIn ->
-                _uiState.value = HouseholdUiState(isSignedIn = signedIn)
+                _uiState.value = HouseholdUiState(isSignedIn = signedIn, linkCode = linkCode)
                 if (signedIn) refresh()
             }
         }
@@ -74,9 +81,14 @@ class HouseholdViewModel @Inject constructor(
         }
     }
 
+    private companion object {
+        const val JOIN_CODE_ARG = "joinCode"
+    }
+
     private fun Throwable.toMessageRes(): Int = when (this) {
         is HouseholdException.InvalidCode -> R.string.household_error_code
         is HouseholdException.Conflict -> when {
+            serverMessage?.contains("Premium", ignoreCase = true) == true -> R.string.household_error_full_free
             serverMessage?.contains("full", ignoreCase = true) == true -> R.string.household_error_full
             serverMessage?.contains("own household", ignoreCase = true) == true -> R.string.household_error_own
             else -> R.string.household_error_has_members

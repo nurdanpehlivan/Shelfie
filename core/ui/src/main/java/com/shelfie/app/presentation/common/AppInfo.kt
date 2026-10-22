@@ -13,6 +13,9 @@ data class AppInfo(
 ) {
     val webPanelUrl: String get() = webBaseUrl.trimEnd('/') + "/panel"
     val privacyPolicyUrl: String get() = webBaseUrl.trimEnd('/') + "/privacy"
+
+    /** The page a family invite links to: it opens the app at "join", or the Play Store. */
+    fun inviteUrl(code: String): String = webBaseUrl.trimEnd('/') + "/join/" + code
 }
 
 val LocalAppInfo = staticCompositionLocalOf { AppInfo(versionName = "", webBaseUrl = "") }

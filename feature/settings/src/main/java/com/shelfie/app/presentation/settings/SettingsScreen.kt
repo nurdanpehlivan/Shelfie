@@ -169,6 +169,10 @@ fun SettingsScreen(
                 }
             }
 
+            SettingsCard(title = stringResource(R.string.settings_language_title)) {
+                LanguagePickerContent()
+            }
+
             SettingsCard(title = stringResource(R.string.settings_section_notifications)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {

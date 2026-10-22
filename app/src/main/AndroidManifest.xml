@@ -16,6 +16,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Shelfie">
+        <!-- Keeps the in-app language choice on Android 12 and older (AppCompat). -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
@@ -26,7 +36,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- shelfie://recipe opens the rescue recipe (see RECIPE_DEEP_LINK). -->
+            <!-- shelfie://recipe opens the rescue recipe (RECIPE_DEEP_LINK); shelfie://join?joinCode=…
+                 opens family sharing with an invite code filled in (JOIN_DEEP_LINK, from /join/<code>). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -35,6 +46,9 @@
 
                 <data
                     android:host="recipe"
+                    android:scheme="shelfie" />
+                <data
+                    android:host="join"
                     android:scheme="shelfie" />
             </intent-filter>
         </activity>

@@ -405,7 +405,7 @@
     <string name="premium_active_title">Premium est actif</string>
     <string name="premium_active_until">Se renouvelle ou se termine le %1$s</string>
     <string name="premium_benefit_ai">50 scans photo et 50 recettes par jour</string>
-    <string name="premium_benefit_household">Valable pour tout ton foyer</string>
+    <string name="premium_benefit_household">Partage familial jusqu\'à 6 personnes</string>
     <string name="premium_benefit_support">Soutient une appli indépendante</string>
     <string name="premium_usage_title">Utilisation IA du jour</string>
     <string name="premium_usage_scans">Scans photo</string>
@@ -431,7 +431,7 @@
     <string name="household_invite_new">Nouveau code</string>
     <string name="household_invite_valid">Valable 48 heures. Toute personne ayant le code peut rejoindre.</string>
     <string name="household_share">Partager le code</string>
-    <string name="household_share_message">Rejoins mon placard sur Shelfie ! Réglages → Partage familial → code : %1$s</string>
+    <string name="household_share_message">Rejoins mon placard sur Shelfie ! Ouvre %2$s ou saisis le code %1$s dans Réglages → Partage familial.</string>
     <string name="household_code">Code d\'invitation</string>
     <string name="household_join">Rejoindre</string>
     <string name="household_leave">Quitter le foyer</string>
@@ -510,4 +510,16 @@
     <string name="scanner_spoiled_keep">Garder quand même</string>
     <string name="scanner_spoiled_discard">Jeter</string>
     <string name="scanner_spoiled_discarded">Jeté, compté dans tes statistiques</string>
+    <string name="dashboard_freshness_title">Ton placard en un coup d\'œil</string>
+    <string name="dashboard_freshness_bar">%1$d sûrs, %2$d bientôt, %3$d critiques</string>
+    <plurals name="dashboard_product_count_total">
+        <item quantity="one">%d produit</item>
+        <item quantity="other">%d produits</item>
+    </plurals>
+    <string name="settings_language_title">Langue</string>
+    <string name="settings_language_system">Langue du téléphone</string>
+    <string name="settings_language_hint">Shelfie suit la langue de ton téléphone, ou l\'anglais sinon. Choisis-en une pour la changer juste dans Shelfie.</string>
+    <string name="household_code_ready">Le code %1$s est prêt. Connecte-toi ou crée un compte ci-dessus, puis touche Rejoindre.</string>
+    <string name="household_error_full_free">Ce foyer est complet : 2 personnes en gratuit, jusqu\'à 6 avec Premium.</string>
+    <string name="household_limit">Jusqu\'à %1$d personnes dans ton foyer. 6 avec Premium.</string>
 </resources>

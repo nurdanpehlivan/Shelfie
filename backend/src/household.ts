@@ -1,6 +1,7 @@
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
 import { error, readJson } from "./http.ts";
+import { premiumUntil } from "./quota.ts";
 
 /**
  * Households: family members share one pantry, shopping list, recipe history and meal plan.
@@ -11,7 +12,13 @@ import { error, readJson } from "./http.ts";
  * and pulls the new space from the start (see the app's SyncManager), which merges the data.
  */
 
+/** People in a household, owner included: Premium (held by anyone in it) raises the limit. */
 export const MAX_HOUSEHOLD_MEMBERS = 6;
+export const FREE_HOUSEHOLD_MEMBERS = 2;
+
+async function memberLimit(owner: string): Promise<number> {
+	return (await premiumUntil(owner)) ? MAX_HOUSEHOLD_MEMBERS : FREE_HOUSEHOLD_MEMBERS;
+}
 const INVITE_TTL_MS = 48 * 60 * 60 * 1000;
 /** No 0/O, 1/I/L: codes are read out loud and typed on phones. */
 const INVITE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -84,7 +91,7 @@ async function describe(user: User) {
 		role: space !== user.id ? "member" : results.length > 1 ? "owner" : "none",
 		members: results.map((r) => ({ email: r.email, isOwner: r.is_owner === 1, joinedAt: r.joined_at })),
 		invite: invite ? { code: invite.code, expiresAt: invite.expires_at } : null,
-		maxMembers: MAX_HOUSEHOLD_MEMBERS,
+		maxMembers: await memberLimit(space),
 	};
 }
 
@@ -118,7 +125,11 @@ async function join(request: Request, user: User): Promise<Response> {
 	const ownMembers = await d.prepare("SELECT COUNT(*) AS n FROM household_members WHERE owner_id = ?").bind(user.id).first<{ n: number }>();
 	if ((ownMembers?.n ?? 0) > 0) return error(409, "Remove your own household members first");
 	const size = await d.prepare("SELECT COUNT(*) AS n FROM household_members WHERE owner_id = ?").bind(owner).first<{ n: number }>();
-	if ((size?.n ?? 0) + 1 >= MAX_HOUSEHOLD_MEMBERS) return error(409, "Household is full");
+	const limit = await memberLimit(owner);
+	if ((size?.n ?? 0) + 1 >= limit) {
+		// The app tells "full" from "full on the free plan" by the message.
+		return error(409, limit < MAX_HOUSEHOLD_MEMBERS ? "Household is full on the free plan; Premium allows more" : "Household is full");
+	}
 
 	await d
 		.prepare(

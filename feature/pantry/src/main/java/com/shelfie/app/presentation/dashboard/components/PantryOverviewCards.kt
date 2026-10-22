@@ -1,6 +1,7 @@
 package com.shelfie.app.presentation.dashboard.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,10 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -138,6 +142,78 @@ private fun OverviewCard(
                 color = footnote?.second ?: Color.Transparent,
                 maxLines = 1,
             )
+        }
+    }
+}
+
+/**
+ * The whole pantry in one line: a bar split green / amber / red by how many items are safe,
+ * heads-up and critical, with the counts underneath. Segments animate as items move.
+ */
+@Composable
+fun FreshnessBar(
+    safeCount: Int,
+    warningCount: Int,
+    criticalCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    val total = safeCount + warningCount + criticalCount
+    if (total == 0) return
+    val palette = MaterialTheme.freshnessPalette
+    val segments = listOf(
+        Triple(safeCount, palette.fresh.accent, R.string.freshness_fresh),
+        Triple(warningCount, palette.warning.accent, R.string.freshness_warning),
+        Triple(criticalCount, palette.critical.accent, R.string.freshness_critical),
+    )
+    val description = stringResource(R.string.dashboard_freshness_bar, safeCount, warningCount, criticalCount)
+
+    ShelfieCard(modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) { contentDescription = description }) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.dashboard_freshness_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = pluralStringResource(R.plurals.dashboard_product_count_total, total, total),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(12.dp)
+                    .clip(CircleShape),
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                segments.filter { it.first > 0 }.forEach { (count, color, _) ->
+                    val weight by animateFloatAsState(count.toFloat(), label = "freshnessSegment")
+                    Box(
+                        modifier = Modifier
+                            .weight(weight.coerceAtLeast(0.01f))
+                            .fillMaxHeight()
+                            .background(color),
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                segments.forEach { (count, color, labelRes) ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(8.dp).background(color, CircleShape))
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = "$count ${stringResource(labelRes)}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
         }
     }
 }

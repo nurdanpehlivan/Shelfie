@@ -411,7 +411,7 @@
     <string name="premium_active_title">Premium is active</string>
     <string name="premium_active_until">Renews or ends on %1$s</string>
     <string name="premium_benefit_ai">50 photo scans and 50 recipes a day</string>
-    <string name="premium_benefit_household">Covers everyone in your household</string>
+    <string name="premium_benefit_household">Family sharing for up to 6 people</string>
     <string name="premium_benefit_support">Supports an independent app</string>
     <string name="premium_usage_title">Today\'s AI use</string>
     <string name="premium_usage_scans">Photo scans</string>
@@ -437,7 +437,7 @@
     <string name="household_invite_new">New code</string>
     <string name="household_invite_valid">Valid for 48 hours. Anyone with the code can join.</string>
     <string name="household_share">Share code</string>
-    <string name="household_share_message">Join my pantry on Shelfie! Settings → Family sharing → code: %1$s</string>
+    <string name="household_share_message">Join my pantry on Shelfie! Open %2$s or enter code %1$s in Settings → Family sharing.</string>
     <string name="household_code">Invite code</string>
     <string name="household_join">Join</string>
     <string name="household_leave">Leave household</string>
@@ -516,4 +516,16 @@
     <string name="scanner_spoiled_keep">Keep it</string>
     <string name="scanner_spoiled_discard">Throw away</string>
     <string name="scanner_spoiled_discarded">Thrown away, counted in your statistics</string>
+    <string name="dashboard_freshness_title">Pantry at a glance</string>
+    <string name="dashboard_freshness_bar">%1$d safe, %2$d heads up, %3$d critical</string>
+    <plurals name="dashboard_product_count_total">
+        <item quantity="one">%d product</item>
+        <item quantity="other">%d products</item>
+    </plurals>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_system">Device language</string>
+    <string name="settings_language_hint">Shelfie follows your phone\'s language, or English if it isn\'t one of these. Pick one to change it just for Shelfie.</string>
+    <string name="household_code_ready">Invite code %1$s is ready. Sign in or create an account above, then tap Join.</string>
+    <string name="household_error_full_free">That household is full: free households have 2 people. With Premium, up to 6.</string>
+    <string name="household_limit">Up to %1$d people in your household. Premium raises it to 6.</string>
 </resources>

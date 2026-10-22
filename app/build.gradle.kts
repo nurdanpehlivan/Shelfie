@@ -69,6 +69,8 @@ dependencies {
 
     // AndroidX & Compose
     implementation(libs.androidx.core.ktx)
+    // Per-app language on every Android version (AppCompatDelegate.setApplicationLocales).
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
