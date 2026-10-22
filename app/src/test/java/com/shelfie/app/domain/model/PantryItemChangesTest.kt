@@ -59,4 +59,37 @@ class PantryItemChangesTest {
     fun `halving keeps half of what is left`() {
         assertEquals(1.5, jam.copy(quantity = 3.0).halved().quantity, 0.0)
     }
+
+    @Test
+    fun `freezing is offered only for products that freeze well and aren't frozen`() {
+        val chicken = jam.copy(name = "Tavuk", category = Category.MEAT, location = StorageLocation.FRIDGE)
+
+        assertTrue(chicken.canFreeze)
+        assertFalse(chicken.frozen(today).canFreeze)
+        assertFalse(jam.canFreeze)
+    }
+
+    @Test
+    fun `thawing moves the item to the fridge with a short date`() {
+        val frozenChicken = jam.copy(
+            name = "Tavuk",
+            category = Category.MEAT,
+            location = StorageLocation.FREEZER,
+            isExpiryEstimated = false,
+            expiryDate = today.plusDays(100),
+        )
+
+        val thawed = frozenChicken.thawed(today)
+
+        assertEquals(StorageLocation.FRIDGE, thawed.location)
+        assertEquals(today.plusDays(1), thawed.expiryDate)
+        assertTrue(thawed.isExpiryEstimated)
+    }
+
+    @Test
+    fun `thawing never extends a date that is already sooner`() {
+        val bread = jam.copy(category = Category.BAKERY, location = StorageLocation.FREEZER, expiryDate = today)
+
+        assertEquals(today, bread.thawed(today).expiryDate)
+    }
 }

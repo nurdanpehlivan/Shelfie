@@ -36,6 +36,13 @@ val StorageLocation.labelRes: Int
         StorageLocation.PANTRY -> R.string.location_pantry
     }
 
+val StorageLocation.emoji: String
+    get() = when (this) {
+        StorageLocation.FRIDGE -> "🧊"
+        StorageLocation.FREEZER -> "❄️"
+        StorageLocation.PANTRY -> "🗄️"
+    }
+
 val Category.emoji: String
     get() = when (this) {
         Category.DAIRY -> "🥛"

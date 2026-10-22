@@ -498,4 +498,6 @@
     <string name="onboarding_family_title">Haftayı planla, ailenle paylaş</string>
     <string name="onboarding_family_body">Haftanın öğünlerini tariflerinle planla, eksikleri listeye ekle ve tek bir kileri hanenle paylaş.</string>
     <string name="settings_privacy">Gizlilik politikası</string>
+    <string name="dashboard_action_thaw">Çöz</string>
+    <string name="dashboard_item_thawed">%1$s buzdolabında çözülüyor, %2$s tarihine kadar tüket</string>
 </resources>

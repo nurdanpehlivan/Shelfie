@@ -502,4 +502,6 @@
     <string name="onboarding_family_title">Plan the week, share with family</string>
     <string name="onboarding_family_body">Plan the week\'s meals with your recipes, put what\'s missing on the list, and share one pantry with your household.</string>
     <string name="settings_privacy">Privacy policy</string>
+    <string name="dashboard_action_thaw">Thaw</string>
+    <string name="dashboard_item_thawed">%1$s is thawing in the fridge, use by %2$s</string>
 </resources>

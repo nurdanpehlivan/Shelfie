@@ -100,6 +100,12 @@ sealed interface DashboardIntent {
     /** Moves the item to the freezer and extends its expiry to the frozen shelf life. */
     data class Freeze(val itemId: Long) : DashboardIntent
 
+    /** Takes the item out of the freezer to thaw in the fridge, with a short date. */
+    data class Thaw(val itemId: Long) : DashboardIntent
+
+    /** Puts an item back the way it was before a one-tap change. */
+    data class UndoChange(val previous: PantryItem) : DashboardIntent
+
     /** Swiped right. */
     data class MarkConsumed(val itemId: Long) : DashboardIntent
 
@@ -152,11 +158,15 @@ sealed interface DashboardEffect {
 
     data class ShowMessage(@param:StringRes val messageRes: Int) : DashboardEffect
 
-    /** A message about one item; [messageRes] takes the item name (and [extra]) as arguments. */
+    /**
+     * A message about one item; [messageRes] takes the item name (and [extra]) as arguments.
+     * With [undo], the UI offers to put the item back to that state.
+     */
     data class ShowItemMessage(
         @param:StringRes val messageRes: Int,
         val itemName: String,
         val extra: String? = null,
+        val undo: PantryItem? = null,
     ) : DashboardEffect
 }
 

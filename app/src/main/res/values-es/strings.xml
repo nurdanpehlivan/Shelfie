@@ -495,4 +495,6 @@
     <string name="onboarding_family_title">Planifica la semana y comparte</string>
     <string name="onboarding_family_body">Planifica las comidas de la semana con tus recetas, apunta lo que falta y comparte una despensa con tu hogar.</string>
     <string name="settings_privacy">Política de privacidad</string>
+    <string name="dashboard_action_thaw">Descongelar</string>
+    <string name="dashboard_item_thawed">%1$s se descongela en la nevera, úsalo antes del %2$s</string>
 </resources>

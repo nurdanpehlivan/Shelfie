@@ -81,4 +81,23 @@ class DashboardViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `undo after freezing puts the item back as it was`() = runTest {
+        val viewModel = DashboardViewModel(pantry, mockk(), settings, clock)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        val effects = mutableListOf<DashboardEffect>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.effects.collect { effects += it } }
+        runCurrent()
+
+        viewModel.onIntent(DashboardIntent.Freeze(1))
+        runCurrent()
+        val message = effects.filterIsInstance<DashboardEffect.ShowItemMessage>().single()
+        assertEquals(chicken, message.undo)
+
+        viewModel.onIntent(DashboardIntent.UndoChange(message.undo!!))
+        runCurrent()
+
+        coVerify { pantry.updatePantryItem(chicken) }
+    }
 }

@@ -139,9 +139,14 @@ fun DashboardRoute(
 
                         is DashboardEffect.ShowItemMessage -> snackbarScope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar(
-                                context.getString(effect.messageRes, effect.itemName, effect.extra),
+                            val result = snackbarHostState.showSnackbar(
+                                message = context.getString(effect.messageRes, effect.itemName, effect.extra),
+                                actionLabel = effect.undo?.let { context.getString(R.string.action_undo) },
+                                duration = SnackbarDuration.Short,
                             )
+                            if (result == SnackbarResult.ActionPerformed && effect.undo != null) {
+                                viewModel.onIntent(DashboardIntent.UndoChange(effect.undo))
+                            }
                         }
 
                         is DashboardEffect.ShowMessage -> snackbarScope.launch {

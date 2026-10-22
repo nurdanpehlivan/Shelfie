@@ -496,4 +496,6 @@
     <string name="onboarding_family_title">Planifie la semaine, partage en famille</string>
     <string name="onboarding_family_body">Planifie les repas de la semaine avec tes recettes, note ce qui manque et partage un placard avec ton foyer.</string>
     <string name="settings_privacy">Politique de confidentialité</string>
+    <string name="dashboard_action_thaw">Décongeler</string>
+    <string name="dashboard_item_thawed">%1$s décongèle au frigo, à consommer avant le %2$s</string>
 </resources>

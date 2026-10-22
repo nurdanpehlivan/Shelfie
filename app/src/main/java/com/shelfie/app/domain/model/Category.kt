@@ -27,7 +27,24 @@ enum class Category(
     SNACKS(defaultShelfLifeDays = 60, StorageLocation.PANTRY, freezerShelfLifeDays = 90),
     OTHER(defaultShelfLifeDays = 14, StorageLocation.FRIDGE, freezerShelfLifeDays = 60);
 
+    /**
+     * Whether freezing is worth offering. Shelf-stable goods gain nothing from it, and
+     * drinks, sauces and snacks change texture or burst their packaging.
+     */
+    val isFreezable: Boolean
+        get() = this !in NOT_FREEZABLE
+
+    /** Days a thawed item keeps in the fridge; thawed meat and fish go first. */
+    val thawedShelfLifeDays: Int
+        get() = when (this) {
+            MEAT, SEAFOOD -> 1
+            DAIRY, OTHER, FROZEN -> 2
+            else -> 3
+        }
+
     companion object {
+        private val NOT_FREEZABLE = setOf(GRAINS, CANNED, BEVERAGES, CONDIMENTS, SNACKS)
+
         /** Lenient lookup for persisted or remote values; unknown names fall back to [OTHER]. */
         fun fromName(name: String?): Category =
             entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: OTHER

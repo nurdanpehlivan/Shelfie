@@ -495,4 +495,6 @@
     <string name="onboarding_family_title">Woche planen, mit der Familie teilen</string>
     <string name="onboarding_family_body">Plane die Mahlzeiten der Woche mit deinen Rezepten, setz Fehlendes auf die Liste und teile einen Vorrat mit deinem Haushalt.</string>
     <string name="settings_privacy">Datenschutzerklärung</string>
+    <string name="dashboard_action_thaw">Auftauen</string>
+    <string name="dashboard_item_thawed">%1$s taut im Kühlschrank auf, verbrauchen bis %2$s</string>
 </resources>

@@ -44,6 +44,7 @@ import com.shelfie.app.R
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.displayEmoji
+import com.shelfie.app.presentation.common.emoji
 import com.shelfie.app.presentation.common.foodEmoji
 import com.shelfie.app.presentation.common.formatQuantity
 import com.shelfie.app.presentation.common.labelRes
@@ -203,12 +204,13 @@ fun PantryItemCard(entry: DashboardItem, modifier: Modifier = Modifier, onClick:
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
+                    // Where it is kept, so a frozen or moved item visibly changes.
                     text = stringResource(
                         R.string.dashboard_item_summary,
                         formatQuantity(item.quantity),
                         stringResource(item.unit.labelRes),
                         stringResource(item.category.labelRes),
-                    ),
+                    ) + " · " + item.location.emoji + " " + stringResource(item.location.labelRes),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

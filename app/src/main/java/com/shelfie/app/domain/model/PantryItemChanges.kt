@@ -45,6 +45,23 @@ fun PantryItem.frozen(today: LocalDate): PantryItem {
     )
 }
 
+/** The freeze action is offered: the product freezes well and isn't frozen already. */
+val PantryItem.canFreeze: Boolean
+    get() = category.isFreezable && location != StorageLocation.FREEZER
+
+/**
+ * Taken out of the freezer to thaw in the fridge: from [today] it keeps only for the
+ * category's thawed shelf life, never longer than its own expiry.
+ */
+fun PantryItem.thawed(today: LocalDate): PantryItem {
+    val expiry = minOf(expiryDate, today.plusDays(category.thawedShelfLifeDays.toLong()))
+    return copy(
+        location = StorageLocation.FRIDGE,
+        expiryDate = expiry,
+        isExpiryEstimated = if (expiry == expiryDate) isExpiryEstimated else true,
+    )
+}
+
 /** Whether [expiryDate] is still the date [ShelfLife] works out for this product. */
 fun PantryItem.hasEstimatedExpiry(): Boolean =
     expiryDate == purchaseDate.plusDays(ShelfLife.estimateDays(name, category, location).toLong())

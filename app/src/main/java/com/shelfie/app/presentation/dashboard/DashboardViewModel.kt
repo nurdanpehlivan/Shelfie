@@ -13,6 +13,7 @@ import com.shelfie.app.domain.model.StorageLocation
 import com.shelfie.app.domain.model.edited
 import com.shelfie.app.domain.model.frozen
 import com.shelfie.app.domain.model.halved
+import com.shelfie.app.domain.model.thawed
 import com.shelfie.app.domain.model.hasEstimatedExpiry
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.ProductLookupRepository
@@ -133,6 +134,8 @@ class DashboardViewModel @Inject constructor(
             is DashboardIntent.SaveItemEdits -> saveItemEdits(intent)
             is DashboardIntent.UseHalf -> useHalf(intent.itemId)
             is DashboardIntent.Freeze -> freeze(intent.itemId)
+            is DashboardIntent.Thaw -> thaw(intent.itemId)
+            is DashboardIntent.UndoChange -> updateItem(intent.previous, onSuccess = null)
             is DashboardIntent.MarkConsumed -> removeItem(intent.itemId, RemovalReason.CONSUMED)
             is DashboardIntent.MarkWasted -> removeItem(intent.itemId, RemovalReason.WASTED)
             is DashboardIntent.UndoRemoval -> undoRemoval(intent.itemId)
@@ -265,7 +268,7 @@ class DashboardViewModel @Inject constructor(
         _editItem.value = null
         updateItem(
             item.edited(intent.name, intent.quantity, intent.unit, intent.category, intent.expiryDate, intent.location),
-            DashboardEffect.ShowItemMessage(R.string.dashboard_item_updated, intent.name),
+            DashboardEffect.ShowItemMessage(R.string.dashboard_item_updated, intent.name, undo = item),
         )
     }
 
@@ -274,7 +277,7 @@ class DashboardViewModel @Inject constructor(
         _editItem.value = null
         updateItem(
             item.halved(),
-            DashboardEffect.ShowItemMessage(R.string.dashboard_item_half_used, item.name),
+            DashboardEffect.ShowItemMessage(R.string.dashboard_item_half_used, item.name, undo = item),
         )
     }
 
@@ -287,12 +290,28 @@ class DashboardViewModel @Inject constructor(
             DashboardEffect.ShowItemMessage(
                 R.string.dashboard_item_frozen,
                 item.name,
-                frozen.expiryDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
+                frozen.expiryDate.format(DATE_FORMAT),
+                undo = item,
             ),
         )
     }
 
-    private fun updateItem(item: PantryItem, onSuccess: DashboardEffect) {
+    private fun thaw(itemId: Long) {
+        val item = uiState.value.findItem(itemId) ?: return
+        _editItem.value = null
+        val thawed = item.thawed(LocalDate.now(clock))
+        updateItem(
+            thawed,
+            DashboardEffect.ShowItemMessage(
+                R.string.dashboard_item_thawed,
+                item.name,
+                thawed.expiryDate.format(DATE_FORMAT),
+                undo = item,
+            ),
+        )
+    }
+
+    private fun updateItem(item: PantryItem, onSuccess: DashboardEffect?) {
         viewModelScope.launch {
             try {
                 pantryRepository.updatePantryItem(item)
@@ -303,7 +322,7 @@ class DashboardViewModel @Inject constructor(
                 _effects.send(DashboardEffect.ShowMessage(R.string.dashboard_error_update_failed))
                 return@launch
             }
-            _effects.send(onSuccess)
+            onSuccess?.let { _effects.send(it) }
         }
     }
 
@@ -330,5 +349,6 @@ class DashboardViewModel @Inject constructor(
         const val TAG = "DashboardViewModel"
         const val STOP_TIMEOUT_MILLIS = 5_000L
         val TODAY_REFRESH_INTERVAL = 1.minutes
+        val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
     }
 }
