@@ -4,6 +4,7 @@ import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.PantryItem
+import com.shelfie.app.domain.model.ScannedItem
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
@@ -63,5 +64,5 @@ interface PantryRepository {
      * [addPantryItems] to save. A failure always carries a
      * [com.shelfie.app.domain.model.PantryScanException]. An empty list means nothing was found.
      */
-    suspend fun scanPantryImage(imageUri: String): Result<List<PantryItem>>
+    suspend fun scanPantryImage(imageUri: String): Result<List<ScannedItem>>
 }

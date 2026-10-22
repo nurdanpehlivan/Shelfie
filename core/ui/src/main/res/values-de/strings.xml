@@ -288,7 +288,6 @@
 
     <string name="settings_reminder_label">Uhrzeit der Erinnerung</string>
     <string name="settings_about_version">Version %1$s</string>
-    <string name="settings_about_font">Schrift: Nunito (SIL Open Font License)</string>
 
     <!-- Categories -->
     <string name="category_dairy">Milchprodukte</string>
@@ -502,4 +501,12 @@
     <string name="dashboard_action_add_to_list">Auf die Liste</string>
     <string name="dashboard_item_added_to_list">%1$s steht jetzt auf der Einkaufsliste</string>
     <string name="dashboard_item_already_on_list">%1$s steht schon auf der Einkaufsliste</string>
+    <string name="household_sign_in_first">Melde dich zuerst oben an oder erstelle ein Konto. Deine Familie macht dasselbe und tritt mit deinem Code bei.</string>
+    <string name="household_joined">Geschafft! Vorrat, Liste und Rezepte deiner Familie kommen auf dieses Handy.</string>
+    <string name="scanner_item_spoiled">Sieht verdorben aus</string>
+    <string name="scanner_item_expired">Datum abgelaufen</string>
+    <string name="scanner_spoiled_hint">Wird nicht hinzugefügt. Lieber nicht essen.</string>
+    <string name="scanner_spoiled_keep">Trotzdem behalten</string>
+    <string name="scanner_spoiled_discard">Wegwerfen</string>
+    <string name="scanner_spoiled_discarded">Weggeworfen, in deiner Statistik gezählt</string>
 </resources>

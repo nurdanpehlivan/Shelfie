@@ -5,9 +5,11 @@ import com.shelfie.app.data.remote.gemini.dto.ScanCategory
 import com.shelfie.app.data.remote.gemini.dto.ScanResultDto
 import com.shelfie.app.data.remote.gemini.dto.ScannedItemDto
 import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.ItemCondition
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.PantryScanException
+import com.shelfie.app.domain.model.ScannedItem
 import com.shelfie.app.domain.model.ShelfLife
 import com.shelfie.app.domain.model.StorageLocation
 import kotlinx.serialization.SerializationException
@@ -17,7 +19,8 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 /**
- * Turns the model's JSON answer into unsaved [PantryItem]s.
+ * Turns the model's JSON answer into unsaved [PantryItem]s, each with the condition the model
+ * saw ([ScannedItem]): spoiled or expired products are flagged, not dropped, so the user decides.
  *
  * Model output is treated as untrusted input:
  * - tolerates markdown code fences, surrounding prose, unknown keys and quoted numbers;
@@ -40,7 +43,7 @@ class GeminiScanResultParser @Inject constructor(
         coerceInputValues = true
     }
 
-    fun parse(rawJson: String, imageUri: String?): List<PantryItem> {
+    fun parse(rawJson: String, imageUri: String?): List<ScannedItem> {
         val dto = try {
             json.decodeFromString<ScanResultDto>(rawJson.extractJsonObject())
         } catch (e: SerializationException) {
@@ -56,12 +59,13 @@ class GeminiScanResultParser @Inject constructor(
             .asSequence()
             .take(MAX_ITEMS)
             .mapNotNull { it.validate() }
-            .groupBy { it.name.lowercase() to it.category }
+            // A spoiled tomato and a fresh one are different decisions, so they don't merge.
+            .groupBy { Triple(it.name.lowercase(), it.category, it.condition) }
             .map { (_, duplicates) ->
                 val first = duplicates.first()
                 // Be conservative: the soonest date among duplicates wins.
                 val soonest = duplicates.minBy { it.shelfLifeDays }
-                PantryItem(
+                val item = PantryItem(
                     name = first.name,
                     category = first.category,
                     quantity = duplicates.size.toDouble(),
@@ -75,6 +79,7 @@ class GeminiScanResultParser @Inject constructor(
                     createdAt = now,
                     updatedAt = now,
                 )
+                ScannedItem(item, first.condition, duplicates.firstNotNullOfOrNull { it.conditionNote })
             }
     }
 
@@ -85,6 +90,8 @@ class GeminiScanResultParser @Inject constructor(
         val emoji: String?,
         val shelfLifeDays: Int,
         val isEstimated: Boolean,
+        val condition: ItemCondition,
+        val conditionNote: String?,
     )
 
     private fun ScannedItemDto.validate(): ValidItem? {
@@ -110,7 +117,28 @@ class GeminiScanResultParser @Inject constructor(
                 ?: ShelfLife.estimateDays(cleanName, domainCategory, location)
         }
 
-        return ValidItem(cleanName, domainCategory, location, emoji.validEmoji(), shelfLife, isEstimated)
+        val itemCondition = when (condition?.trim()?.lowercase()) {
+            GeminiPrompts.CONDITION_SPOILED -> ItemCondition.SPOILED
+            GeminiPrompts.CONDITION_EXPIRED -> ItemCondition.EXPIRED
+            else -> ItemCondition.OK
+        }
+        val note = conditionNote
+            ?.replace(WHITESPACE, " ")
+            ?.trim()
+            ?.take(MAX_NOTE_LENGTH)
+            ?.takeIf { it.isNotEmpty() && itemCondition != ItemCondition.OK }
+
+        return ValidItem(
+            cleanName,
+            domainCategory,
+            location,
+            emoji.validEmoji(),
+            // Something already bad has no days left.
+            if (itemCondition == ItemCondition.OK) shelfLife else 0,
+            isEstimated,
+            itemCondition,
+            note,
+        )
     }
 
     /** A short run of symbols; a word or a number means the model ignored the instruction. */
@@ -131,6 +159,7 @@ class GeminiScanResultParser @Inject constructor(
         const val MIN_CONFIDENCE = 0.5
         const val MAX_ITEMS = 100
         const val MAX_NAME_LENGTH = 60
+        const val MAX_NOTE_LENGTH = 80
 
         /** One emoji, including skin-tone or ZWJ sequences. */
         const val MAX_EMOJI_LENGTH = 16

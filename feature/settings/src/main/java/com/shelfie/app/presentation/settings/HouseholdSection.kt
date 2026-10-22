@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.HouseholdRole
@@ -50,13 +51,38 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-    if (!state.isSignedIn) return
+    if (!state.isSignedIn) {
+        // Sharing goes through accounts: say what to do instead of showing nothing.
+        Text(
+            text = stringResource(R.string.household_sign_in_first),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        return
+    }
+
+    // Someone may have joined while the app was in the background.
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refresh()
+        onPauseOrDispose {}
+    }
 
     val household = state.household
     if (household == null) {
         if (state.isWorking) CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-        state.errorRes?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
+        state.errorRes?.let {
+            Text(stringResource(it), color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = viewModel::refresh) { Text(stringResource(R.string.scanner_action_retry)) }
+        }
         return
+    }
+
+    if (state.justJoined && household.role == HouseholdRole.MEMBER) {
+        Text(
+            text = stringResource(R.string.household_joined),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 
     if (household.role != HouseholdRole.NONE) {

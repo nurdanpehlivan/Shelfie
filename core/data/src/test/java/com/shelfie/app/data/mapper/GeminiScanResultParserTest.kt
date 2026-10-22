@@ -1,6 +1,7 @@
 package com.shelfie.app.data.mapper
 
 import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.ItemCondition
 import com.shelfie.app.domain.model.PantryScanException
 import com.shelfie.app.domain.model.StorageLocation
 import org.junit.Assert.assertEquals
@@ -28,7 +29,7 @@ class GeminiScanResultParserTest {
             ]}
         """.trimIndent()
 
-        val items = parser.parse(json, imageUri = "content://photo/1")
+        val items = parser.parseItems(json, imageUri = "content://photo/1")
 
         assertEquals(2, items.size)
         with(items[0]) {
@@ -51,7 +52,7 @@ class GeminiScanResultParserTest {
             ```
         """.trimIndent()
 
-        val item = parser.parse(raw, imageUri = null).single()
+        val item = parser.parseItems(raw, imageUri = null).single()
 
         assertEquals("Apple", item.name)
         assertEquals(Category.VEGETABLES, item.category)
@@ -69,7 +70,7 @@ class GeminiScanResultParserTest {
             ]}
         """.trimIndent()
 
-        val item = parser.parse(json, imageUri = null).single()
+        val item = parser.parseItems(json, imageUri = null).single()
 
         assertEquals("Rice", item.name)
         assertEquals(Category.GRAINS, item.category)
@@ -85,7 +86,7 @@ class GeminiScanResultParserTest {
             ]}
         """.trimIndent()
 
-        val items = parser.parse(json, imageUri = null).associateBy { it.name }
+        val items = parser.parseItems(json, imageUri = null).associateBy { it.name }
 
         assertEquals(today.plusDays(Category.MEAT.defaultShelfLifeDays.toLong()), items.getValue("Steak").expiryDate)
         assertEquals(today.plusDays(3650), items.getValue("Honey").expiryDate)
@@ -102,7 +103,7 @@ class GeminiScanResultParserTest {
             ]}
         """.trimIndent()
 
-        val item = parser.parse(json, imageUri = null).single()
+        val item = parser.parseItems(json, imageUri = null).single()
 
         assertEquals(2.0, item.quantity, 0.0)
         assertEquals(today.plusDays(10), item.expiryDate)
@@ -115,7 +116,7 @@ class GeminiScanResultParserTest {
               "expiry_source":"label","estimated_shelf_life_days":200,"confidence":0.9}]}
         """.trimIndent()
 
-        val item = parser.parse(json, imageUri = null).single()
+        val item = parser.parseItems(json, imageUri = null).single()
 
         assertEquals("🫙", item.emoji)
         assertEquals(StorageLocation.PANTRY, item.location)
@@ -130,7 +131,7 @@ class GeminiScanResultParserTest {
               "expiry_source":"estimate","estimated_shelf_life_days":20,"confidence":0.9}]}
         """.trimIndent()
 
-        val item = parser.parse(json, imageUri = null).single()
+        val item = parser.parseItems(json, imageUri = null).single()
 
         assertEquals(today.plusDays(5), item.expiryDate)
         assertTrue(item.isExpiryEstimated)
@@ -142,13 +143,13 @@ class GeminiScanResultParserTest {
             {"items":[{"name":"Milk","category":"DAIRY","emoji":"milk","confidence":0.9}]}
         """.trimIndent()
 
-        assertNull(parser.parse(json, imageUri = null).single().emoji)
+        assertNull(parser.parseItems(json, imageUri = null).single().emoji)
     }
 
     @Test
     fun `empty or missing items yields empty list`() {
-        assertTrue(parser.parse("""{"items":[]}""", imageUri = null).isEmpty())
-        assertTrue(parser.parse("{}", imageUri = null).isEmpty())
+        assertTrue(parser.parseItems("""{"items":[]}""", imageUri = null).isEmpty())
+        assertTrue(parser.parseItems("{}", imageUri = null).isEmpty())
     }
 
     @Test(expected = PantryScanException.MalformedResponse::class)
@@ -160,4 +161,32 @@ class GeminiScanResultParserTest {
     fun `wrong root shape throws malformed response`() {
         parser.parse("""{"items":"milk"}""", imageUri = null)
     }
+
+    @Test
+    fun `spoiled items are flagged with a note, kept apart from fresh ones and given no days`() {
+        val json = """
+            {"items":[
+              {"name":"Domates","category":"VEGETABLES","emoji":"🍅","storage":"FRIDGE","expiry_source":"estimate",
+               "estimated_shelf_life_days":5,"condition":"spoiled","condition_note":"üstünde küf","confidence":0.9},
+              {"name":"Domates","category":"VEGETABLES","emoji":"🍅","storage":"FRIDGE","expiry_source":"estimate",
+               "estimated_shelf_life_days":5,"condition":"ok","condition_note":"","confidence":0.9}
+            ]}
+        """.trimIndent()
+
+        val (spoiled, fresh) = parser.parse(json, imageUri = null).partition { it.isFlagged }
+
+        assertEquals(ItemCondition.SPOILED, spoiled.single().condition)
+        assertEquals("üstünde küf", spoiled.single().conditionNote)
+        assertEquals(LocalDate.now(clock), spoiled.single().item.expiryDate)
+        assertNull(fresh.single().conditionNote)
+    }
+
+    @Test
+    fun `an answer without condition reads as ok`() {
+        val json = """{"items":[{"name":"Milk","category":"DAIRY","confidence":0.9}]}"""
+
+        assertEquals(ItemCondition.OK, parser.parse(json, imageUri = null).single().condition)
+    }
+
+    private fun GeminiScanResultParser.parseItems(raw: String, imageUri: String?) = parse(raw, imageUri).map { it.item }
 }

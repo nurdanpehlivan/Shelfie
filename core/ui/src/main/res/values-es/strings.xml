@@ -288,7 +288,6 @@
 
     <string name="settings_reminder_label">Hora del recordatorio</string>
     <string name="settings_about_version">Versión %1$s</string>
-    <string name="settings_about_font">Tipografía: Nunito (SIL Open Font License)</string>
 
     <!-- Categories -->
     <string name="category_dairy">Lácteos</string>
@@ -502,4 +501,12 @@
     <string name="dashboard_action_add_to_list">A la lista</string>
     <string name="dashboard_item_added_to_list">%1$s añadido a la lista de la compra</string>
     <string name="dashboard_item_already_on_list">%1$s ya está en la lista de la compra</string>
+    <string name="household_sign_in_first">Primero inicia sesión o crea una cuenta arriba. Tu familia hace lo mismo y se une con tu código.</string>
+    <string name="household_joined">¡Listo! La despensa, la lista y las recetas de tu familia llegan a este móvil.</string>
+    <string name="scanner_item_spoiled">Parece estropeado</string>
+    <string name="scanner_item_expired">Fecha pasada</string>
+    <string name="scanner_spoiled_hint">No se añadirá. Mejor no comerlo.</string>
+    <string name="scanner_spoiled_keep">Guardar igual</string>
+    <string name="scanner_spoiled_discard">Tirar</string>
+    <string name="scanner_spoiled_discarded">Tirado, contado en tus estadísticas</string>
 </resources>

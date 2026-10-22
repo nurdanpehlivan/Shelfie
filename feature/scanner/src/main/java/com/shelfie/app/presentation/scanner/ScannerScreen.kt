@@ -69,6 +69,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import coil3.compose.AsyncImage
 import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.ItemCondition
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.presentation.common.BottomActionBar
@@ -340,8 +341,8 @@ private fun ReviewContent(
                     Text(
                         text = pluralStringResource(
                             R.plurals.scanner_items_found,
-                            state.items.size,
-                            state.items.size,
+                            state.itemsToSave.size,
+                            state.itemsToSave.size,
                         ),
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -373,6 +374,9 @@ private fun ReviewContent(
                 enabled = !state.isSaving,
                 onEdit = { onEditItem(detected.key) },
                 onDelete = { onIntent(ScannerIntent.DeleteItem(detected.key)) },
+                warning = detected.warningText(),
+                onKeep = { onIntent(ScannerIntent.KeepFlaggedItem(detected.key)) },
+                onDiscard = { onIntent(ScannerIntent.DiscardFlaggedItem(detected.key)) },
                 modifier = Modifier.animateItem(),
             )
         }
@@ -391,7 +395,7 @@ private fun ConfirmBar(state: ScannerUiState.Success, onIntent: (ScannerIntent) 
             }
             Button(
                 onClick = { onIntent(ScannerIntent.ConfirmItems) },
-                enabled = !state.isSaving && state.items.isNotEmpty(),
+                enabled = !state.isSaving && state.itemsToSave.isNotEmpty(),
                 modifier = Modifier.weight(1f).height(56.dp),
             ) {
                 if (state.isSaving) {
@@ -405,8 +409,8 @@ private fun ConfirmBar(state: ScannerUiState.Success, onIntent: (ScannerIntent) 
                         iconRes = R.drawable.ic_check,
                         text = pluralStringResource(
                             R.plurals.scanner_action_confirm,
-                            state.items.size,
-                            state.items.size,
+                            state.itemsToSave.size,
+                            state.itemsToSave.size,
                         ),
                     )
                 }
@@ -541,4 +545,15 @@ private fun ScannerReviewPreview() {
             onIntent = {},
         )
     }
+}
+
+/** "Looks spoiled: mould on top", or null for an item that looks fine. */
+@Composable
+private fun DetectedItem.warningText(): String? {
+    val label = when (condition) {
+        ItemCondition.OK -> return null
+        ItemCondition.SPOILED -> stringResource(R.string.scanner_item_spoiled)
+        ItemCondition.EXPIRED -> stringResource(R.string.scanner_item_expired)
+    }
+    return if (conditionNote.isNullOrBlank()) label else "$label: $conditionNote"
 }

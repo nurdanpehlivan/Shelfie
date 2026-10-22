@@ -291,7 +291,6 @@
 
     <string name="settings_reminder_label">Hatırlatma saati</string>
     <string name="settings_about_version">Sürüm %1$s</string>
-    <string name="settings_about_font">Yazı tipi: Nunito (SIL Open Font License)</string>
 
     <!-- Categories -->
     <string name="category_dairy">Süt ürünleri</string>
@@ -505,4 +504,12 @@
     <string name="dashboard_action_add_to_list">Listeye ekle</string>
     <string name="dashboard_item_added_to_list">%1$s alışveriş listesine eklendi</string>
     <string name="dashboard_item_already_on_list">%1$s zaten alışveriş listesinde</string>
+    <string name="household_sign_in_first">Önce yukarıdan giriş yap ya da hesap oluştur. Ailen de aynısını yapıp davet kodunla katılır.</string>
+    <string name="household_joined">Katıldın! Ailenin kileri, listesi ve tarifleri bu telefona geliyor.</string>
+    <string name="scanner_item_spoiled">Bozulmuş görünüyor</string>
+    <string name="scanner_item_expired">Tarihi geçmiş</string>
+    <string name="scanner_spoiled_hint">Kilere eklenmeyecek. Yemesen iyi olur.</string>
+    <string name="scanner_spoiled_keep">Yine de ekle</string>
+    <string name="scanner_spoiled_discard">Atıyorum</string>
+    <string name="scanner_spoiled_discarded">Atıldı, istatistiklerine işlendi</string>
 </resources>

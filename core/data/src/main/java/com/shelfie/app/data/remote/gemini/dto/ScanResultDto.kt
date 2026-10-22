@@ -24,6 +24,10 @@ data class ScannedItemDto(
     val expirySource: String? = null,
     @SerialName("estimated_shelf_life_days")
     val estimatedShelfLifeDays: Int? = null,
+    /** "ok", "spoiled" or "expired"; missing in answers to older prompts, read as "ok". */
+    val condition: String? = null,
+    @SerialName("condition_note")
+    val conditionNote: String? = null,
     val confidence: Double? = null,
 )
 

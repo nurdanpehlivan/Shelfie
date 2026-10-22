@@ -2,6 +2,7 @@ package com.shelfie.app.presentation.scanner
 
 import androidx.annotation.StringRes
 import com.shelfie.app.domain.model.Category
+import com.shelfie.app.domain.model.ItemCondition
 import com.shelfie.app.domain.model.MeasurementUnit
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.StorageLocation
@@ -11,7 +12,15 @@ import java.time.LocalDate
  * An unsaved item detected in the photo. Scanned items all share [PantryItem.NEW_ITEM_ID], so
  * [key] identifies them in the review list until they are saved.
  */
-data class DetectedItem(val key: Long, val item: PantryItem)
+/** A reviewed scan result; a [flagged][isFlagged] one isn't saved unless the user keeps it. */
+data class DetectedItem(
+    val key: Long,
+    val item: PantryItem,
+    val condition: ItemCondition = ItemCondition.OK,
+    val conditionNote: String? = null,
+) {
+    val isFlagged: Boolean get() = condition != ItemCondition.OK
+}
 
 sealed interface ScannerUiState {
 
@@ -25,7 +34,10 @@ sealed interface ScannerUiState {
         val imageUri: String,
         val items: List<DetectedItem>,
         val isSaving: Boolean = false,
-    ) : ScannerUiState
+    ) : ScannerUiState {
+        /** What "save" adds: everything but the items flagged as spoiled or expired. */
+        val itemsToSave: List<DetectedItem> get() = items.filterNot { it.isFlagged }
+    }
 
     data class Error(
         val imageUri: String?,
@@ -59,6 +71,12 @@ sealed interface ScannerIntent {
     ) : ScannerIntent
 
     data class DeleteItem(val key: Long) : ScannerIntent
+
+    /** A flagged item is fine after all: it will be saved like the others. */
+    data class KeepFlaggedItem(val key: Long) : ScannerIntent
+
+    /** A flagged item goes in the bin: recorded as wasted, so statistics count it. */
+    data class DiscardFlaggedItem(val key: Long) : ScannerIntent
 
     /** Saves every remaining detected item in one go. */
     data object ConfirmItems : ScannerIntent

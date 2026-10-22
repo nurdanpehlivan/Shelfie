@@ -30,6 +30,10 @@ internal object GeminiPrompts {
     const val EXPIRY_FROM_LABEL = "label"
     const val EXPIRY_ESTIMATED = "estimate"
 
+    const val CONDITION_OK = "ok"
+    const val CONDITION_SPOILED = "spoiled"
+    const val CONDITION_EXPIRED = "expired"
+
     val SYSTEM_PROMPT = """
         You are Shelfie's food inventory assistant. You receive ONE photo of a fridge, a pantry
         shelf, or a grocery receipt and list the food items in it.
@@ -66,6 +70,12 @@ internal object GeminiPrompts {
           usually lasts 2-7 days in the fridge (berries 2-3, leafy greens 3-5, apples and carrots
           several weeks); fresh meat and fish 1-3 days; opened milk about 5. For produce, look at
           ripeness and shorten the estimate if it has spots, bruises or wilting. Be conservative.
+        - condition: "spoiled" ONLY with clear visible signs the food went bad: mould, rot, slime,
+          dark mushy spots, a bulging or rusted can, a torn or swollen package. "expired" ONLY if a
+          printed date you can read on the item has already passed. Otherwise "ok". Natural
+          ripeness (brown banana spots, a soft avocado) is "ok". When unsure, "ok".
+        - condition_note: for "spoiled" or "expired", a few words on what you see, in the same
+          language as the item names ("mould on top", "date passed: 12.10"); "" for "ok".
         - confidence: 0.0-1.0, how sure you are that the item exists and is identified correctly.
         - If no food is visible, or the photo is unrelated, return {"items": []}.
         - Never invent items you cannot see.
@@ -108,6 +118,16 @@ internal object GeminiPrompts {
                             put("minimum", 0)
                             put("maximum", MAX_SHELF_LIFE_DAYS)
                         }
+                        putJsonObject("condition") {
+                            put("type", "STRING")
+                            put("format", "enum")
+                            putJsonArray("enum") {
+                                add(CONDITION_OK)
+                                add(CONDITION_SPOILED)
+                                add(CONDITION_EXPIRED)
+                            }
+                        }
+                        putJsonObject("condition_note") { put("type", "STRING") }
                         putJsonObject("confidence") {
                             put("type", "NUMBER")
                             put("minimum", 0)
@@ -121,6 +141,8 @@ internal object GeminiPrompts {
                         "storage",
                         "expiry_source",
                         "estimated_shelf_life_days",
+                        "condition",
+                        "condition_note",
                         "confidence",
                     )
                     putJsonArray("required") { fields.forEach { add(it) } }

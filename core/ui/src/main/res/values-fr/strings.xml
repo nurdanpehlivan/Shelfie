@@ -289,7 +289,6 @@
 
     <string name="settings_reminder_label">Heure du rappel</string>
     <string name="settings_about_version">Version %1$s</string>
-    <string name="settings_about_font">Police : Nunito (SIL Open Font License)</string>
 
     <!-- Categories -->
     <string name="category_dairy">Produits laitiers</string>
@@ -503,4 +502,12 @@
     <string name="dashboard_action_add_to_list">Sur la liste</string>
     <string name="dashboard_item_added_to_list">%1$s ajouté à la liste de courses</string>
     <string name="dashboard_item_already_on_list">%1$s est déjà sur la liste de courses</string>
+    <string name="household_sign_in_first">Connecte-toi d\'abord ou crée un compte ci-dessus. Ta famille fait pareil et rejoint avec ton code.</string>
+    <string name="household_joined">C\'est fait ! Le placard, la liste et les recettes de ta famille arrivent sur ce téléphone.</string>
+    <string name="scanner_item_spoiled">Semble abîmé</string>
+    <string name="scanner_item_expired">Date dépassée</string>
+    <string name="scanner_spoiled_hint">Il ne sera pas ajouté. Mieux vaut ne pas le manger.</string>
+    <string name="scanner_spoiled_keep">Garder quand même</string>
+    <string name="scanner_spoiled_discard">Jeter</string>
+    <string name="scanner_spoiled_discarded">Jeté, compté dans tes statistiques</string>
 </resources>

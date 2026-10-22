@@ -11,6 +11,7 @@ import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.PantryScanException
+import com.shelfie.app.domain.model.ScannedItem
 import com.shelfie.app.domain.repository.PantryRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -111,7 +112,7 @@ class PantryRepositoryImpl @Inject constructor(
     override suspend fun deleteExpiredItems(today: LocalDate): Int =
         pantryDao.deleteExpiredBefore(today)
 
-    override suspend fun scanPantryImage(imageUri: String): Result<List<PantryItem>> =
+    override suspend fun scanPantryImage(imageUri: String): Result<List<ScannedItem>> =
         try {
             val rawJson = geminiRemoteDataSource.analyzePantryImage(imageUri)
             Result.success(scanResultParser.parse(rawJson, imageUri))

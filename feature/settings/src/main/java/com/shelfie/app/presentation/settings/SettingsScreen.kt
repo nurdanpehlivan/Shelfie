@@ -351,11 +351,6 @@ private fun AboutCard() {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Text(
-                text = stringResource(R.string.settings_about_font),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
             TextButton(
                 onClick = { uriHandler.openUri(privacyUrl) },
                 contentPadding = PaddingValues(0.dp),

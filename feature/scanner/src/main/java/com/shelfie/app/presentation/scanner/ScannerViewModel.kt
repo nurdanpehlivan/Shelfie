@@ -3,6 +3,7 @@ package com.shelfie.app.presentation.scanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.core.ui.R
+import com.shelfie.app.domain.model.ItemCondition
 import com.shelfie.app.domain.model.PantryScanException
 import com.shelfie.app.domain.model.edited
 import com.shelfie.app.domain.repository.PantryRepository
@@ -50,6 +51,10 @@ class ScannerViewModel @Inject constructor(
             is ScannerIntent.EditItem -> editItem(intent)
             is ScannerIntent.DeleteItem -> deleteItem(intent.key)
             ScannerIntent.ConfirmItems -> confirmItems()
+            is ScannerIntent.KeepFlaggedItem -> updateEditableItems { items ->
+                items.map { if (it.key == intent.key) it.copy(condition = ItemCondition.OK, conditionNote = null) else it }
+            }
+            is ScannerIntent.DiscardFlaggedItem -> discardFlaggedItem(intent.key)
             ScannerIntent.RetryAnalysis -> retryAnalysis()
             ScannerIntent.Reset -> reset()
         }
@@ -102,7 +107,7 @@ class ScannerViewModel @Inject constructor(
             .onSuccess { items ->
                 _uiState.value = ScannerUiState.Success(
                     imageUri = imageUri,
-                    items = items.map { DetectedItem(key = nextItemKey++, item = it) },
+                    items = items.map { DetectedItem(nextItemKey++, it.item, it.condition, it.conditionNote) },
                 )
             }
             .onFailure { error ->
@@ -132,14 +137,32 @@ class ScannerViewModel @Inject constructor(
         updateEditableItems { items -> items.filterNot { it.key == key } }
     }
 
+    private fun discardFlaggedItem(key: Long) {
+        val state = _uiState.value as? ScannerUiState.Success ?: return
+        val detected = state.items.firstOrNull { it.key == key } ?: return
+        deleteItem(key)
+        viewModelScope.launch {
+            try {
+                val id = pantryRepository.addPantryItem(detected.item)
+                pantryRepository.markAsWasted(id)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Only the statistics miss it; the item is out of the list either way.
+                return@launch
+            }
+            _effects.send(ScannerEffect.ShowMessage(R.string.scanner_spoiled_discarded))
+        }
+    }
+
     private fun confirmItems() {
         val state = _uiState.value as? ScannerUiState.Success ?: return
-        if (state.isSaving || state.items.isEmpty()) return
+        if (state.isSaving || state.itemsToSave.isEmpty()) return
         _uiState.value = state.copy(isSaving = true)
 
         viewModelScope.launch {
             try {
-                pantryRepository.addPantryItems(state.items.map { it.item })
+                pantryRepository.addPantryItems(state.itemsToSave.map { it.item })
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -152,7 +175,7 @@ class ScannerViewModel @Inject constructor(
             // The photo is now referenced by saved items, so it must outlive this scan.
             unsavedPhotoUri = null
             _uiState.value = ScannerUiState.Idle
-            _effects.send(ScannerEffect.ItemsSaved(state.items.size))
+            _effects.send(ScannerEffect.ItemsSaved(state.itemsToSave.size))
         }
     }
 

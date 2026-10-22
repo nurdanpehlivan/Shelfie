@@ -23,6 +23,8 @@ data class HouseholdUiState(
     val household: Household? = null,
     val isWorking: Boolean = false,
     @param:StringRes val errorRes: Int? = null,
+    /** Set right after joining: the shared data is on its way to this phone. */
+    val justJoined: Boolean = false,
 )
 
 @HiltViewModel
@@ -38,9 +40,15 @@ class HouseholdViewModel @Inject constructor(
         viewModelScope.launch {
             accountRepository.account.map { it != null }.distinctUntilChanged().collect { signedIn ->
                 _uiState.value = HouseholdUiState(isSignedIn = signedIn)
-                if (signedIn) run { householdRepository.household() }
+                if (signedIn) refresh()
             }
         }
+    }
+
+    /** Reloads members and the invite, e.g. when the screen comes back after someone joined. */
+    fun refresh() {
+        if (!_uiState.value.isSignedIn || _uiState.value.isWorking) return
+        run { householdRepository.household() }
     }
 
     fun createInvite() = run {
@@ -49,17 +57,19 @@ class HouseholdViewModel @Inject constructor(
         }
     }
 
-    fun join(code: String) = run { householdRepository.join(code) }
+    fun join(code: String) = run(joining = true) { householdRepository.join(code) }
 
     fun leave() = run { householdRepository.leave() }
 
     fun remove(email: String) = run { householdRepository.removeMember(email) }
 
-    private fun run(action: suspend () -> Result<Household>) {
+    private fun run(joining: Boolean = false, action: suspend () -> Result<Household>) {
         _uiState.update { it.copy(isWorking = true, errorRes = null) }
         viewModelScope.launch {
             action()
-                .onSuccess { household -> _uiState.update { it.copy(household = household, isWorking = false) } }
+                .onSuccess { household ->
+                    _uiState.update { it.copy(household = household, isWorking = false, justJoined = joining || it.justJoined) }
+                }
                 .onFailure { error -> _uiState.update { it.copy(isWorking = false, errorRes = error.toMessageRes()) } }
         }
     }

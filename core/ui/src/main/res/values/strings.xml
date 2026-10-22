@@ -295,7 +295,6 @@
 
     <string name="settings_reminder_label">Reminder time</string>
     <string name="settings_about_version">Version %1$s</string>
-    <string name="settings_about_font">Typeface: Nunito (SIL Open Font License)</string>
 
     <!-- Categories -->
     <string name="category_dairy">Dairy</string>
@@ -509,4 +508,12 @@
     <string name="dashboard_action_add_to_list">Add to list</string>
     <string name="dashboard_item_added_to_list">%1$s added to the shopping list</string>
     <string name="dashboard_item_already_on_list">%1$s is already on the shopping list</string>
+    <string name="household_sign_in_first">First sign in or create an account above. Your family does the same and joins with your invite code.</string>
+    <string name="household_joined">You\'re in! Your family\'s pantry, list and recipes are syncing to this phone.</string>
+    <string name="scanner_item_spoiled">Looks spoiled</string>
+    <string name="scanner_item_expired">Date has passed</string>
+    <string name="scanner_spoiled_hint">It won\'t be added. Better not to eat it.</string>
+    <string name="scanner_spoiled_keep">Keep it</string>
+    <string name="scanner_spoiled_discard">Throw away</string>
+    <string name="scanner_spoiled_discarded">Thrown away, counted in your statistics</string>
 </resources>
