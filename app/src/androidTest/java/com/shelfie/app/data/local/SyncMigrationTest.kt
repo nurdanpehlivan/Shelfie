@@ -98,6 +98,24 @@ class SyncMigrationTest {
         db.close()
     }
 
+    @Test
+    fun migrate7To8_letsAQueuedRowBeUpdatedAgain() {
+        helper.createDatabase(DB, 3).use { db ->
+            db.execSQL(
+                "INSERT INTO pantry_items (name, category, quantity, unit, purchase_date, expiry_date, is_consumed, is_wasted, created_at, updated_at) " +
+                    "VALUES ('Milk', 'DAIRY', 1, 'PIECE', 20000, 20005, 0, 0, 1, 1)",
+            )
+        }
+
+        val db = helper.runMigrationsAndValidate(DB, 8, true, MIGRATION_3_4, MIGRATION_7_8)
+
+        // Room's @Update is UPDATE OR ABORT; the second one used to hit the outbox key.
+        db.execSQL("UPDATE OR ABORT pantry_items SET quantity = 2")
+        db.execSQL("UPDATE OR ABORT pantry_items SET location = 'FREEZER'")
+        assertEquals(1, db.count("SELECT COUNT(*) FROM sync_outbox WHERE collection = 'pantry'"))
+        db.close()
+    }
+
     private fun androidx.sqlite.db.SupportSQLiteDatabase.count(sql: String): Int =
         query(sql).use { it.moveToFirst(); it.getInt(0) }
 

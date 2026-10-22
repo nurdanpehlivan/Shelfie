@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.shelfie.app.data.local.MIGRATION_3_4
+import com.shelfie.app.data.local.MIGRATION_7_8
 import com.shelfie.app.data.local.ShelfieDatabase
 import com.shelfie.app.data.local.SyncTriggers
 import com.shelfie.app.data.local.dao.MealPlanDao
@@ -27,7 +28,7 @@ object DatabaseModule {
     @Singleton
     fun provideShelfieDatabase(@ApplicationContext context: Context): ShelfieDatabase =
         Room.databaseBuilder(context, ShelfieDatabase::class.java, ShelfieDatabase.NAME)
-            .addMigrations(MIGRATION_3_4)
+            .addMigrations(MIGRATION_3_4, MIGRATION_7_8)
             .addCallback(
                 object : RoomDatabase.Callback() {
                     // Upgraded databases get their triggers from MIGRATION_3_4.

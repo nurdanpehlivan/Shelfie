@@ -43,6 +43,7 @@ import com.shelfie.app.data.local.entity.SyncOutboxEntity
         AutoMigration(from = 5, to = 6, spec = ShelfieDatabase.MealPlanMigration::class),
         // 6 -> 7: adds pantry_items.emoji and .expiry_estimated (ADD COLUMN keeps the triggers).
         AutoMigration(from = 6, to = 7),
+        // 7 -> 8 is manual (MIGRATION_7_8): same tables, rewritten sync triggers.
     ],
 )
 @TypeConverters(ShelfieTypeConverters::class)
@@ -65,6 +66,6 @@ abstract class ShelfieDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "shelfie.db"
-        const val VERSION = 7
+        const val VERSION = 8
     }
 }

@@ -29,6 +29,11 @@ object SyncTriggers {
 
     private const val NOW_MILLIS = "CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)"
 
+    /**
+     * The outbox row is replaced by delete + insert, not `INSERT OR REPLACE`: inside a trigger
+     * SQLite swaps a statement's conflict clause for the outer one, so under Room's
+     * `UPDATE OR ABORT` a second edit of a not-yet-synced row failed on the outbox key.
+     */
     fun create(db: SupportSQLiteDatabase, tables: List<Pair<String, String>> = SYNCED_TABLES) {
         for ((table, collection) in tables) {
             for ((event, row) in listOf("INSERT" to "NEW", "UPDATE" to "NEW", "DELETE" to "OLD")) {
@@ -38,13 +43,31 @@ object SyncTriggers {
                     AFTER $event ON $table
                     WHEN NOT EXISTS (SELECT 1 FROM ${SyncApplyingEntity.TABLE_NAME})
                     BEGIN
-                        INSERT OR REPLACE INTO ${SyncOutboxEntity.TABLE_NAME} (collection, sync_id, changed_at)
+                        DELETE FROM ${SyncOutboxEntity.TABLE_NAME}
+                        WHERE collection = '$collection' AND sync_id = $row.sync_id;
+                        INSERT INTO ${SyncOutboxEntity.TABLE_NAME} (collection, sync_id, changed_at)
                         VALUES ('$collection', $row.sync_id, $NOW_MILLIS);
                     END
                     """.trimIndent(),
                 )
             }
         }
+    }
+
+    fun drop(db: SupportSQLiteDatabase, tables: List<Pair<String, String>> = SYNCED_TABLES) {
+        for ((table, _) in tables) {
+            for (event in listOf("insert", "update", "delete")) {
+                db.execSQL("DROP TRIGGER IF EXISTS sync_${table}_$event")
+            }
+        }
+    }
+}
+
+/** 7 -> 8: recreates the triggers so repeated edits before a sync no longer fail. */
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        SyncTriggers.drop(db)
+        SyncTriggers.create(db)
     }
 }
 

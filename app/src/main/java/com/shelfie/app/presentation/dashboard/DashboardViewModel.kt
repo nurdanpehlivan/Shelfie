@@ -1,5 +1,6 @@
 package com.shelfie.app.presentation.dashboard
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.R
@@ -298,6 +299,7 @@ class DashboardViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                Log.w(TAG, "Updating item ${item.id} failed", e)
                 _effects.send(DashboardEffect.ShowMessage(R.string.dashboard_error_update_failed))
                 return@launch
             }
@@ -325,6 +327,7 @@ class DashboardViewModel @Inject constructor(
     )
 
     private companion object {
+        const val TAG = "DashboardViewModel"
         const val STOP_TIMEOUT_MILLIS = 5_000L
         val TODAY_REFRESH_INTERVAL = 1.minutes
     }
