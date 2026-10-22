@@ -500,4 +500,9 @@
     <string name="settings_privacy">Gizlilik politikası</string>
     <string name="dashboard_action_thaw">Çöz</string>
     <string name="dashboard_item_thawed">%1$s buzdolabında çözülüyor, %2$s tarihine kadar tüket</string>
+    <string name="dashboard_action_opened">Açtım</string>
+    <string name="dashboard_item_opened">%1$s açıldı, %2$s tarihine kadar tüket</string>
+    <string name="dashboard_action_add_to_list">Listeye ekle</string>
+    <string name="dashboard_item_added_to_list">%1$s alışveriş listesine eklendi</string>
+    <string name="dashboard_item_already_on_list">%1$s zaten alışveriş listesinde</string>
 </resources>

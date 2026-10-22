@@ -62,6 +62,29 @@ fun PantryItem.thawed(today: LocalDate): PantryItem {
     )
 }
 
+/**
+ * "I opened it" is offered while it would change something: the product has an opened shelf
+ * life, isn't frozen, and that shelf life ends before its current date.
+ */
+fun PantryItem.canMarkOpened(today: LocalDate): Boolean {
+    val days = category.openedShelfLifeDays ?: return false
+    return location != StorageLocation.FREEZER && today.plusDays(days.toLong()) < expiryDate
+}
+
+/**
+ * Opened: it keeps for the category's opened shelf life from [today], never longer than its
+ * own date, and moves to the fridge when the product needs it once opened.
+ */
+fun PantryItem.opened(today: LocalDate): PantryItem {
+    val days = category.openedShelfLifeDays ?: return this
+    val expiry = minOf(expiryDate, today.plusDays(days.toLong()))
+    return copy(
+        location = if (category.goesInFridgeOnceOpened && location == StorageLocation.PANTRY) StorageLocation.FRIDGE else location,
+        expiryDate = expiry,
+        isExpiryEstimated = if (expiry == expiryDate) isExpiryEstimated else true,
+    )
+}
+
 /** Whether [expiryDate] is still the date [ShelfLife] works out for this product. */
 fun PantryItem.hasEstimatedExpiry(): Boolean =
     expiryDate == purchaseDate.plusDays(ShelfLife.estimateDays(name, category, location).toLong())

@@ -103,6 +103,12 @@ sealed interface DashboardIntent {
     /** Takes the item out of the freezer to thaw in the fridge, with a short date. */
     data class Thaw(val itemId: Long) : DashboardIntent
 
+    /** The package was opened: shorter date, and to the fridge if it needs it. */
+    data class MarkOpened(val itemId: Long) : DashboardIntent
+
+    /** Running low: puts the item's name on the shopping list. */
+    data class AddToShoppingList(val itemId: Long) : DashboardIntent
+
     /** Puts an item back the way it was before a one-tap change. */
     data class UndoChange(val previous: PantryItem) : DashboardIntent
 

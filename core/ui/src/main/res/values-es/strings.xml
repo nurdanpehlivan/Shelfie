@@ -497,4 +497,9 @@
     <string name="settings_privacy">Política de privacidad</string>
     <string name="dashboard_action_thaw">Descongelar</string>
     <string name="dashboard_item_thawed">%1$s se descongela en la nevera, úsalo antes del %2$s</string>
+    <string name="dashboard_action_opened">Abierto</string>
+    <string name="dashboard_item_opened">%1$s abierto, úsalo antes del %2$s</string>
+    <string name="dashboard_action_add_to_list">A la lista</string>
+    <string name="dashboard_item_added_to_list">%1$s añadido a la lista de la compra</string>
+    <string name="dashboard_item_already_on_list">%1$s ya está en la lista de la compra</string>
 </resources>

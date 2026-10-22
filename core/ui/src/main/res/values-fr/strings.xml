@@ -498,4 +498,9 @@
     <string name="settings_privacy">Politique de confidentialité</string>
     <string name="dashboard_action_thaw">Décongeler</string>
     <string name="dashboard_item_thawed">%1$s décongèle au frigo, à consommer avant le %2$s</string>
+    <string name="dashboard_action_opened">Ouvert</string>
+    <string name="dashboard_item_opened">%1$s ouvert, à consommer avant le %2$s</string>
+    <string name="dashboard_action_add_to_list">Sur la liste</string>
+    <string name="dashboard_item_added_to_list">%1$s ajouté à la liste de courses</string>
+    <string name="dashboard_item_already_on_list">%1$s est déjà sur la liste de courses</string>
 </resources>

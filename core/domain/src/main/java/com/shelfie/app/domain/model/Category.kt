@@ -42,6 +42,29 @@ enum class Category(
             else -> 3
         }
 
+    /**
+     * Days it keeps once opened (a carton of milk, a can, a jar), `null` where "opened" means
+     * nothing: fresh produce and frozen food.
+     */
+    val openedShelfLifeDays: Int?
+        get() = when (this) {
+            DAIRY -> 4
+            MEAT -> 2
+            SEAFOOD -> 1
+            CANNED -> 3
+            BEVERAGES -> 4
+            CONDIMENTS -> 30
+            SNACKS -> 10
+            GRAINS -> 60
+            BAKERY -> 4
+            OTHER -> 5
+            FRUITS, VEGETABLES, FROZEN -> null
+        }
+
+    /** Shelf-stable until opened, then it belongs in the fridge (canned food, UHT milk, juice). */
+    val goesInFridgeOnceOpened: Boolean
+        get() = this == CANNED || this == BEVERAGES || this == DAIRY
+
     companion object {
         private val NOT_FREEZABLE = setOf(GRAINS, CANNED, BEVERAGES, CONDIMENTS, SNACKS)
 

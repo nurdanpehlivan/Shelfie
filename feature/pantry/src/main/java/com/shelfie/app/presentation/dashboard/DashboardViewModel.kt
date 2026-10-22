@@ -14,10 +14,12 @@ import com.shelfie.app.domain.model.edited
 import com.shelfie.app.domain.model.frozen
 import com.shelfie.app.domain.model.halved
 import com.shelfie.app.domain.model.hasEstimatedExpiry
+import com.shelfie.app.domain.model.opened
 import com.shelfie.app.domain.model.thawed
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.ProductLookupRepository
 import com.shelfie.app.domain.repository.SettingsRepository
+import com.shelfie.app.domain.repository.ShoppingListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -49,6 +51,7 @@ import kotlin.time.Duration.Companion.minutes
 class DashboardViewModel @Inject constructor(
     private val pantryRepository: PantryRepository,
     private val productLookupRepository: ProductLookupRepository,
+    private val shoppingListRepository: ShoppingListRepository,
     settingsRepository: SettingsRepository,
     private val clock: Clock,
 ) : ViewModel() {
@@ -135,6 +138,8 @@ class DashboardViewModel @Inject constructor(
             is DashboardIntent.UseHalf -> useHalf(intent.itemId)
             is DashboardIntent.Freeze -> freeze(intent.itemId)
             is DashboardIntent.Thaw -> thaw(intent.itemId)
+            is DashboardIntent.MarkOpened -> markOpened(intent.itemId)
+            is DashboardIntent.AddToShoppingList -> addToShoppingList(intent.itemId)
             is DashboardIntent.UndoChange -> updateItem(intent.previous, onSuccess = null)
             is DashboardIntent.MarkConsumed -> removeItem(intent.itemId, RemovalReason.CONSUMED)
             is DashboardIntent.MarkWasted -> removeItem(intent.itemId, RemovalReason.WASTED)
@@ -309,6 +314,43 @@ class DashboardViewModel @Inject constructor(
                 undo = item,
             ),
         )
+    }
+
+    private fun markOpened(itemId: Long) {
+        val item = uiState.value.findItem(itemId) ?: return
+        _editItem.value = null
+        val opened = item.opened(LocalDate.now(clock))
+        updateItem(
+            opened,
+            DashboardEffect.ShowItemMessage(
+                R.string.dashboard_item_opened,
+                item.name,
+                opened.expiryDate.format(DATE_FORMAT),
+                undo = item,
+            ),
+        )
+    }
+
+    private fun addToShoppingList(itemId: Long) {
+        val item = uiState.value.findItem(itemId) ?: return
+        _editItem.value = null
+        viewModelScope.launch {
+            val added = try {
+                shoppingListRepository.addItems(listOf(item.name to ""))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Adding ${item.id} to the shopping list failed", e)
+                _effects.send(DashboardEffect.ShowMessage(R.string.dashboard_error_update_failed))
+                return@launch
+            }
+            _effects.send(
+                DashboardEffect.ShowItemMessage(
+                    if (added > 0) R.string.dashboard_item_added_to_list else R.string.dashboard_item_already_on_list,
+                    item.name,
+                ),
+            )
+        }
     }
 
     private fun updateItem(item: PantryItem, onSuccess: DashboardEffect?) {

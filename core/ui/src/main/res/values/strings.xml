@@ -504,4 +504,9 @@
     <string name="settings_privacy">Privacy policy</string>
     <string name="dashboard_action_thaw">Thaw</string>
     <string name="dashboard_item_thawed">%1$s is thawing in the fridge, use by %2$s</string>
+    <string name="dashboard_action_opened">Opened</string>
+    <string name="dashboard_item_opened">%1$s opened, use by %2$s</string>
+    <string name="dashboard_action_add_to_list">Add to list</string>
+    <string name="dashboard_item_added_to_list">%1$s added to the shopping list</string>
+    <string name="dashboard_item_already_on_list">%1$s is already on the shopping list</string>
 </resources>

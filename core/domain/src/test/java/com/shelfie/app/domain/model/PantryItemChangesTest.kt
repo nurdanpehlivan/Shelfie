@@ -92,4 +92,26 @@ class PantryItemChangesTest {
 
         assertEquals(today, bread.thawed(today).expiryDate)
     }
+
+    @Test
+    fun `opening shelf-stable milk moves it to the fridge with a short date`() {
+        val milk = jam.copy(name = "Süt", category = Category.DAIRY, expiryDate = today.plusDays(120))
+
+        assertTrue(milk.canMarkOpened(today))
+        val opened = milk.opened(today)
+
+        assertEquals(StorageLocation.FRIDGE, opened.location)
+        assertEquals(today.plusDays(4), opened.expiryDate)
+        assertFalse(opened.canMarkOpened(today))
+    }
+
+    @Test
+    fun `opening a jam keeps it where it is and is offered for no produce`() {
+        val opened = jam.opened(today)
+        val apple = jam.copy(name = "Elma", category = Category.FRUITS, expiryDate = today.plusDays(20))
+
+        assertEquals(StorageLocation.PANTRY, opened.location)
+        assertEquals(today.plusDays(30), opened.expiryDate)
+        assertFalse(apple.canMarkOpened(today))
+    }
 }
