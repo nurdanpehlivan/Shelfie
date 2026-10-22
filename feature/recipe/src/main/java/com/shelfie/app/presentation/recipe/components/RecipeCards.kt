@@ -57,6 +57,9 @@ fun ingredientEmoji(ingredient: RecipeIngredient, pantryItems: List<PantryItem>)
         ?: FALLBACK_INGREDIENT_EMOJI
 
 /** Header card of the recipe, on the evergreen hero: the rescued items, the title, key facts. */
+/** More rescued ingredients than this collapse into a "+N" disc, so the row always fits. */
+private const val MAX_HERO_DISCS = 5
+
 @Composable
 fun RecipeHeroCard(
     recipe: Recipe,
@@ -67,7 +70,9 @@ fun RecipeHeroCard(
     HighlightCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy((-10).dp)) {
-                rescuedEmojis.forEach { emoji ->
+                val shown = if (rescuedEmojis.size > MAX_HERO_DISCS) rescuedEmojis.take(MAX_HERO_DISCS - 1) else rescuedEmojis
+                val hidden = rescuedEmojis.size - shown.size
+                (shown + listOfNotNull(if (hidden > 0) "+$hidden" else null)).forEach { emoji ->
                     // The hero colour as a ring separates the overlapping discs without a shadow.
                     Surface(
                         shape = CircleShape,

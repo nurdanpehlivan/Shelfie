@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -363,8 +364,13 @@ private fun LoadingContent(ingredients: List<PantryItem>, modifier: Modifier = M
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(24.dp))
-        // The ingredients being rescued, so the wait already shows something concrete.
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        // The ingredients being rescued, so the wait already shows something concrete. Wraps onto
+        // more lines when several were picked, centred like the rest of the screen.
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             ingredients.forEach { item ->
                 IngredientTile(
                     emoji = item.displayEmoji,

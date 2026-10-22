@@ -1,46 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Frizzy, the Shelfie mascot, kept inside the adaptive-icon safe zone (21..87). -->
+<!-- Frizzy, the Shelfie mascot, cheering; kept inside the adaptive-icon safe zone (r = 33). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Scaled about the centre so the sprout stays inside the safe zone. -->
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.82" android:scaleY="0.82">
+    <!-- Ground shadow -->
+    <path android:fillColor="#000000" android:fillAlpha="0.18" android:pathData="M38,86a16,2.6 0,1 0,32 0a16,2.6 0,1 0,-32 0z" />
+    <!-- Raised arms -->
+    <path android:strokeColor="#134D33" android:strokeWidth="3.4" android:strokeLineCap="round" android:pathData="M36.5,57Q30,55 29,48.5 M71.5,57Q78,55 79,48.5" />
     <!-- Feet -->
-    <path android:fillColor="#1F5C43" android:pathData="M42,81h7v6h-7z M59,81h7v6h-7z" />
+    <path android:fillColor="#134D33" android:pathData="M42,80h7v5.5h-7z M59,80h7v5.5h-7z" />
     <!-- Body -->
-    <path
-        android:fillColor="#EAF7EF"
-        android:strokeColor="#1F5C43"
-        android:strokeWidth="3"
-        android:pathData="M44,24H64A9,9 0,0 1,73 33V75A9,9 0,0 1,64 84H44A9,9 0,0 1,35 75V33A9,9 0,0 1,44 24Z" />
-    <!-- Freezer door split -->
-    <path
-        android:strokeColor="#1F5C43"
-        android:strokeWidth="3"
-        android:strokeLineCap="round"
-        android:pathData="M35,45H73" />
-    <!-- Handles -->
-    <path android:fillColor="#5FBF8C" android:pathData="M65,30h2.6v9h-2.6z M65,50h2.6v10h-2.6z" />
+    <path android:pathData="M46,25H62A10,10 0,0 1,72 35V71A10,10 0,0 1,62 81H46A10,10 0,0 1,36 71V35A10,10 0,0 1,46 25Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="54"
+                android:startY="25"
+                android:endX="54"
+                android:endY="81">
+                <item android:offset="0" android:color="#FFFFFF" />
+                <item android:offset="1" android:color="#E2F4E8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Outline as its own path: a stroke on a gradient-filled path isn't drawn on every Android version. -->
+    <path android:strokeColor="#134D33" android:strokeWidth="3.2" android:pathData="M46,25H62A10,10 0,0 1,72 35V71A10,10 0,0 1,62 81H46A10,10 0,0 1,36 71V35A10,10 0,0 1,46 25Z" />
+    <!-- Freezer door split and handles -->
+    <path android:strokeColor="#134D33" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M36,44H72" />
+    <path android:fillColor="#7ED3A6" android:pathData="M64.5,30.5h2.6v8.5h-2.6z M64.5,48.5h2.6v10h-2.6z" />
+    <!-- Enamel gloss -->
+    <path android:fillColor="#FFFFFF" android:pathData="M39.6,30h2v10h-2z" />
     <!-- Leaf magnet -->
-    <path
-        android:fillColor="#43A36F"
-        android:pathData="M40,38C40,32 46,30.5 49,31.5C49,36 45.5,39.5 40,38Z" />
-    <!-- Eyes -->
-    <path
-        android:fillColor="#1C2B22"
-        android:pathData="M45.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z M57.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M48.4,57.6a1,1 0,1 0,2 0a1,1 0,1 0,-2 0z M60.4,57.6a1,1 0,1 0,2 0a1,1 0,1 0,-2 0z" />
+    <path android:fillColor="#2FA85E" android:pathData="M40.5,39.5C40.5,33.5 46.5,31.5 50,32.5C50,37.5 46,41 40.5,39.5Z" />
+    <!-- Sprout on top -->
+    <path android:strokeColor="#134D33" android:strokeWidth="2" android:strokeLineCap="round" android:pathData="M54,25V20.5" />
+    <path android:fillColor="#8BE0A8" android:strokeColor="#134D33" android:strokeWidth="1.4" android:pathData="M54,21C50.5,21.5 47.5,19.5 47,16C50.5,15.5 53.5,17.5 54,21Z M54,21C57.5,21.5 60.5,19.5 61,16C57.5,15.5 54.5,17.5 54,21Z" />
+    <!-- Eyes with catch-lights -->
+    <path android:fillColor="#1C2B22" android:pathData="M44.1,58.5a2.9,3.7 0,1 0,5.8 0a2.9,3.7 0,1 0,-5.8 0z M58.1,58.5a2.9,3.7 0,1 0,5.8 0a2.9,3.7 0,1 0,-5.8 0z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M47.2,57.1a1.1,1.1 0,1 0,2.2 0a1.1,1.1 0,1 0,-2.2 0z M61.2,57.1a1.1,1.1 0,1 0,2.2 0a1.1,1.1 0,1 0,-2.2 0z" />
     <!-- Cheeks -->
-    <path
-        android:fillColor="#FF9E9E"
-        android:fillAlpha="0.6"
-        android:pathData="M40.4,64.5a2.6,1.6 0,1 0,5.2 0a2.6,1.6 0,1 0,-5.2 0z M62.4,64.5a2.6,1.6 0,1 0,5.2 0a2.6,1.6 0,1 0,-5.2 0z" />
-    <!-- Smile -->
-    <path
-        android:strokeColor="#1C2B22"
-        android:strokeWidth="2.4"
-        android:strokeLineCap="round"
-        android:pathData="M50,66Q54,70.5 58,66" />
+    <path android:fillColor="#FF9E9E" android:fillAlpha="0.65" android:pathData="M39.9,64.5a2.6,1.6 0,1 0,5.2 0a2.6,1.6 0,1 0,-5.2 0z M62.9,64.5a2.6,1.6 0,1 0,5.2 0a2.6,1.6 0,1 0,-5.2 0z" />
+    <!-- Open smile and tongue -->
+    <path android:fillColor="#1C2B22" android:pathData="M49.5,63.5H58.5Q58.5,70 54,70Q49.5,70 49.5,63.5Z" />
+    <path android:fillColor="#FF7A7A" android:pathData="M51.6,68a2.4,1.3 0,1 0,4.8 0a2.4,1.3 0,1 0,-4.8 0z" />
+    </group>
 </vector>

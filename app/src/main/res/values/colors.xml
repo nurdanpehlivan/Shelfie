@@ -3,5 +3,4 @@
     <!-- Mirrors the Compose theme (presentation/theme) for the few places Views still draw. -->
     <color name="brand_background">#FFFFF9F2</color>
     <color name="brand_green">#FF23974F</color>
-    <color name="ic_launcher_background">#FFDDF5E3</color>
 </resources>

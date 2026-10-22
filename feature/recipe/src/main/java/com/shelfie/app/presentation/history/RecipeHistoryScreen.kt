@@ -2,6 +2,7 @@ package com.shelfie.app.presentation.history
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,12 +49,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.SavedRecipe
 import com.shelfie.app.presentation.common.FALLBACK_INGREDIENT_EMOJI
+import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.Pill
 import com.shelfie.app.presentation.common.ScreenHeader
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.shelfieFilterChipColors
+import com.shelfie.app.presentation.mascot.Frizzy
 import com.shelfie.app.presentation.mascot.FrizzyMood
 import com.shelfie.app.presentation.mascot.MascotMessage
+import com.shelfie.app.presentation.theme.extendedColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -108,10 +113,11 @@ fun RecipeHistoryScreen(
                     // Equal heights whatever the title length: the taller card sets the row.
                     Row(modifier = Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         RecipeActionCard(
-                            emoji = "🧑‍🍳",
+                            emoji = null,
                             title = stringResource(R.string.picker_entry_title),
                             subtitle = stringResource(R.string.picker_entry_subtitle),
                             onClick = onCookWithWhatIHave,
+                            highlighted = true,
                             modifier = Modifier.weight(1f).fillMaxHeight(),
                         )
                         RecipeActionCard(
@@ -124,7 +130,10 @@ fun RecipeHistoryScreen(
                     }
                 }
                 item(key = "filters") {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                         HistoryFilter.entries.forEach { filter ->
                             FilterChip(
                                 selected = state.filter == filter,
@@ -195,11 +204,11 @@ private fun HistoryCard(
             modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Up to two ingredient emojis on an aubergine tile, the colour of cooking: the "cover".
+            // Up to two ingredient emojis on the leaf-tinted tile of the app's highlights: the "cover".
             Box(
                 modifier = Modifier
                     .size(68.dp)
-                    .background(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.shapes.medium),
+                    .background(MaterialTheme.extendedColors.hero, MaterialTheme.shapes.medium),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(text = emojis.take(2).joinToString(""), style = MaterialTheme.typography.titleLarge)
@@ -269,26 +278,42 @@ private fun EmptyHistory(onNewRecipe: () -> Unit, onCookWithWhatIHave: () -> Uni
     )
 }
 
-/** Cooking entry points (picker, weekly plan), in the recipe accent so they read as actions. */
+/**
+ * Cooking entry points. The main one (cook with what I have) is the screen's highlight, with
+ * chef Frizzy; the others are plain cards with their emoji on a leaf-tinted disc.
+ */
 @Composable
-private fun RecipeActionCard(emoji: String, title: String, subtitle: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val scheme = MaterialTheme.colorScheme
-    ShelfieCard(
-        onClick = onClick,
-        modifier = modifier,
-        containerColor = scheme.tertiaryContainer,
-        border = BorderStroke(1.dp, scheme.tertiary.copy(alpha = 0.25f)),
-    ) {
+private fun RecipeActionCard(
+    emoji: String?,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    highlighted: Boolean = false,
+) {
+    val content: @Composable () -> Unit = {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = emoji, style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = title, style = MaterialTheme.typography.titleMedium, color = scheme.onTertiaryContainer)
+            if (emoji == null) {
+                Frizzy(mood = FrizzyMood.CHEF, size = 48.dp, animated = false)
+            } else {
+                Box(
+                    modifier = Modifier.size(48.dp).background(MaterialTheme.extendedColors.hero, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) { Text(text = emoji, style = MaterialTheme.typography.titleLarge) }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = scheme.onTertiaryContainer.copy(alpha = 0.8f),
+                color = if (highlighted) MaterialTheme.extendedColors.onHeroVariant else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+    if (highlighted) {
+        HighlightCard(onClick = onClick, shape = MaterialTheme.shapes.large, modifier = modifier, content = content)
+    } else {
+        ShelfieCard(onClick = onClick, modifier = modifier) { content() }
     }
 }
 

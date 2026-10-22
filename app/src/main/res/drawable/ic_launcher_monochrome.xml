@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Single-colour Frizzy for Android 13 themed icons (only the alpha channel is used). -->
+<!-- Themed-icon silhouette of Frizzy: outline and face only, tinted by the launcher. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:strokeColor="#000000"
-        android:strokeWidth="3.5"
-        android:strokeLineJoin="round"
-        android:pathData="M44,24H64A9,9 0,0 1,73 33V75A9,9 0,0 1,64 84H44A9,9 0,0 1,35 75V33A9,9 0,0 1,44 24Z M35,45H73" />
-    <path
-        android:fillColor="#000000"
-        android:pathData="M65,30h2.6v9h-2.6z M65,50h2.6v10h-2.6z M45.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z M57.2,59a2.8,3.6 0,1 0,5.6 0a2.8,3.6 0,1 0,-5.6 0z M40,38C40,32 46,30.5 49,31.5C49,36 45.5,39.5 40,38Z" />
-    <path
-        android:strokeColor="#000000"
-        android:strokeWidth="2.6"
-        android:strokeLineCap="round"
-        android:pathData="M50,66Q54,70.5 58,66" />
+    <!-- Scaled about the centre so the sprout stays inside the safe zone. -->
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.82" android:scaleY="0.82">
+    <path android:strokeColor="#000000" android:strokeWidth="3.4" android:strokeLineCap="round" android:pathData="M36.5,57Q30,55 29,48.5 M71.5,57Q78,55 79,48.5 M54,25V20.5" />
+    <path android:fillColor="#000000" android:pathData="M42,80h7v5.5h-7z M59,80h7v5.5h-7z" />
+    <path android:strokeColor="#000000" android:strokeWidth="3.2" android:pathData="M46,25H62A10,10 0,0 1,72 35V71A10,10 0,0 1,62 81H46A10,10 0,0 1,36 71V35A10,10 0,0 1,46 25Z" />
+    <path android:strokeColor="#000000" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M36,44H72" />
+    <path android:fillColor="#000000" android:pathData="M40.5,39.5C40.5,33.5 46.5,31.5 50,32.5C50,37.5 46,41 40.5,39.5Z M54,21C50.5,21.5 47.5,19.5 47,16C50.5,15.5 53.5,17.5 54,21Z M54,21C57.5,21.5 60.5,19.5 61,16C57.5,15.5 54.5,17.5 54,21Z" />
+    <path android:fillColor="#000000" android:pathData="M44.1,58.5a2.9,3.7 0,1 0,5.8 0a2.9,3.7 0,1 0,-5.8 0z M58.1,58.5a2.9,3.7 0,1 0,5.8 0a2.9,3.7 0,1 0,-5.8 0z M49.5,63.5H58.5Q58.5,70 54,70Q49.5,70 49.5,63.5Z" />
+    </group>
 </vector>
