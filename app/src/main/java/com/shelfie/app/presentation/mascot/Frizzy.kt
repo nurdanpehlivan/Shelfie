@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -54,7 +55,10 @@ enum class FrizzyMood {
 /** Fixed mascot colours: Frizzy looks the same in light and dark mode, like a logo. */
 private object FrizzyColors {
     val body = Color(0xFFEAF7F2)
+    val bodyTop = Color(0xFFF7FCFA)
     val bodyShade = Color(0xFFD0ECE2)
+    val gloss = Color.White
+    val shadow = Color(0xFF14574A)
     val outline = Color(0xFF14574A)
     val handle = Color(0xFF86D5BE)
     val eye = Color(0xFF1C2B22)
@@ -99,14 +103,29 @@ fun Frizzy(
             else -> 0f to sin(phase) * 2.5f * u
         }
         val offsetX = (this.size.width - 100f * u) / 2
+        // Ground shadow stays put and shrinks as Frizzy rises, so a hop reads as a hop.
+        val lift = (-dy / (5f * u)).coerceIn(0f, 1f)
+        translate(left = offsetX) { drawGroundShadow(u, lift) }
         translate(left = offsetX + dx, top = dy) {
             drawFrizzy(u, mood, eyeOpen = if (mood == FrizzyMood.SLEEPY) 0f else blink.value, phase = phase)
         }
     }
 }
 
+private fun DrawScope.drawGroundShadow(u: Float, lift: Float) {
+    val width = (46f - 12f * lift) * u
+    drawOval(
+        FrizzyColors.shadow.copy(alpha = 0.14f - 0.06f * lift),
+        Offset(50f * u - width / 2, 93f * u),
+        Size(width, 5f * u),
+    )
+}
+
 private fun DrawScope.drawFrizzy(u: Float, mood: FrizzyMood, eyeOpen: Float, phase: Float) {
     val stroke = Stroke(width = 3f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
+
+    // Little arms behind the body; waving when celebrating.
+    drawArms(u, mood, phase)
 
     // Feet.
     listOf(30f, 60f).forEach { x ->
@@ -116,13 +135,26 @@ private fun DrawScope.drawFrizzy(u: Float, mood: FrizzyMood, eyeOpen: Float, pha
     // Body with a soft side shade, then the outline.
     val body = Rect(18f * u, 14f * u, 82f * u, 90f * u)
     val radius = CornerRadius(16f * u)
-    drawRoundRect(FrizzyColors.body, body.topLeft, body.size, radius)
+    drawRoundRect(
+        Brush.verticalGradient(listOf(FrizzyColors.bodyTop, FrizzyColors.body), startY = body.top, endY = body.bottom),
+        body.topLeft,
+        body.size,
+        radius,
+    )
     drawRoundRect(
         FrizzyColors.bodyShade,
         Offset(body.right - 12f * u, body.top + 4f * u),
         Size(8f * u, body.height - 8f * u),
         CornerRadius(4f * u),
     )
+    // Glossy highlight down the left edge, like light on enamel.
+    drawRoundRect(
+        FrizzyColors.gloss.copy(alpha = 0.85f),
+        Offset(body.left + 5f * u, body.top + 6f * u),
+        Size(3.2f * u, 18f * u),
+        CornerRadius(1.6f * u),
+    )
+    drawCircle(FrizzyColors.gloss.copy(alpha = 0.85f), radius = 1.6f * u, center = Offset(body.left + 6.6f * u, body.top + 28f * u))
     drawRoundRect(FrizzyColors.outline, body.topLeft, body.size, radius, style = stroke)
 
     // Freezer door split and handles.
@@ -161,8 +193,9 @@ private fun DrawScope.drawFace(u: Float, mood: FrizzyMood, eyeOpen: Float) {
         listOf(leftEye, rightEye).forEach { c ->
             val h = 9.5f * u * eyeOpen
             drawOval(FrizzyColors.eye, Offset(c.x - 4.2f * u, c.y - h / 2), Size(8.4f * u, h))
-            // Sparkle highlight.
-            drawCircle(Color.White, radius = 1.5f * u, center = Offset(c.x + 1.4f * u, c.y - h / 4))
+            // Two catch-lights: a big one and a small one, for a livelier look.
+            drawCircle(Color.White, radius = 1.6f * u, center = Offset(c.x + 1.4f * u, c.y - h / 4))
+            drawCircle(Color.White.copy(alpha = 0.8f), radius = 0.8f * u, center = Offset(c.x - 1.6f * u, c.y + h / 5))
         }
     }
 
@@ -213,6 +246,19 @@ private fun DrawScope.drawFace(u: Float, mood: FrizzyMood, eyeOpen: Float) {
             center = Offset(49f * u, 70f * u),
             style = Stroke(2.2f * u),
         )
+    }
+}
+
+private fun DrawScope.drawArms(u: Float, mood: FrizzyMood, phase: Float) {
+    val arm = Stroke(3.4f * u, cap = StrokeCap.Round)
+    val wave = if (mood == FrizzyMood.CELEBRATING) sin(phase * 4) * 5f * u else 0f
+    val raise = if (mood == FrizzyMood.CELEBRATING) -14f * u else 0f
+    listOf(-1f to 18f, 1f to 82f).forEach { (side, x) ->
+        val path = Path().apply {
+            moveTo(x * u, 60f * u)
+            quadraticTo((x + side * 8f) * u, (62f * u) + raise / 2, (x + side * 9f) * u + side * wave, 68f * u + raise)
+        }
+        drawPath(path, FrizzyColors.outline, style = arm)
     }
 }
 
