@@ -36,6 +36,7 @@ import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.Recipe
 import com.shelfie.app.domain.model.RecipeIngredient
 import com.shelfie.app.domain.model.RecipeStep
+import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.SectionHeader
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.displayEmoji
@@ -65,12 +66,7 @@ fun RecipeHeroCard(
     modifier: Modifier = Modifier,
 ) {
     val extended = MaterialTheme.extendedColors
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        color = extended.hero,
-        contentColor = extended.onHero,
-    ) {
+    HighlightCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy((-10).dp)) {
                 rescuedEmojis.forEach { emoji ->
@@ -125,8 +121,8 @@ private fun FlowRowFacts(facts: List<Pair<String, String>>) {
             val highlighted = index == facts.lastIndex
             Surface(
                 shape = CircleShape,
-                color = if (highlighted) MaterialTheme.colorScheme.surfaceContainerLowest else extended.heroTile,
-                contentColor = if (highlighted) MaterialTheme.colorScheme.primary else extended.onHero,
+                color = if (highlighted) MaterialTheme.colorScheme.primary else extended.heroTile,
+                contentColor = if (highlighted) MaterialTheme.colorScheme.onPrimary else extended.onHero,
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),

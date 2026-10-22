@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,6 +56,41 @@ import com.shelfie.app.presentation.theme.extendedColors
  * The standard content card. By default it is glass; pass a [containerColor] for a solid,
  * tinted card (e.g. the recipe banner), or [Color.Unspecified] to keep the glass.
  */
+/**
+ * The one highlighted block a screen may have (recipe header, statistics headline, Premium):
+ * a soft leaf tint with a hairline border, in the same family as the pantry's rescue banner.
+ */
+@Composable
+fun HighlightCard(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    shape: Shape = RoundedCornerShape(28.dp),
+    content: @Composable () -> Unit,
+) {
+    val extended = MaterialTheme.extendedColors
+    val border = BorderStroke(1.dp, extended.heroBorder)
+    if (onClick != null) {
+        Surface(
+            onClick = onClick,
+            modifier = modifier,
+            shape = shape,
+            color = extended.hero,
+            contentColor = extended.onHero,
+            border = border,
+            content = content,
+        )
+    } else {
+        Surface(
+            modifier = modifier,
+            shape = shape,
+            color = extended.hero,
+            contentColor = extended.onHero,
+            border = border,
+            content = content,
+        )
+    }
+}
+
 @Composable
 fun ShelfieCard(
     modifier: Modifier = Modifier,

@@ -55,6 +55,7 @@ import com.shelfie.app.R
 import com.shelfie.app.domain.model.AppSettings
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.ThemeMode
+import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.ShelfieTopBar
 import com.shelfie.app.presentation.common.formatQuantity
@@ -234,13 +235,7 @@ private val ThemeMode.labelRes: Int
 @Composable
 private fun PremiumCard(onClick: () -> Unit) {
     val extended = MaterialTheme.extendedColors
-    Surface(
-        onClick = onClick,
-        shape = MaterialTheme.shapes.large,
-        color = extended.hero,
-        contentColor = extended.onHero,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    HighlightCard(onClick = onClick, shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(text = "✨", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.width(12.dp))

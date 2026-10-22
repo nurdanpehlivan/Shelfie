@@ -43,6 +43,7 @@ import com.shelfie.app.R
 import com.shelfie.app.domain.model.PremiumOffer
 import com.shelfie.app.domain.model.PurchaseHost
 import com.shelfie.app.domain.model.QuotaStatus
+import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.ShelfieTopBar
 import com.shelfie.app.presentation.common.glow
@@ -167,12 +168,7 @@ fun PremiumScreen(
 @Composable
 private fun PremiumHero(isPremium: Boolean, premiumUntil: QuotaStatus?) {
     val extended = MaterialTheme.extendedColors
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        color = extended.hero,
-        contentColor = extended.onHero,
-    ) {
+    HighlightCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {

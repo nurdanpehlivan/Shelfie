@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.R
 import com.shelfie.app.domain.model.PantryStatistics
 import com.shelfie.app.domain.model.StatisticsPeriod
+import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.ScreenHeader
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.emoji
@@ -122,12 +123,7 @@ fun StatisticsScreen(state: StatisticsUiState, onPeriodSelected: (StatisticsPeri
 private fun HeroCard(stats: PantryStatistics) {
     val extended = MaterialTheme.extendedColors
     val rate = stats.rescueRate
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        color = extended.hero,
-        contentColor = extended.onHero,
-    ) {
+    HighlightCard(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 // "%42" in Turkish, "42%" in English.

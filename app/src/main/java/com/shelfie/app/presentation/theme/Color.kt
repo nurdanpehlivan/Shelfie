@@ -68,8 +68,9 @@ val DarkChartPalette = ChartPalette(rescued = Color(0xFF2DD4BF), wasted = Color(
 /**
  * Colours Material's scheme has no slot for.
  *
- * - [hero]/[onHero]: the solid brand surface used once per screen at most (recipe header,
- *   statistics headline, Premium); [heroTile] sits on it.
+ * - [hero]/[onHero]: the soft leaf-tinted highlight, used once per screen at most (recipe
+ *   header, statistics headline, Premium) through [HighlightCard]; [heroTile] sits on it and
+ *   [heroBorder] outlines it. Light on purpose: the app has no solid dark-green blocks.
  * - [glassTop]/[glassBottom]/[glassBorder]: the card surface. In light mode a white card with a
  *   warm hairline on the cream page; in dark mode a faint sheen over the espresso background.
  * - [glow]: coloured shadow of primary elements (the scan button, the active tab).
@@ -80,6 +81,7 @@ data class ShelfieExtendedColors(
     val onHero: Color,
     val onHeroVariant: Color,
     val heroTile: Color,
+    val heroBorder: Color,
     val glassTop: Color,
     val glassBottom: Color,
     val glassBorder: Color,
@@ -88,10 +90,11 @@ data class ShelfieExtendedColors(
 )
 
 val LightExtendedColors = ShelfieExtendedColors(
-    hero = LeafDeep,
-    onHero = Color.White,
-    onHeroVariant = Color(0xFFD3F2DC),
-    heroTile = Color.White.copy(alpha = 0.16f),
+    hero = Color(0xFFE6F5EB),
+    onHero = Color(0xFF154D2B),
+    onHeroVariant = Color(0xFF4A6E57),
+    heroTile = Color.White.copy(alpha = 0.8f),
+    heroBorder = Leaf.copy(alpha = 0.22f),
     glassTop = Color.White,
     glassBottom = Color(0xFFFFFDF9),
     glassBorder = Color(0xFFF0E6D8),
@@ -100,10 +103,11 @@ val LightExtendedColors = ShelfieExtendedColors(
 )
 
 val DarkExtendedColors = ShelfieExtendedColors(
-    hero = Color(0xFF164A2C),
-    onHero = Color.White,
-    onHeroVariant = Color(0xFFB9EBC9),
+    hero = Color(0xFF18271D),
+    onHero = Color(0xFFD6F3E0),
+    onHeroVariant = Color(0xFF9FC8AE),
     heroTile = Color.White.copy(alpha = 0.08f),
+    heroBorder = LeafLight.copy(alpha = 0.18f),
     glassTop = Color.White.copy(alpha = 0.06f),
     glassBottom = Color.White.copy(alpha = 0.03f),
     glassBorder = Color.White.copy(alpha = 0.09f),
