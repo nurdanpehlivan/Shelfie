@@ -10,12 +10,14 @@ import com.shelfie.app.data.local.converter.ShelfieTypeConverters
 import com.shelfie.app.data.local.dao.MealPlanDao
 import com.shelfie.app.data.local.dao.NameTranslationDao
 import com.shelfie.app.data.local.dao.PantryDao
+import com.shelfie.app.data.local.dao.RecipeTranslationDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
 import com.shelfie.app.data.local.dao.SyncDao
 import com.shelfie.app.data.local.entity.MealPlanEntity
 import com.shelfie.app.data.local.entity.NameTranslationEntity
 import com.shelfie.app.data.local.entity.PantryItemEntity
+import com.shelfie.app.data.local.entity.RecipeTranslationEntity
 import com.shelfie.app.data.local.entity.SavedRecipeEntity
 import com.shelfie.app.data.local.entity.ShoppingItemEntity
 import com.shelfie.app.data.local.entity.SyncApplyingEntity
@@ -30,6 +32,7 @@ import com.shelfie.app.data.local.entity.SyncOutboxEntity
         SyncOutboxEntity::class,
         SyncApplyingEntity::class,
         NameTranslationEntity::class,
+        RecipeTranslationEntity::class,
     ],
     version = ShelfieDatabase.VERSION,
     exportSchema = true,
@@ -49,6 +52,8 @@ import com.shelfie.app.data.local.entity.SyncOutboxEntity
         // 7 -> 8 is manual (MIGRATION_7_8): same tables, rewritten sync triggers.
         // 8 -> 9: adds the name_translations cache (not synced, so no triggers).
         AutoMigration(from = 8, to = 9),
+        // 9 -> 10: adds the recipe_translations cache (not synced either).
+        AutoMigration(from = 9, to = 10),
     ],
 )
 @TypeConverters(ShelfieTypeConverters::class)
@@ -66,6 +71,8 @@ abstract class ShelfieDatabase : RoomDatabase() {
 
     abstract fun nameTranslationDao(): NameTranslationDao
 
+    abstract fun recipeTranslationDao(): RecipeTranslationDao
+
     /** Room makes the table; triggers aren't Room's, so they're added here (idempotent). */
     class MealPlanMigration : AutoMigrationSpec {
         override fun onPostMigrate(db: SupportSQLiteDatabase) = SyncTriggers.create(db)
@@ -73,6 +80,6 @@ abstract class ShelfieDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "shelfie.db"
-        const val VERSION = 9
+        const val VERSION = 10
     }
 }

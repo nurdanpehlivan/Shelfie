@@ -58,6 +58,8 @@ dependencies {
     api(project(":core:domain"))
 
     implementation(libs.androidx.core.ktx)
+    // The in-app language (AppCompatDelegate.getApplicationLocales), see AppLanguage.
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)

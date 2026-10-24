@@ -11,6 +11,7 @@ import com.shelfie.app.data.local.SyncTriggers
 import com.shelfie.app.data.local.dao.MealPlanDao
 import com.shelfie.app.data.local.dao.NameTranslationDao
 import com.shelfie.app.data.local.dao.PantryDao
+import com.shelfie.app.data.local.dao.RecipeTranslationDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
 import com.shelfie.app.data.local.dao.SyncDao
@@ -55,4 +56,7 @@ object DatabaseModule {
 
     @Provides
     fun provideNameTranslationDao(database: ShelfieDatabase): NameTranslationDao = database.nameTranslationDao()
+
+    @Provides
+    fun provideRecipeTranslationDao(database: ShelfieDatabase): RecipeTranslationDao = database.recipeTranslationDao()
 }

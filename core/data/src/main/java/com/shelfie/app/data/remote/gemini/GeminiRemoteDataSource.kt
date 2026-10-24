@@ -3,6 +3,7 @@ package com.shelfie.app.data.remote.gemini
 import android.net.Uri
 import com.shelfie.app.data.remote.gemini.dto.GenerateContentRequest
 import com.shelfie.app.data.remote.gemini.dto.GenerateContentResponse
+import com.shelfie.app.data.translation.AppLanguage
 import com.shelfie.app.domain.model.MealType
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.PantryScanException
@@ -37,11 +38,12 @@ class GeminiRemoteDataSource @Inject constructor(
     private val api: GeminiApiService,
     private val imageCompressor: ImageCompressor,
     private val config: GeminiConfig,
+    private val appLanguage: AppLanguage,
 ) {
 
     suspend fun analyzePantryImage(
         imageUri: String,
-        locale: Locale = Locale.getDefault(),
+        locale: Locale = appLanguage.locale,
     ): String {
         requireConfigured()
 
@@ -67,7 +69,7 @@ class GeminiRemoteDataSource @Inject constructor(
         ingredients: List<PantryItem>,
         mealType: MealType,
         today: LocalDate,
-        locale: Locale = Locale.getDefault(),
+        locale: Locale = appLanguage.locale,
         isBackground: Boolean = false,
     ): String {
         requireConfigured()
@@ -81,6 +83,12 @@ class GeminiRemoteDataSource @Inject constructor(
     suspend fun translateNames(names: List<String>, locale: Locale): String {
         requireConfigured()
         return generate(TranslationPrompts.buildRequest(names, locale), GeminiApiService.FEATURE_TRANSLATE)
+    }
+
+    /** Returns [recipeJson] (a saved recipe) rewritten in [locale]'s language, same shape. */
+    suspend fun translateRecipe(recipeJson: String, locale: Locale): String {
+        requireConfigured()
+        return generate(RecipePrompts.buildTranslationRequest(recipeJson, locale), GeminiApiService.FEATURE_TRANSLATE)
     }
 
     private fun requireConfigured() {

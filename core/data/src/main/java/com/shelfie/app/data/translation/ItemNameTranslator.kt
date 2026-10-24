@@ -1,20 +1,14 @@
 package com.shelfie.app.data.translation
 
-import android.app.Activity
-import android.app.Application
-import android.content.Context
-import android.os.Bundle
 import com.shelfie.app.data.local.dao.NameTranslationDao
 import com.shelfie.app.data.local.entity.NameTranslationEntity
 import com.shelfie.app.data.remote.gemini.GeminiRemoteDataSource
 import com.shelfie.app.di.ApplicationScope
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -40,13 +34,13 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @Singleton
 class ItemNameTranslator @Inject constructor(
-    @ApplicationContext context: Context,
+    private val appLanguage: AppLanguage,
     private val dao: NameTranslationDao,
     private val gemini: GeminiRemoteDataSource,
     @ApplicationScope private val scope: CoroutineScope,
 ) {
 
-    private val language = MutableStateFlow(currentLanguage())
+    private val language = appLanguage.language
 
     /** "language|name" keys already asked for in this process, so a failure isn't retried in a loop. */
     private val requested = ConcurrentHashMap.newKeySet<String>()
@@ -54,23 +48,6 @@ class ItemNameTranslator @Inject constructor(
     /** Names waiting for the next call, by language; guarded by itself. */
     private val pending = mutableMapOf<String, MutableSet<String>>()
 
-    init {
-        // Changing the app language recreates the activity; Locale.getDefault() is the new one by then.
-        (context as Application).registerActivityLifecycleCallbacks(
-            object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                    language.value = currentLanguage()
-                }
-
-                override fun onActivityStarted(activity: Activity) = Unit
-                override fun onActivityResumed(activity: Activity) = Unit
-                override fun onActivityPaused(activity: Activity) = Unit
-                override fun onActivityStopped(activity: Activity) = Unit
-                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
-                override fun onActivityDestroyed(activity: Activity) = Unit
-            },
-        )
-    }
 
     /** [items] with each name replaced by its translation, updating as translations arrive. */
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -131,7 +108,6 @@ class ItemNameTranslator @Inject constructor(
         }
     }
 
-    private fun currentLanguage(): String = Locale.getDefault().language
 
     private companion object {
         val BATCH_DELAY = 300.milliseconds

@@ -161,4 +161,35 @@ internal object RecipePrompts {
             1L -> "expires tomorrow"
             else -> "expires in $days days"
         }
+
+    private val TRANSLATION_PROMPT = """
+        You translate a saved recipe for a home cooking app. You get the recipe as JSON.
+        - Rewrite title, ingredient names, amounts and steps in the requested language, the way a
+          native home cook would write them. Use units that are usual there, but never change
+          the quantities themselves.
+        - Keep every field, the number and order of ingredients and steps, the emojis, the
+          cooking time and servings exactly as they are.
+        - Text already in the requested language stays as it is.
+    """.trimIndent()
+
+    /** Translation of a stored recipe; answered in the same schema, so the parser validates it. */
+    fun buildTranslationRequest(recipeJson: String, locale: Locale): GenerateContentRequest = GenerateContentRequest(
+        systemInstruction = Content(parts = listOf(Part(text = TRANSLATION_PROMPT))),
+        contents = listOf(
+            Content(
+                role = "user",
+                parts = listOf(
+                    Part(
+                        text = "Translate into ${locale.getDisplayLanguage(Locale.ENGLISH)} " +
+                            "(${locale.toLanguageTag()}):\n$recipeJson",
+                    ),
+                ),
+            ),
+        ),
+        generationConfig = GenerationConfig(
+            responseMimeType = "application/json",
+            responseSchema = responseSchema,
+            temperature = 0.0,
+        ),
+    )
 }

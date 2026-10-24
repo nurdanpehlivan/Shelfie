@@ -1,6 +1,7 @@
 package com.shelfie.app.data.repository
 
 import com.shelfie.app.data.remote.openfoodfacts.OpenFoodFactsApi
+import com.shelfie.app.data.translation.AppLanguage
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.ProductInfo
 import com.shelfie.app.domain.model.ProductLookupException
@@ -20,13 +21,14 @@ import javax.inject.Singleton
 @Singleton
 class ProductLookupRepositoryImpl @Inject constructor(
     private val api: OpenFoodFactsApi,
+    private val appLanguage: AppLanguage,
 ) : ProductLookupRepository {
 
     override suspend fun lookup(barcode: String): Result<ProductInfo?> {
         val code = barcode.filter { it.isDigit() }
         if (code.length !in MIN_BARCODE_LENGTH..MAX_BARCODE_LENGTH) return Result.success(null)
         return try {
-            val language = Locale.getDefault().language
+            val language = appLanguage.language.value
             val response = api.getProduct(code, OpenFoodFactsApi.fieldsFor(language))
             val product = response.product.takeIf { response.status == 1 }
             Result.success(product?.toProductInfo(code, language))

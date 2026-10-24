@@ -117,13 +117,15 @@ class SyncMigrationTest {
     }
 
     @Test
-    fun migrate8To9_addsTheNameTranslationCacheWithoutSyncingIt() {
+    fun migrate8To10_addsTheTranslationCachesWithoutSyncingThem() {
         helper.createDatabase(DB, 3).close()
 
-        val db = helper.runMigrationsAndValidate(DB, 9, true, MIGRATION_3_4, MIGRATION_7_8)
+        val db = helper.runMigrationsAndValidate(DB, 10, true, MIGRATION_3_4, MIGRATION_7_8)
 
         db.execSQL("INSERT INTO name_translations (source, language, translated) VALUES ('Süt', 'en', 'Milk')")
+        db.execSQL("INSERT INTO recipe_translations (recipe_id, language, recipe_json) VALUES (1, 'en', '{}')")
         assertEquals(1, db.count("SELECT COUNT(*) FROM name_translations"))
+        assertEquals(1, db.count("SELECT COUNT(*) FROM recipe_translations"))
         // A local cache: nothing for the server.
         assertEquals(0, db.count("SELECT COUNT(*) FROM sync_outbox"))
         db.close()
