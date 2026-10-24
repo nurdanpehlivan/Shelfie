@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -63,10 +64,11 @@ fun PremiumRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val resources = LocalResources.current
     LaunchedEffect(state.messageRes) {
         val message = state.messageRes ?: return@LaunchedEffect
         viewModel.messageShown()
-        snackbarHostState.showSnackbar(context.getString(message))
+        snackbarHostState.showSnackbar(resources.getString(message))
     }
     PremiumScreen(
         state = state,

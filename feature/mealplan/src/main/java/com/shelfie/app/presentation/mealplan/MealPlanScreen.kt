@@ -47,7 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -79,15 +79,15 @@ fun MealPlanRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is MealPlanEffect.AddedToShoppingList -> snackbarHostState.showSnackbar(
                     if (effect.addedCount == 0) {
-                        context.getString(R.string.plan_shopping_nothing)
+                        resources.getString(R.string.plan_shopping_nothing)
                     } else {
-                        context.resources.getQuantityString(R.plurals.recipe_shopping_added, effect.addedCount, effect.addedCount)
+                        resources.getQuantityString(R.plurals.recipe_shopping_added, effect.addedCount, effect.addedCount)
                     },
                 )
             }

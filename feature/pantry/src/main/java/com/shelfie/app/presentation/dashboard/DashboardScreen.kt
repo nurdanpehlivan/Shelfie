@@ -38,7 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -95,7 +95,7 @@ fun DashboardRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val currentOnNavigateToScanner by rememberUpdatedState(onNavigateToScanner)
     val currentOnNavigateToRecipe by rememberUpdatedState(onNavigateToRecipe)
     val currentOnNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
@@ -114,14 +114,14 @@ fun DashboardRoute(
 
                         is DashboardEffect.ItemAdded -> snackbarScope.launch {
                             snackbarHostState.showSnackbar(
-                                context.getString(R.string.add_item_saved, effect.itemName),
+                                resources.getString(R.string.add_item_saved, effect.itemName),
                             )
                         }
 
                         is DashboardEffect.ShowRemovalUndo -> snackbarScope.launch {
                             // Replace, don't queue: after several swipes only the last undo matters.
                             snackbarHostState.currentSnackbarData?.dismiss()
-                            val message = context.getString(
+                            val message = resources.getString(
                                 when (effect.reason) {
                                     RemovalReason.CONSUMED -> R.string.dashboard_removed_consumed
                                     RemovalReason.WASTED -> R.string.dashboard_removed_wasted
@@ -130,7 +130,7 @@ fun DashboardRoute(
                             )
                             val result = snackbarHostState.showSnackbar(
                                 message = message,
-                                actionLabel = context.getString(R.string.action_undo),
+                                actionLabel = resources.getString(R.string.action_undo),
                                 duration = SnackbarDuration.Short,
                             )
                             if (result == SnackbarResult.ActionPerformed) {
@@ -141,8 +141,8 @@ fun DashboardRoute(
                         is DashboardEffect.ShowItemMessage -> snackbarScope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
                             val result = snackbarHostState.showSnackbar(
-                                message = context.getString(effect.messageRes, effect.itemName, effect.extra),
-                                actionLabel = effect.undo?.let { context.getString(R.string.action_undo) },
+                                message = resources.getString(effect.messageRes, effect.itemName, effect.extra),
+                                actionLabel = effect.undo?.let { resources.getString(R.string.action_undo) },
                                 duration = SnackbarDuration.Short,
                             )
                             if (result == SnackbarResult.ActionPerformed && effect.undo != null) {
@@ -151,7 +151,7 @@ fun DashboardRoute(
                         }
 
                         is DashboardEffect.ShowMessage -> snackbarScope.launch {
-                            snackbarHostState.showSnackbar(context.getString(effect.messageRes))
+                            snackbarHostState.showSnackbar(resources.getString(effect.messageRes))
                         }
                     }
                 }
@@ -166,7 +166,7 @@ fun DashboardRoute(
         onSavedItemsMessageShown()
         snackbarScope.launch {
             snackbarHostState.showSnackbar(
-                context.resources.getQuantityString(R.plurals.scanner_items_saved, count, count),
+                resources.getQuantityString(R.plurals.scanner_items_saved, count, count),
             )
         }
     }

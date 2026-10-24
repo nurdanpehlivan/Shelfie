@@ -41,7 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -88,29 +88,29 @@ fun RecipeRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(viewModel, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.effects.collect { effect ->
                 val message = when (effect) {
-                    is RecipeEffect.Cooked -> context.resources.getQuantityString(
+                    is RecipeEffect.Cooked -> resources.getQuantityString(
                         R.plurals.recipe_cooked_message,
                         effect.consumedCount,
                         effect.consumedCount,
                     )
                     is RecipeEffect.AddedToShoppingList -> if (effect.addedCount == 0) {
-                        context.getString(R.string.recipe_shopping_already_listed)
+                        resources.getString(R.string.recipe_shopping_already_listed)
                     } else {
-                        context.resources.getQuantityString(
+                        resources.getQuantityString(
                             R.plurals.recipe_shopping_added,
                             effect.addedCount,
                             effect.addedCount,
                         )
                     }
-                    is RecipeEffect.ShowMessage -> context.getString(effect.messageRes)
-                    RecipeEffect.LeftoversSaved -> context.getString(R.string.recipe_leftovers_saved)
+                    is RecipeEffect.ShowMessage -> resources.getString(effect.messageRes)
+                    RecipeEffect.LeftoversSaved -> resources.getString(R.string.recipe_leftovers_saved)
                 }
                 launch { snackbarHostState.showSnackbar(message) }
             }

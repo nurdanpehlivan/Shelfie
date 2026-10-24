@@ -41,7 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -80,12 +80,12 @@ fun SettingsRoute(
     val account by viewModel.account.collectAsStateWithLifecycle()
     val accountUi by viewModel.accountUi.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     LaunchedEffect(accountUi.message) {
         val message = accountUi.message ?: return@LaunchedEffect
         viewModel.messageShown()
-        snackbarHostState.showSnackbar(context.getString(message))
+        snackbarHostState.showSnackbar(resources.getString(message))
     }
 
     SettingsScreen(

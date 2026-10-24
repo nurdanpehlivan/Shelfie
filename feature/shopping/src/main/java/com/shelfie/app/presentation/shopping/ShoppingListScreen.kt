@@ -49,7 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -75,15 +75,15 @@ import kotlinx.coroutines.launch
 fun ShoppingListRoute(viewModel: ShoppingListViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is ShoppingEffect.Bought -> launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     val result = snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.shopping_bought_one, effect.item.name),
-                        actionLabel = context.getString(R.string.shopping_action_to_pantry),
+                        message = resources.getString(R.string.shopping_bought_one, effect.item.name),
+                        actionLabel = resources.getString(R.string.shopping_action_to_pantry),
                         duration = SnackbarDuration.Short,
                     )
                     if (result == SnackbarResult.ActionPerformed) viewModel.stockUp(effect.item)
@@ -91,7 +91,7 @@ fun ShoppingListRoute(viewModel: ShoppingListViewModel = hiltViewModel()) {
                 is ShoppingEffect.StockedUp -> launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar(
-                        context.resources.getQuantityString(R.plurals.shopping_stocked_up, effect.count, effect.count),
+                        resources.getQuantityString(R.plurals.shopping_stocked_up, effect.count, effect.count),
                     )
                 }
             }

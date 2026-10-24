@@ -54,7 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -102,7 +102,7 @@ fun ScannerRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val currentOnItemsSaved by rememberUpdatedState(onItemsSaved)
 
     // Survives process death: the camera app may push us out of memory while it's open.
@@ -143,7 +143,7 @@ fun ScannerRoute(
                                 viewModel.onIntent(
                                     ScannerIntent.CameraCaptureCancelled(effect.outputUri),
                                 )
-                                showSnackbar(context.getString(R.string.scanner_error_no_camera))
+                                showSnackbar(resources.getString(R.string.scanner_error_no_camera))
                             }
                         }
 
@@ -152,7 +152,7 @@ fun ScannerRoute(
                         )
 
                         is ScannerEffect.ShowMessage ->
-                            showSnackbar(context.getString(effect.messageRes))
+                            showSnackbar(resources.getString(effect.messageRes))
 
                         // The caller reports the result, since it usually navigates away.
                         is ScannerEffect.ItemsSaved -> currentOnItemsSaved(effect.count)

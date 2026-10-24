@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -44,6 +45,7 @@ import com.shelfie.app.presentation.common.LocalAppInfo
 fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
     var code by rememberSaveable(state.linkCode) { mutableStateOf(state.linkCode) }
     val appInfo = LocalAppInfo.current
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
@@ -144,7 +146,7 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
                 if (invite != null) {
                     Button(
                         onClick = {
-                            val text = context.getString(R.string.household_share_message, invite.code, appInfo.inviteUrl(invite.code))
+                            val text = resources.getString(R.string.household_share_message, invite.code, appInfo.inviteUrl(invite.code))
                             val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
                             context.startActivity(Intent.createChooser(send, null))
                         },
