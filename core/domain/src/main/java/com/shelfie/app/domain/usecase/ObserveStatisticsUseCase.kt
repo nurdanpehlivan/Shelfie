@@ -49,6 +49,7 @@ class ObserveStatisticsUseCase @Inject constructor(
                 wastedCount = wasted.size,
                 cookedRecipeCount = cookedCount,
                 estimatedSavings = rescued.size * settings.averageItemValue,
+                currencyCode = settings.currencyCode,
                 weekly = weeklyChart(removed, chartStart),
                 topWastedCategories = wasted
                     .groupingBy { it.category }

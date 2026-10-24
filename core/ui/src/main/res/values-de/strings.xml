@@ -521,4 +521,6 @@
     <string name="household_code_ready">Einladungscode %1$s ist bereit. Melde dich oben an oder erstelle ein Konto und tippe auf Beitreten.</string>
     <string name="household_error_full_free">Dieser Haushalt ist voll: kostenlos sind 2 Personen möglich, mit Premium bis zu 6.</string>
     <string name="household_limit">Bis zu %1$d Personen im Haushalt. Mit Premium 6.</string>
+    <string name="settings_currency_title">Währung</string>
+    <string name="settings_currency_auto">Automatisch (%1$s)</string>
 </resources>

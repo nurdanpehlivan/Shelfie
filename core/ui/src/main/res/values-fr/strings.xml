@@ -522,4 +522,6 @@
     <string name="household_code_ready">Le code %1$s est prêt. Connecte-toi ou crée un compte ci-dessus, puis touche Rejoindre.</string>
     <string name="household_error_full_free">Ce foyer est complet : 2 personnes en gratuit, jusqu\'à 6 avec Premium.</string>
     <string name="household_limit">Jusqu\'à %1$d personnes dans ton foyer. 6 avec Premium.</string>
+    <string name="settings_currency_title">Devise</string>
+    <string name="settings_currency_auto">Automatique (%1$s)</string>
 </resources>

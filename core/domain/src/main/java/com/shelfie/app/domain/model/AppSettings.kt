@@ -12,6 +12,8 @@ data class AppSettings(
      * "estimated savings" statistic, since the app has no real prices.
      */
     val averageItemValue: Double = DEFAULT_AVERAGE_ITEM_VALUE,
+    /** ISO 4217 code picked in settings; `null` follows the phone's region. */
+    val currencyCode: String? = null,
     /** The first-run introduction was finished or skipped. */
     val onboardingCompleted: Boolean = false,
     /** Light by default: the warm, fresh look is the app's identity; dark is opt-in. */

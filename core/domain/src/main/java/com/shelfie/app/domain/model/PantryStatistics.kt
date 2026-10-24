@@ -13,6 +13,8 @@ data class PantryStatistics(
     val weekly: List<WeekStatistics>,
     /** Categories thrown away most often in the period, most first; at most 3. */
     val topWastedCategories: List<Pair<Category, Int>>,
+    /** Currency of [estimatedSavings], see [AppSettings.currencyCode]. */
+    val currencyCode: String? = null,
 ) {
     val totalCount: Int get() = rescuedCount + wastedCount
 

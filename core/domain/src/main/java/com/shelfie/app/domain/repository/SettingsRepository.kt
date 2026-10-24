@@ -23,6 +23,9 @@ interface SettingsRepository {
 
     suspend fun setThemeMode(mode: ThemeMode)
 
+    /** `null` goes back to the phone's region. */
+    suspend fun setCurrencyCode(code: String?)
+
     /** One-time data repairs that already ran on this install, by key. */
     suspend fun isMaintenanceDone(key: String): Boolean
 

@@ -524,4 +524,6 @@
     <string name="household_code_ready">Davet kodu %1$s hazır. Yukarıdan giriş yap ya da hesap oluştur, sonra Katıl\'a dokun.</string>
     <string name="household_error_full_free">Bu hane dolu: ücretsiz hanede 2 kişi olabilir. Premium ile 6 kişiye kadar.</string>
     <string name="household_limit">Hanende en fazla %1$d kişi olabilir. Premium ile 6 kişi.</string>
+    <string name="settings_currency_title">Para birimi</string>
+    <string name="settings_currency_auto">Otomatik (%1$s)</string>
 </resources>

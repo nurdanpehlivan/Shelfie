@@ -528,4 +528,6 @@
     <string name="household_code_ready">Invite code %1$s is ready. Sign in or create an account above, then tap Join.</string>
     <string name="household_error_full_free">That household is full: free households have 2 people. With Premium, up to 6.</string>
     <string name="household_limit">Up to %1$d people in your household. Premium raises it to 6.</string>
+    <string name="settings_currency_title">Currency</string>
+    <string name="settings_currency_auto">Automatic (%1$s)</string>
 </resources>

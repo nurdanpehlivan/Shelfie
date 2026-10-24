@@ -47,6 +47,7 @@ import com.shelfie.app.presentation.common.ScreenHeader
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.emoji
 import com.shelfie.app.presentation.common.labelRes
+import com.shelfie.app.presentation.common.rememberMoneyFormat
 import com.shelfie.app.presentation.common.shelfieSegmentedColors
 import com.shelfie.app.presentation.common.shortDateFormatter
 import com.shelfie.app.presentation.mascot.Frizzy
@@ -99,7 +100,7 @@ fun StatisticsScreen(state: StatisticsUiState, onPeriodSelected: (StatisticsPeri
                 StatTile("🗑", stats.wastedCount.toString(), stringResource(R.string.stats_tile_wasted), Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                val currency = remember { NumberFormat.getCurrencyInstance().apply { maximumFractionDigits = 0 } }
+                val currency = rememberMoneyFormat(stats.currencyCode)
                 StatTile("💰", currency.format(stats.estimatedSavings), stringResource(R.string.stats_tile_savings), Modifier.weight(1f))
                 StatTile("👩‍🍳", stats.cookedRecipeCount.toString(), stringResource(R.string.stats_tile_cooked), Modifier.weight(1f))
             }

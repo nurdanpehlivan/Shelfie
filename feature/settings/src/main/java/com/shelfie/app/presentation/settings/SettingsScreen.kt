@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,11 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -54,12 +57,15 @@ import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.AppSettings
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.ThemeMode
+import com.shelfie.app.presentation.common.COMMON_CURRENCIES
 import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.LocalAppInfo
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.ShelfieTopBar
+import com.shelfie.app.presentation.common.currencySymbol
 import com.shelfie.app.presentation.common.formatQuantity
 import com.shelfie.app.presentation.common.parseQuantity
+import com.shelfie.app.presentation.common.shelfieFilterChipColors
 import com.shelfie.app.presentation.common.shelfieSegmentedColors
 import com.shelfie.app.presentation.mascot.Frizzy
 import com.shelfie.app.presentation.mascot.FrizzyMood
@@ -67,8 +73,6 @@ import com.shelfie.app.presentation.theme.extendedColors
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.Currency
-import java.util.Locale
 
 @Composable
 fun SettingsRoute(
@@ -97,6 +101,7 @@ fun SettingsRoute(
         onCriticalDaysChange = viewModel::setCriticalDays,
         onAverageValueChange = viewModel::setAverageItemValue,
         onThemeModeChange = viewModel::setThemeMode,
+        onCurrencyChange = viewModel::setCurrencyCode,
         onOpenPremium = onOpenPremium,
         accountSection = {
             AccountSectionContent(
@@ -130,6 +135,7 @@ fun SettingsScreen(
     onCriticalDaysChange: (Long) -> Unit,
     onAverageValueChange: (Double) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit = {},
+    onCurrencyChange: (String?) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     accountSection: @Composable ColumnScope.() -> Unit = {},
     onOpenPremium: () -> Unit = {},
@@ -216,7 +222,8 @@ fun SettingsScreen(
             }
 
             SettingsCard(title = stringResource(R.string.settings_section_statistics)) {
-                AverageValueField(settings.averageItemValue, onAverageValueChange)
+                AverageValueField(settings.averageItemValue, settings.currencyCode, onAverageValueChange)
+                CurrencyPicker(selected = settings.currencyCode, onSelect = onCurrencyChange)
             }
 
             SettingsCard(title = stringResource(R.string.settings_section_account), content = accountSection)
@@ -314,11 +321,11 @@ private fun ReminderTimePicker(hour: Int, onHourChange: (Int) -> Unit) {
 }
 
 @Composable
-private fun AverageValueField(value: Double, onValueChange: (Double) -> Unit) {
+private fun AverageValueField(value: Double, currencyCode: String?, onValueChange: (Double) -> Unit) {
     // Seeded once: re-seeding from [value] on every keystroke would eat a trailing "1,".
     var text by rememberSaveable { mutableStateOf(formatQuantity(value)) }
     val parsed = parseQuantity(text)
-    val symbol = remember { runCatching { Currency.getInstance(Locale.getDefault()).symbol }.getOrDefault("") }
+    val symbol = currencySymbol(currencyCode)
     OutlinedTextField(
         value = text,
         onValueChange = {
@@ -362,4 +369,28 @@ private fun AboutCard() {
         }
     }
     Spacer(modifier = Modifier.height(8.dp))
+}
+
+/** "Automatic (₺)" follows the phone's region; the rest are the usual picks. */
+@Composable
+private fun CurrencyPicker(selected: String?, onSelect: (String?) -> Unit) {
+    Text(stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.bodyLarge)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = selected == null,
+            onClick = { onSelect(null) },
+            label = { Text(stringResource(R.string.settings_currency_auto, currencySymbol(null))) },
+            shape = CircleShape,
+            colors = shelfieFilterChipColors(),
+        )
+        COMMON_CURRENCIES.forEach { code ->
+            FilterChip(
+                selected = selected == code,
+                onClick = { onSelect(code) },
+                label = { Text("${currencySymbol(code)} $code") },
+                shape = CircleShape,
+                colors = shelfieFilterChipColors(),
+            )
+        }
+    }
 }

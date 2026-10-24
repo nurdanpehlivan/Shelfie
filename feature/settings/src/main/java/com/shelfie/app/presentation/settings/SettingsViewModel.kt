@@ -51,6 +51,8 @@ class SettingsViewModel @Inject constructor(
 
     fun setThemeMode(mode: ThemeMode) = launch { setThemeMode(mode) }
 
+    fun setCurrencyCode(code: String?) = launch { setCurrencyCode(code) }
+
     fun openSignIn() = _accountUi.update { it.copy(isSheetOpen = true, formError = null) }
 
     fun closeSignIn() = _accountUi.update { it.copy(isSheetOpen = false, formError = null) }

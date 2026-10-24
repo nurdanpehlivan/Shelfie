@@ -521,4 +521,6 @@
     <string name="household_code_ready">El código %1$s está listo. Inicia sesión o crea una cuenta arriba y toca Unirse.</string>
     <string name="household_error_full_free">Ese hogar está lleno: gratis caben 2 personas. Con Premium, hasta 6.</string>
     <string name="household_limit">Hasta %1$d personas en tu hogar. Con Premium, 6.</string>
+    <string name="settings_currency_title">Moneda</string>
+    <string name="settings_currency_auto">Automática (%1$s)</string>
 </resources>

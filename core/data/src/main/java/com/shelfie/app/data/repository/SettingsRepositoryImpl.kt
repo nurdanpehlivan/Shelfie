@@ -39,6 +39,7 @@ class SettingsRepositoryImpl @Inject constructor(
                     criticalDays = (prefs[CRITICAL_DAYS] ?: FreshnessThresholds.DEFAULT.criticalDays).clampDays(),
                 ),
                 averageItemValue = prefs[AVERAGE_ITEM_VALUE] ?: AppSettings.DEFAULT_AVERAGE_ITEM_VALUE,
+                currencyCode = prefs[CURRENCY_CODE],
                 onboardingCompleted = prefs[ONBOARDING_COMPLETED] ?: false,
                 themeMode = ThemeMode.fromName(prefs[THEME_MODE]),
             )
@@ -69,6 +70,10 @@ class SettingsRepositoryImpl @Inject constructor(
         dataStore.edit { it[THEME_MODE] = mode.name }
     }
 
+    override suspend fun setCurrencyCode(code: String?) {
+        dataStore.edit { prefs -> if (code == null) prefs.remove(CURRENCY_CODE) else prefs[CURRENCY_CODE] = code }
+    }
+
     override suspend fun isMaintenanceDone(key: String): Boolean =
         dataStore.data.first()[MAINTENANCE_DONE].orEmpty().contains(key)
 
@@ -88,6 +93,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val AVERAGE_ITEM_VALUE = doublePreferencesKey("average_item_value")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val THEME_MODE = stringPreferencesKey("theme_mode")
+        val CURRENCY_CODE = stringPreferencesKey("currency_code")
         val MAINTENANCE_DONE = stringSetPreferencesKey("maintenance_done")
         const val MAX_AVERAGE_ITEM_VALUE = 1_000_000.0
     }
