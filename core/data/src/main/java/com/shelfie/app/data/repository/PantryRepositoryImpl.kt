@@ -6,6 +6,7 @@ import com.shelfie.app.data.mapper.GeminiScanResultParser
 import com.shelfie.app.data.mapper.toDomain
 import com.shelfie.app.data.mapper.toEntity
 import com.shelfie.app.data.remote.gemini.GeminiRemoteDataSource
+import com.shelfie.app.data.translation.ItemNameTranslator
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.FreshnessStatus
 import com.shelfie.app.domain.model.FreshnessThresholds
@@ -15,7 +16,6 @@ import com.shelfie.app.domain.model.ScannedItem
 import com.shelfie.app.domain.repository.PantryRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.time.Clock
 import java.time.Instant
@@ -29,6 +29,7 @@ class PantryRepositoryImpl @Inject constructor(
     private val geminiRemoteDataSource: GeminiRemoteDataSource,
     private val scanResultParser: GeminiScanResultParser,
     private val clock: Clock,
+    private val translator: ItemNameTranslator,
 ) : PantryRepository {
 
     override fun observePantryItems(): Flow<List<PantryItem>> =
@@ -36,8 +37,9 @@ class PantryRepositoryImpl @Inject constructor(
 
     override fun observePantryItem(id: Long): Flow<PantryItem?> =
         pantryDao.observeItemById(id)
-            .map { it?.toDomain() }
-            .distinctUntilChanged()
+            .map { listOfNotNull(it) }
+            .mapToDomain()
+            .map { it.firstOrNull() }
 
     override fun observeItemsByCategory(category: Category): Flow<List<PantryItem>> =
         pantryDao.observeItemsByCategory(category).mapToDomain()
@@ -65,17 +67,21 @@ class PantryRepositoryImpl @Inject constructor(
     override fun searchItems(query: String): Flow<List<PantryItem>> {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) return observePantryItems()
-        return pantryDao.searchActiveItems(trimmed.escapeLikeWildcards()).mapToDomain()
+        // Matched in memory, on the names as shown: the stored ones may be in another language.
+        return observePantryItems().map { items -> items.filter { it.name.contains(trimmed, ignoreCase = true) } }
     }
 
     override suspend fun getPantryItem(id: Long): PantryItem? =
-        pantryDao.getItemById(id)?.toDomain()
+        pantryDao.getItemById(id)?.toDomain()?.let { it.copy(name = translator.translate(it.name)) }
 
-    override suspend fun addPantryItem(item: PantryItem): Long =
-        pantryDao.insert(item.prepareForInsert(now()).toEntity())
+    override suspend fun addPantryItem(item: PantryItem): Long {
+        translator.rememberAsCurrentLanguage(listOf(item.name))
+        return pantryDao.insert(item.prepareForInsert(now()).toEntity())
+    }
 
     override suspend fun addPantryItems(items: List<PantryItem>): List<Long> {
         if (items.isEmpty()) return emptyList()
+        translator.rememberAsCurrentLanguage(items.map { it.name })
         val now = now()
         return pantryDao.insertAll(items.map { it.prepareForInsert(now).toEntity() })
     }
@@ -84,7 +90,16 @@ class PantryRepositoryImpl @Inject constructor(
         val existing = checkNotNull(pantryDao.getItemById(item.id)) { "PantryItem with id=${item.id} does not exist" }
         // The domain model has no sync id; keep the stored one so the server sees an edit, not a
         // new record (a fresh id would duplicate the item on every other device).
-        val updatedRows = pantryDao.update(item.copy(updatedAt = now()).toEntity().copy(syncId = existing.syncId))
+        // A name left as shown is the translation of the stored one; keep the stored one so the
+        // household doesn't see it switch language. A renamed item is in the current language.
+        val name = if (item.name == translator.translate(existing.name)) {
+            existing.name
+        } else {
+            item.name.also { translator.rememberAsCurrentLanguage(listOf(it)) }
+        }
+        val updatedRows = pantryDao.update(
+            item.copy(name = name, updatedAt = now()).toEntity().copy(syncId = existing.syncId),
+        )
         check(updatedRows == 1) { "PantryItem with id=${item.id} does not exist" }
     }
 
@@ -131,9 +146,5 @@ class PantryRepositoryImpl @Inject constructor(
         copy(id = PantryItem.NEW_ITEM_ID, createdAt = now, updatedAt = now)
 
     private fun Flow<List<PantryItemEntity>>.mapToDomain() =
-        map { it.toDomain() }.distinctUntilChanged()
-
-    /** Escapes LIKE wildcards so user input is matched literally (paired with ESCAPE '\'). */
-    private fun String.escapeLikeWildcards(): String =
-        replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        translator.translate(map { it.toDomain() }, PantryItem::name) { item, name -> item.copy(name = name) }
 }

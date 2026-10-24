@@ -9,6 +9,7 @@ import com.shelfie.app.data.local.MIGRATION_7_8
 import com.shelfie.app.data.local.ShelfieDatabase
 import com.shelfie.app.data.local.SyncTriggers
 import com.shelfie.app.data.local.dao.MealPlanDao
+import com.shelfie.app.data.local.dao.NameTranslationDao
 import com.shelfie.app.data.local.dao.PantryDao
 import com.shelfie.app.data.local.dao.SavedRecipeDao
 import com.shelfie.app.data.local.dao.ShoppingItemDao
@@ -51,4 +52,7 @@ object DatabaseModule {
 
     @Provides
     fun provideMealPlanDao(database: ShelfieDatabase): MealPlanDao = database.mealPlanDao()
+
+    @Provides
+    fun provideNameTranslationDao(database: ShelfieDatabase): NameTranslationDao = database.nameTranslationDao()
 }

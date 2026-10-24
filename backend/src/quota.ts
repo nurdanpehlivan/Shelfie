@@ -14,8 +14,8 @@ import { clientIp, error, safeEqual } from "./http.ts";
  * Days are UTC days; the app shows the reset time in local time.
  */
 
-export type Feature = "scan" | "recipe" | "recipe_daily";
-const FEATURES: Feature[] = ["scan", "recipe", "recipe_daily"];
+export type Feature = "scan" | "recipe" | "recipe_daily" | "translate";
+const FEATURES: Feature[] = ["scan", "recipe", "recipe_daily", "translate"];
 
 export interface Subject {
 	key: string;
@@ -28,13 +28,17 @@ function intSetting(value: string | undefined, fallback: number): number {
 	return Number.isInteger(n) && n >= 0 ? n : fallback;
 }
 
-/** Limits per feature; the morning freshness recipe (background) gets one of its own. */
+/**
+ * Limits per feature; the morning freshness recipe (background) gets one of its own. Translating
+ * item names after a language change is small and automatic, so it never eats the scan allowance.
+ */
 export function limitsFor(premium: boolean): Record<Feature, number> {
 	const premiumLimit = intSetting(env.PREMIUM_DAILY_LIMIT, 50);
 	return {
 		scan: premium ? premiumLimit : intSetting(env.FREE_DAILY_SCANS, 3),
 		recipe: premium ? premiumLimit : intSetting(env.FREE_DAILY_RECIPES, 3),
 		recipe_daily: 1,
+		translate: premium ? 200 : 30,
 	};
 }
 
@@ -78,7 +82,7 @@ export async function usedToday(subjectKey: string): Promise<Record<Feature, num
 		.prepare("SELECT feature, count FROM ai_usage WHERE day = ? AND subject = ?")
 		.bind(utcDay(), subjectKey)
 		.all<{ feature: Feature; count: number }>();
-	const used: Record<Feature, number> = { scan: 0, recipe: 0, recipe_daily: 0 };
+	const used: Record<Feature, number> = { scan: 0, recipe: 0, recipe_daily: 0, translate: 0 };
 	for (const r of results) if (r.feature in used) used[r.feature] = r.count;
 	return used;
 }

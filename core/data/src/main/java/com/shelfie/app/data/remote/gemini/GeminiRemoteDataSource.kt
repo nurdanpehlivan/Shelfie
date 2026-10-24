@@ -77,6 +77,12 @@ class GeminiRemoteDataSource @Inject constructor(
         )
     }
 
+    /** Returns the JSON of [names] translated into [locale]'s language (see [TranslationPrompts]). */
+    suspend fun translateNames(names: List<String>, locale: Locale): String {
+        requireConfigured()
+        return generate(TranslationPrompts.buildRequest(names, locale), GeminiApiService.FEATURE_TRANSLATE)
+    }
+
     private fun requireConfigured() {
         if (config.proxyToken.isBlank()) {
             throw PantryScanException.NotConfigured("SHELFIE_PROXY_TOKEN is missing in local.properties")

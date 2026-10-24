@@ -116,6 +116,19 @@ class SyncMigrationTest {
         db.close()
     }
 
+    @Test
+    fun migrate8To9_addsTheNameTranslationCacheWithoutSyncingIt() {
+        helper.createDatabase(DB, 3).close()
+
+        val db = helper.runMigrationsAndValidate(DB, 9, true, MIGRATION_3_4, MIGRATION_7_8)
+
+        db.execSQL("INSERT INTO name_translations (source, language, translated) VALUES ('Süt', 'en', 'Milk')")
+        assertEquals(1, db.count("SELECT COUNT(*) FROM name_translations"))
+        // A local cache: nothing for the server.
+        assertEquals(0, db.count("SELECT COUNT(*) FROM sync_outbox"))
+        db.close()
+    }
+
     private fun androidx.sqlite.db.SupportSQLiteDatabase.count(sql: String): Int =
         query(sql).use { it.moveToFirst(); it.getInt(0) }
 

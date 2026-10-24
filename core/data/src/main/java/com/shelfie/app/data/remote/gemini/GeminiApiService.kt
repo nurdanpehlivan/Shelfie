@@ -31,6 +31,9 @@ interface GeminiApiService {
 
         /** The morning freshness recipe, generated in the background; it has its own allowance. */
         const val FEATURE_DAILY_RECIPE = "recipe_daily"
+
+        /** Item names shown in another app language than they were written in. */
+        const val FEATURE_TRANSLATE = "translate"
     }
 }
 

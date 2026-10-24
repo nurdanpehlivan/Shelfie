@@ -2,10 +2,10 @@ package com.shelfie.app.data.repository
 
 import com.shelfie.app.data.local.dao.ShoppingItemDao
 import com.shelfie.app.data.local.entity.ShoppingItemEntity
+import com.shelfie.app.data.translation.ItemNameTranslator
 import com.shelfie.app.domain.model.ShoppingItem
 import com.shelfie.app.domain.repository.ShoppingListRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.time.Clock
 import javax.inject.Inject
@@ -15,12 +15,14 @@ import javax.inject.Singleton
 class ShoppingListRepositoryImpl @Inject constructor(
     private val dao: ShoppingItemDao,
     private val clock: Clock,
+    private val translator: ItemNameTranslator,
 ) : ShoppingListRepository {
 
     override fun observeItems(): Flow<List<ShoppingItem>> =
-        dao.observeAll()
-            .map { rows -> rows.map { it.toDomain() } }
-            .distinctUntilChanged()
+        translator.translate(
+            dao.observeAll().map { rows -> rows.map { it.toDomain() } },
+            ShoppingItem::name,
+        ) { item, name -> item.copy(name = name) }
 
     override suspend fun addItems(items: List<Pair<String, String>>): Int {
         val existing = dao.getUncheckedNamesLowercase().toMutableSet()
@@ -37,6 +39,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
             )
         }
         if (toInsert.isEmpty()) return 0
+        translator.rememberAsCurrentLanguage(toInsert.map { it.name })
         return dao.insertAll(toInsert).size
     }
 
