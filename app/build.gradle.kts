@@ -1,10 +1,18 @@
 // The app shell: activity, navigation between the features, the widget, notifications and
 // background work. Everything else lives in core/ and feature/ modules.
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.shelfie.hilt)
+}
+
+// The Play upload key. keystore.properties (untracked, next to settings.gradle.kts) holds
+// storeFile, storePassword, keyAlias and keyPassword; without it release builds stay unsigned.
+val keystoreProperties = Properties().apply {
+    rootProject.file("keystore.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
 }
 
 android {
@@ -25,8 +33,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystoreProperties.isNotEmpty()) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             // R8 shrinks and obfuscates; libraries ship their own keep rules (serialization,
             // Retrofit, Room, Hilt, ML Kit, Billing), proguard-rules.pro holds the app's.
             isMinifyEnabled = true

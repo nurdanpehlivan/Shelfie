@@ -17,3 +17,10 @@ local.properties
 
 # Build output of every module, including build-logic
 build/
+
+# Play upload key and its passwords: never commit these
+keystore.properties
+*.jks
+*.keystore
+# Signed bundles from Build > Generate Signed App Bundle
+app/release/
