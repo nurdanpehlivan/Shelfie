@@ -28,7 +28,7 @@ export default defineConfig({
 			// Play subscriptions (src/billing.ts). The secret is a service account's JSON key with
 			// access to the app in Play Console; without it, purchases can't be verified (503).
 			GOOGLE_SERVICE_ACCOUNT: bindings.secret(),
-			PLAY_PACKAGE_NAME: bindings.text("com.shelfie.app"),
+			PLAY_PACKAGE_NAME: bindings.text("com.nurdanpehlivan.shelfie"),
 			// Comma-separated Play product ids that grant Premium; keep in sync with the app.
 			PREMIUM_PRODUCT_IDS: bindings.text("shelfie_premium"),
 			// Per client IP, per Cloudflare location. Also guards the login and register endpoints.

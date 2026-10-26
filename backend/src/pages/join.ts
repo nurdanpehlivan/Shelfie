@@ -9,7 +9,7 @@ export const JOIN_ROUTE = /^\/join\/([A-HJ-KM-NP-Z2-9]{8})$/;
  * Store page when Shelfie isn't installed yet; elsewhere it shows the code and the steps.
  */
 export function joinPage(code: string): string {
-	const pkg = env.PLAY_PACKAGE_NAME ?? "com.shelfie.app";
+	const pkg = env.PLAY_PACKAGE_NAME ?? "com.nurdanpehlivan.shelfie";
 	const play = `https://play.google.com/store/apps/details?id=${pkg}`;
 	// Chrome's intent URL: the app if installed, the fallback URL otherwise.
 	const open = `intent://join?joinCode=${code}#Intent;scheme=shelfie;package=${pkg};S.browser_fallback_url=${encodeURIComponent(play)};end`;

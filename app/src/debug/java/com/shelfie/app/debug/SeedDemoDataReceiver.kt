@@ -25,7 +25,7 @@ import javax.inject.Inject
 /**
  * Debug builds only: fills the app with realistic demo data for UI work and store screenshots.
  *
- *     adb shell am broadcast -n com.shelfie.app/.debug.SeedDemoDataReceiver
+ *     adb shell am broadcast -n com.nurdanpehlivan.shelfie/com.shelfie.app.debug.SeedDemoDataReceiver
  *
  * Guarded by the DUMP permission in the debug manifest, so only adb (shell) can trigger it.
  * Existing data is wiped first.

@@ -24,7 +24,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.shelfie.app"
+        // The Play listing's package name; the code's package (namespace) stays com.shelfie.app.
+        applicationId = "com.nurdanpehlivan.shelfie"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
