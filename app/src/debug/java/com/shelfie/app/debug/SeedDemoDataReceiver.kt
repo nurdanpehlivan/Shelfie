@@ -27,6 +27,8 @@ import javax.inject.Inject
  *
  *     adb shell am broadcast -n com.nurdanpehlivan.shelfie/com.shelfie.app.debug.SeedDemoDataReceiver
  *
+ * Add `--es lang tr` for Turkish names and recipes (Turkish store screenshots).
+ *
  * Guarded by the DUMP permission in the debug manifest, so only adb (shell) can trigger it.
  * Existing data is wiped first.
  */
@@ -42,7 +44,7 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
         val pending = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
-                seed()
+                seed(turkish = intent.getStringExtra("lang") == "tr")
                 Log.i(TAG, "Demo data seeded")
             } finally {
                 pending.finish()
@@ -50,7 +52,9 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun seed() {
+    private suspend fun seed(turkish: Boolean) {
+        fun t(english: String): String = if (turkish) TURKISH[english] ?: english else english
+
         pantryDao.deleteAll()
         savedRecipeDao.deleteAll()
         shoppingItemDao.deleteAll()
@@ -66,7 +70,7 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
             removedDaysAgo: Long? = null,
             wasted: Boolean = false,
         ) = PantryItemEntity(
-            name = name,
+            name = t(name),
             category = category,
             quantity = quantity,
             unit = unit,
@@ -108,8 +112,8 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
 
         savedRecipeDao.insert(
             SavedRecipeEntity(
-                title = "Creamy tomato & spinach scramble",
-                recipeJson = SCRAMBLE_JSON,
+                title = t("Creamy tomato & spinach scramble"),
+                recipeJson = if (turkish) SCRAMBLE_JSON_TR else SCRAMBLE_JSON,
                 pantryItemIds = SavedRecipeEntity.encodeIds(listOf(ids[0], ids[1])),
                 isFavorite = true,
                 createdAt = now.minus(Duration.ofDays(2)),
@@ -118,8 +122,8 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
         )
         savedRecipeDao.insert(
             SavedRecipeEntity(
-                title = "15-minute chicken & tomato skillet",
-                recipeJson = SKILLET_JSON,
+                title = t("15-minute chicken & tomato skillet"),
+                recipeJson = if (turkish) SKILLET_JSON_TR else SKILLET_JSON,
                 pantryItemIds = SavedRecipeEntity.encodeIds(listOf(ids[1], ids[2])),
                 createdAt = now.minus(Duration.ofHours(3)),
             ),
@@ -127,8 +131,8 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
 
         shoppingItemDao.insertAll(
             listOf("Eggs" to "6 pcs", "Parmesan" to "100 g", "Olive oil" to "", "Garlic" to "1 bulb")
-                .map { (name, amount) -> ShoppingItemEntity(name = name, amount = amount, isChecked = false, createdAt = now) } +
-                ShoppingItemEntity(name = "Butter", amount = "", isChecked = true, createdAt = now),
+                .map { (name, amount) -> ShoppingItemEntity(name = t(name), amount = t(amount), isChecked = false, createdAt = now) } +
+                ShoppingItemEntity(name = t("Butter"), amount = "", isChecked = true, createdAt = now),
         )
     }
 
@@ -140,6 +144,48 @@ class SeedDemoDataReceiver : BroadcastReceiver() {
             "Salmon" to Category.SEAFOOD, "Strawberries" to Category.FRUITS, "Ham" to Category.MEAT,
             "Mushrooms" to Category.VEGETABLES, "Croissants" to Category.BAKERY,
         )
+
+        /** Demo names in Turkish; anything missing stays English. */
+        val TURKISH = mapOf(
+            "Milk" to "Süt", "Tomatoes" to "Domates", "Chicken breast" to "Tavuk göğsü", "Greek yogurt" to "Süzme yoğurt",
+            "Spinach" to "Ispanak", "Sourdough bread" to "Ekşi mayalı ekmek", "Apples" to "Elma", "Rice" to "Pirinç",
+            "Orange juice" to "Portakal suyu", "Lettuce" to "Marul", "Cream" to "Krema", "Bananas" to "Muz",
+            "Cheddar" to "Kaşar peyniri", "Carrots" to "Havuç", "Salmon" to "Somon", "Strawberries" to "Çilek",
+            "Ham" to "Hindi füme", "Mushrooms" to "Mantar", "Croissants" to "Kruvasan", "Eggs" to "Yumurta",
+            "Parmesan" to "Parmesan", "Olive oil" to "Zeytinyağı", "Garlic" to "Sarımsak", "Butter" to "Tereyağı",
+            "6 pcs" to "6 adet", "1 bulb" to "1 baş",
+            "Creamy tomato & spinach scramble" to "Ispanaklı menemen",
+            "15-minute chicken & tomato skillet" to "15 dakikada domatesli tavuk sote",
+        )
+
+        val SCRAMBLE_JSON_TR = """
+            {"title":"Ispanaklı menemen","cooking_time_minutes":10,"servings":2,
+             "ingredients":[
+               {"name":"Domates","amount":"2 adet","emoji":"🍅","from_pantry":true},
+               {"name":"Süt","amount":"50 ml","emoji":"🥛","from_pantry":true},
+               {"name":"Yumurta","amount":"4 adet","emoji":"🥚","from_pantry":false},
+               {"name":"Tereyağı","amount":"1 yemek kaşığı","emoji":"🧈","from_pantry":false},
+               {"name":"Tuz ve karabiber","amount":"bir tutam","emoji":"🧂","from_pantry":false}],
+             "steps":[
+               {"instruction":"Domatesleri küp küp doğra, yumurtaları sütle ve bir tutam tuzla çırp.","duration_minutes":0},
+               {"instruction":"Tereyağını tavada orta ateşte erit, domatesleri 3 dakika yumuşat.","duration_minutes":3},
+               {"instruction":"Yumurtaları ekle, kıvamlanana kadar yavaşça karıştır.","duration_minutes":2},
+               {"instruction":"Karabiber serp, sıcak servis et.","duration_minutes":0}]}
+        """.trimIndent()
+
+        val SKILLET_JSON_TR = """
+            {"title":"15 dakikada domatesli tavuk sote","cooking_time_minutes":15,"servings":2,
+             "ingredients":[
+               {"name":"Tavuk göğsü","amount":"300 g","emoji":"🍗","from_pantry":true},
+               {"name":"Domates","amount":"2 adet","emoji":"🍅","from_pantry":true},
+               {"name":"Sarımsak","amount":"2 diş","emoji":"🧄","from_pantry":false},
+               {"name":"Zeytinyağı","amount":"1 yemek kaşığı","emoji":"🫒","from_pantry":false}],
+             "steps":[
+               {"instruction":"Tavuğu ince şeritler halinde doğra, tuz ve karabiberle tatlandır.","duration_minutes":0},
+               {"instruction":"Zeytinyağında 5 dakika, bir kez çevirerek kızart.","duration_minutes":5},
+               {"instruction":"Dilimlenmiş sarımsak ve doğranmış domatesi ekle, tavuk pişene kadar çevir.","duration_minutes":6},
+               {"instruction":"Tadına bak, tuzunu ayarla ve servis et.","duration_minutes":0}]}
+        """.trimIndent()
 
         val SCRAMBLE_JSON = """
             {"title":"Creamy tomato & spinach scramble","cooking_time_minutes":10,"servings":2,
