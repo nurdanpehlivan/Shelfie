@@ -143,7 +143,7 @@ class GeminiScanResultParser @Inject constructor(
 
     /** A short run of symbols; a word or a number means the model ignored the instruction. */
     private fun String?.validEmoji(): String? =
-        this?.trim()?.takeIf { it.isNotEmpty() && it.length <= MAX_EMOJI_LENGTH && !it.any(Char::isLetterOrDigit) }
+        this?.trim()?.takeIf { it.looksLikeEmoji() }
 
     /** Strips code fences or chatter around the JSON object, if the model added any. */
     private fun String.extractJsonObject(): String {
@@ -161,8 +161,6 @@ class GeminiScanResultParser @Inject constructor(
         const val MAX_NAME_LENGTH = 60
         const val MAX_NOTE_LENGTH = 80
 
-        /** One emoji, including skin-tone or ZWJ sequences. */
-        const val MAX_EMOJI_LENGTH = 16
         private val WHITESPACE = Regex("\\s+")
 
         /**

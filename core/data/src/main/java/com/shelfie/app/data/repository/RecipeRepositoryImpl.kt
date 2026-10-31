@@ -79,7 +79,10 @@ class RecipeRepositoryImpl @Inject constructor(
      */
     override fun observeSavedRecipes(): Flow<List<SavedRecipe>> {
         val recipes = combine(savedRecipeDao.observeAll(), recipeTranslator.observeCurrent()) { rows, translated ->
-            rows.mapNotNull { it.toDomain(translated[it.id] ?: it.recipeJson) }
+            rows.mapNotNull { row ->
+                val json = translated[row.id]?.let { RecipeTranslator.withOriginalDetails(row.recipeJson, it) }
+                row.toDomain(json ?: row.recipeJson)
+            }
         }
         return nameTranslator.translate(recipes, { it.recipe.title }) { saved, title ->
             saved.copy(recipe = saved.recipe.copy(title = title))

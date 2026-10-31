@@ -81,12 +81,6 @@ class GeminiRecipeParser @Inject constructor() {
     private fun String?.clean(maxLength: Int): String? =
         this?.replace(WHITESPACE, " ")?.trim()?.take(maxLength)?.takeIf { it.isNotEmpty() }
 
-    /**
-     * A single emoji can be several code points (skin tones, ZWJ sequences) but contains no
-     * letters or digits; anything longer or wordy is the model ignoring the instruction.
-     */
-    private fun String.looksLikeEmoji(): Boolean =
-        isNotEmpty() && length <= MAX_EMOJI_LENGTH && none { it.isLetterOrDigit() || it.isWhitespace() }
 
     private fun String.extractJsonObject(): String {
         val start = indexOf('{')
@@ -105,7 +99,6 @@ class GeminiRecipeParser @Inject constructor() {
         const val MAX_INGREDIENTS = 12
         const val MAX_COOKING_TIME_MINUTES = 180
         const val MAX_SERVINGS = 12
-        private const val MAX_EMOJI_LENGTH = 16
         private val WHITESPACE = Regex("\\s+")
     }
 }
