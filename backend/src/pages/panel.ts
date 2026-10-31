@@ -10,7 +10,7 @@ export const PANEL_HTML = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Shelfie Panel</title>
+<title>Frizzy Panel</title>
 <style>
 	:root {
 		color-scheme: light;
@@ -103,7 +103,7 @@ export const PANEL_HTML = `<!doctype html>
 <body>
 <main>
 	<section id="auth" class="card" hidden>
-		<h1>Shelfie</h1>
+		<h1>Frizzy</h1>
 		<p class="muted" id="auth-intro" style="margin:4px 0 0">Kilerini, alışveriş listeni ve tariflerini her yerden gör. Uygulamadaki hesabınla giriş yap.</p>
 		<form id="auth-form">
 			<input type="email" name="email" autocomplete="email" placeholder="E-posta" required aria-label="E-posta">
@@ -116,7 +116,7 @@ export const PANEL_HTML = `<!doctype html>
 
 	<section id="app" hidden>
 		<header>
-			<h1>Shelfie</h1>
+			<h1>Frizzy</h1>
 			<span class="muted" id="who"></span>
 			<span class="spacer"></span>
 			<button type="button" id="reload">Yenile</button>

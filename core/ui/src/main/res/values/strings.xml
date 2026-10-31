@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Shelfie</string>
+    <string name="app_name">Frizzy</string>
 
     <string name="action_cancel">Cancel</string>
     <string name="action_save">Save</string>
@@ -404,7 +404,7 @@
     <!-- AI allowance, Premium and family sharing. -->
     <string name="error_quota_free">You\'ve used today\'s free AI scans or recipes. They renew tomorrow, or go Premium for more.</string>
     <string name="error_quota_premium">You\'ve reached today\'s fair-use limit. It renews tomorrow.</string>
-    <string name="premium_title">Shelfie Premium</string>
+    <string name="premium_title">Frizzy Premium</string>
     <string name="premium_upgrade">Go Premium</string>
     <string name="premium_settings_subtitle">50 scans and recipes a day, for the whole household</string>
     <string name="premium_hero_title">Rescue more food with Premium</string>
@@ -437,7 +437,7 @@
     <string name="household_invite_new">New code</string>
     <string name="household_invite_valid">Valid for 48 hours. Anyone with the code can join.</string>
     <string name="household_share">Share code</string>
-    <string name="household_share_message">Join my pantry on Shelfie! Get the app: %2$s\nThen enter the invite code %1$s in Settings → Family sharing. Installed from this link, the code fills in by itself.</string>
+    <string name="household_share_message">Join my pantry on Frizzy! Get the app: %2$s\nThen enter the invite code %1$s in Settings → Family sharing. Installed from this link, the code fills in by itself.</string>
     <string name="household_code">Invite code</string>
     <string name="household_join">Join</string>
     <string name="household_leave">Leave household</string>
@@ -493,7 +493,7 @@
     <string name="edit_expiry_scan_failed">No date found. Try again closer to the label, or pick it above.</string>
 
     <!-- Home-screen widget. -->
-    <string name="widget_label">Shelfie: use soon</string>
+    <string name="widget_label">Frizzy: use soon</string>
     <string name="widget_description">The products that run out soonest</string>
     <string name="widget_title">⏳ Use soon</string>
     <string name="widget_empty">All fresh 🎉 Nothing runs out soon.</string>
@@ -524,7 +524,7 @@
     </plurals>
     <string name="settings_language_title">Language</string>
     <string name="settings_language_system">Device language</string>
-    <string name="settings_language_hint">Shelfie follows your phone\'s language, or English if it isn\'t one of these. Pick one to change it just for Shelfie.</string>
+    <string name="settings_language_hint">Frizzy follows your phone\'s language, or English if it isn\'t one of these. Pick one to change it just for Frizzy.</string>
     <string name="household_code_ready">Invite code %1$s is ready. Sign in or create an account above, then tap Join.</string>
     <string name="household_error_full_free">That household is full: free households have 2 people. With Premium, up to 6.</string>
     <string name="household_limit">Up to %1$d people in your household. Premium raises it to 6.</string>

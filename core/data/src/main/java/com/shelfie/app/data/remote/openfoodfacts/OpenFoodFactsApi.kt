@@ -21,7 +21,7 @@ interface OpenFoodFactsApi {
 
     companion object {
         const val BASE_URL = "https://world.openfoodfacts.org/"
-        const val USER_AGENT = "Shelfie/1.0 (Android pantry app)"
+        const val USER_AGENT = "Frizzy/1.0 (Android pantry app)"
 
         /** Names come per language ("product_name_de"), so the request asks for the user's. */
         fun fieldsFor(language: String): String =

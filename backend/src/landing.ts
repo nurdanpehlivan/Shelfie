@@ -1,5 +1,5 @@
 /**
- * Served at `GET /`: the public front door. It says what Shelfie is and leads to the web panel
+ * Served at `GET /`: the public front door. It says what Frizzy is and leads to the web panel
  * (`/panel`, for signed-in users) and the privacy policy. Colours follow the app's theme.
  */
 export const LANDING_HTML = `<!doctype html>
@@ -7,8 +7,8 @@ export const LANDING_HTML = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shelfie</title>
-<meta name="description" content="Shelfie: mutfağındakileri çöpe atmak yerine yemene yardım eden uygulama.">
+<title>Frizzy</title>
+<meta name="description" content="Frizzy: mutfağındakileri çöpe atmak yerine yemene yardım eden uygulama.">
 <style>
 	:root {
 		--bg: #fff9f2;
@@ -71,7 +71,7 @@ export const LANDING_HTML = `<!doctype html>
 <main>
 	<section class="hero">
 		<!-- Frizzy as on the app icon: cheering, with a sprout. -->
-		<svg viewBox="22 12 64 80" role="img" aria-label="Frizzy, Shelfie'nin buzdolabı maskotu">
+		<svg viewBox="22 12 64 80" role="img" aria-label="Frizzy, buzdolabı maskotu">
 			<ellipse cx="54" cy="86" rx="16" ry="2.6" fill="#000" opacity="0.12"/>
 			<path d="M36.5,57Q30,55 29,48.5 M71.5,57Q78,55 79,48.5" stroke="#134d33" stroke-width="3.4" stroke-linecap="round" fill="none"/>
 			<path d="M42,80h7v5.5h-7z M59,80h7v5.5h-7z" fill="#134d33"/>
@@ -93,7 +93,7 @@ export const LANDING_HTML = `<!doctype html>
 			<path d="M30,33l1.2,3.3l3.3,1.2l-3.3,1.2l-1.2,3.3l-1.2,-3.3l-3.3,-1.2l3.3,-1.2z" fill="#ffc86b"/>
 		</svg>
 		<div>
-			<h1>Shelfie</h1>
+			<h1>Frizzy</h1>
 			<p class="tagline">Merhaba, ben Frizzy! Aldıklarını çöpe atmak yerine yemene yardım ederim.</p>
 			<div class="actions">
 				<a class="button" href="/panel">Web panele gir</a>
@@ -125,7 +125,7 @@ export const LANDING_HTML = `<!doctype html>
 		</article>
 	</section>
 
-	<footer>Shelfie bir Android uygulamasıdır. Verilerini web panelden de görebilir, düzenleyebilir ya da silebilirsin. <a href="/privacy">Gizlilik politikası</a></footer>
+	<footer>Frizzy bir Android uygulamasıdır. Verilerini web panelden de görebilir, düzenleyebilir ya da silebilirsin. <a href="/privacy">Gizlilik politikası</a></footer>
 </main>
 </body>
 </html>`;

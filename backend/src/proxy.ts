@@ -42,7 +42,7 @@ export async function handleProxy(request: Request, model: string, ctx: Executio
 	const { success } = await env.RATE_LIMITER.limit({ key: clientIp(request) });
 	if (!success) {
 		ctx.waitUntil(logUsage(request, model, 429, 0, undefined));
-		return error(429, "Too many requests to the Shelfie proxy");
+		return error(429, "Too many requests to the Frizzy proxy");
 	}
 
 	const feature = parseFeature(request.headers.get(FEATURE_HEADER));

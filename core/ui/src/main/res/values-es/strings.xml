@@ -397,7 +397,7 @@
     <!-- AI allowance, Premium and family sharing. -->
     <string name="error_quota_free">Has usado los escaneos o recetas de IA gratis de hoy. Se renuevan mañana, o pásate a Premium para tener más.</string>
     <string name="error_quota_premium">Has llegado al límite de uso razonable de hoy. Se renueva mañana.</string>
-    <string name="premium_title">Shelfie Premium</string>
+    <string name="premium_title">Frizzy Premium</string>
     <string name="premium_upgrade">Hazte Premium</string>
     <string name="premium_settings_subtitle">50 escaneos y recetas al día, para todo el hogar</string>
     <string name="premium_hero_title">Salva más comida con Premium</string>
@@ -430,7 +430,7 @@
     <string name="household_invite_new">Código nuevo</string>
     <string name="household_invite_valid">Válido 48 horas. Cualquiera con el código puede unirse.</string>
     <string name="household_share">Compartir código</string>
-    <string name="household_share_message">¡Únete a mi despensa en Shelfie! Descarga la app: %2$s\nLuego introduce el código %1$s en Ajustes → Compartir en familia. Si la instalas desde este enlace, el código aparece solo.</string>
+    <string name="household_share_message">¡Únete a mi despensa en Frizzy! Descarga la app: %2$s\nLuego introduce el código %1$s en Ajustes → Compartir en familia. Si la instalas desde este enlace, el código aparece solo.</string>
     <string name="household_code">Código de invitación</string>
     <string name="household_join">Unirme</string>
     <string name="household_leave">Salir del hogar</string>
@@ -486,7 +486,7 @@
     <string name="edit_expiry_scan_failed">No se encontró la fecha. Prueba más cerca de la etiqueta o elígela arriba.</string>
 
     <!-- Home-screen widget. -->
-    <string name="widget_label">Shelfie: consumir pronto</string>
+    <string name="widget_label">Frizzy: consumir pronto</string>
     <string name="widget_description">Lo que caduca antes</string>
     <string name="widget_title">⏳ Consumir pronto</string>
     <string name="widget_empty">Todo fresco 🎉 Nada caduca pronto.</string>
@@ -517,7 +517,7 @@
     </plurals>
     <string name="settings_language_title">Idioma</string>
     <string name="settings_language_system">Idioma del móvil</string>
-    <string name="settings_language_hint">Shelfie usa el idioma de tu móvil, o inglés si no está aquí. Elige uno para cambiarlo solo en Shelfie.</string>
+    <string name="settings_language_hint">Frizzy usa el idioma de tu móvil, o inglés si no está aquí. Elige uno para cambiarlo solo en Frizzy.</string>
     <string name="household_code_ready">El código %1$s está listo. Inicia sesión o crea una cuenta arriba y toca Unirse.</string>
     <string name="household_error_full_free">Ese hogar está lleno: gratis caben 2 personas. Con Premium, hasta 6.</string>
     <string name="household_limit">Hasta %1$d personas en tu hogar. Con Premium, 6.</string>

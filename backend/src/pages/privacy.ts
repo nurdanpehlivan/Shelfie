@@ -8,7 +8,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shelfie · Gizlilik politikası</title>
+<title>Frizzy · Gizlilik politikası</title>
 <style>
 	:root { --bg: #fff9f2; --ink: #2a2420; --muted: #7a6f66; --accent: #23974f; --line: #efe5d8; }
 	@media (prefers-color-scheme: dark) { :root { --bg: #15120f; --ink: #f6eee6; --muted: #b5a99c; --accent: #5bd48a; --line: #3a332c; } }
@@ -24,7 +24,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <h1>Gizlilik politikası</h1>
 <p class="muted">Son güncelleme: 20 Ekim 2026</p>
 
-<p>Shelfie, evdeki yiyeceklerini takip edip israfı azaltman için var. Bu sayfa hangi verileri neden işlediğimizi anlatır. Kısaca: hesap açmadan kullanırsan verilerin yalnızca telefonunda kalır; reklam ya da veri satışı yoktur.</p>
+<p>Frizzy, evdeki yiyeceklerini takip edip israfı azaltman için var. Bu sayfa hangi verileri neden işlediğimizi anlatır. Kısaca: hesap açmadan kullanırsan verilerin yalnızca telefonunda kalır; reklam ya da veri satışı yoktur.</p>
 
 <h2>Telefonunda kalanlar</h2>
 <p>Kilerin, alışveriş listen, tariflerin, haftalık planın ve ayarların telefonundaki uygulama veritabanında tutulur. Çektiğin fotoğraflar uygulamanın kendi klasöründe saklanır; tarih okutmak için çekilenler okunduktan sonra silinir. Paketteki tarih telefonun içinde (Google ML Kit ile) okunur, fotoğraf hiçbir yere gönderilmez.</p>
@@ -45,7 +45,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>Uygulamada Ayarlar → Hesap ve senkronizasyon → Hesabı sil ya da web panelindeki "Hesabımı sil" ile hesabın ve sunucudaki tüm verilerin hemen silinir. Telefondaki veriler uygulamayı kaldırınca silinir. Silinen kayıtların izleri en geç bir yılda temizlenir.</p>
 
 <h2>Çocuklar</h2>
-<p>Shelfie 13 yaşından küçükler için tasarlanmamıştır ve bilerek onlardan veri toplamayız.</p>
+<p>Frizzy 13 yaşından küçükler için tasarlanmamıştır ve bilerek onlardan veri toplamayız.</p>
 
 <h2>İletişim</h2>
 <p>Sorular ve silme talepleri için Google Play sayfamızdaki geliştirici e-posta adresine yazabilirsin.</p>
@@ -55,7 +55,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <h1 lang="en">Privacy policy</h1>
 <p class="muted" lang="en">Last updated: 20 October 2026</p>
 <div lang="en">
-<p>Shelfie helps you track the food at home and waste less. Without an account your data stays on your phone. There are no ads and no data sales.</p>
+<p>Frizzy helps you track the food at home and waste less. Without an account your data stays on your phone. There are no ads and no data sales.</p>
 <h2>On your phone</h2>
 <p>Your pantry, shopping list, recipes, weekly plan and settings live in the app's database on your phone. Photos stay in the app's own folder; photos taken to read a date are deleted once read. Printed dates are read on the device (Google ML Kit) and never uploaded.</p>
 <h2>AI scans and recipes</h2>
@@ -67,7 +67,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <h2>Deletion</h2>
 <p>Settings → Account & sync → Delete account in the app, or "Delete my account" in the web panel, deletes your account and all its server data at once. Data on the phone is removed when you uninstall the app. Traces of deleted records are purged within a year.</p>
 <h2>Children</h2>
-<p>Shelfie is not designed for children under 13 and we do not knowingly collect their data.</p>
+<p>Frizzy is not designed for children under 13 and we do not knowingly collect their data.</p>
 <h2>Contact</h2>
 <p>For questions or deletion requests, write to the developer email on our Google Play page.</p>
 </div>

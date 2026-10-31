@@ -6,7 +6,7 @@ export const JOIN_ROUTE = /^\/join\/([A-HJ-KM-NP-Z2-9]{8})$/;
 /**
  * Served at `GET /join/<code>`: where the link in a family invite leads. On Android the button
  * opens the app straight at "join with this code" (shelfie://join?joinCode=...), or the Play
- * Store page when Shelfie isn't installed yet; elsewhere it shows the code and the steps.
+ * Store page when Frizzy isn't installed yet; elsewhere it shows the code and the steps.
  */
 export function joinPage(code: string): string {
 	const pkg = env.PLAY_PACKAGE_NAME ?? "com.nurdanpehlivan.shelfie";
@@ -19,7 +19,7 @@ export function joinPage(code: string): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shelfie · Aile daveti</title>
+<title>Frizzy · Aile daveti</title>
 <meta name="robots" content="noindex">
 <style>
 	:root { --bg: #fff9f2; --card: #ffffff; --ink: #2a2420; --muted: #6b5f55; --accent: #23974f; --accent-ink: #fff; --soft: #e6f5eb; --line: #f0e6d8; }
@@ -43,14 +43,14 @@ export function joinPage(code: string): string {
 <main>
 	<div class="card">
 		<div style="font-size: 3rem">👨‍👩‍👧</div>
-		<h1>Shelfie kilerine davet edildin</h1>
+		<h1>Frizzy kilerine davet edildin</h1>
 		<p>Aynı kileri, alışveriş listesini ve tarifleri birlikte kullanın.</p>
 		<div class="code">${pretty}</div>
-		<a class="button primary" href="${open}">Shelfie'de aç</a>
+		<a class="button primary" href="${open}">Frizzy'de aç</a>
 		<a class="button secondary" href="${play}">Google Play'den indir</a>
 	</div>
 	<ol>
-		<li>Shelfie'yi indir ve aç.</li>
+		<li>Frizzy'yi indir ve aç.</li>
 		<li>Ayarlar → Hesap'tan giriş yap ya da hesap oluştur.</li>
 		<li>Ayarlar → Aile paylaşımı'nda bu kodu girip "Katıl"a dokun.</li>
 	</ol>

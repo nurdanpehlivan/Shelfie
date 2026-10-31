@@ -5,7 +5,7 @@ export const ADMIN_HTML = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Shelfie Yönetim</title>
+<title>Frizzy Yönetim</title>
 <style>
 	:root {
 		color-scheme: light;
@@ -125,7 +125,7 @@ export const ADMIN_HTML = `<!doctype html>
 <body>
 <main>
 	<section id="login" class="card" hidden>
-		<h1 style="margin:0 0 4px;font-size:1.3rem;color:var(--brand)">Shelfie Yönetim</h1>
+		<h1 style="margin:0 0 4px;font-size:1.3rem;color:var(--brand)">Frizzy Yönetim</h1>
 		<p class="secondary" style="margin:0 0 16px">Panele girmek için yönetici şifresini gir.</p>
 		<form id="login-form">
 			<input type="password" id="password" autocomplete="current-password" placeholder="Yönetici şifresi" required aria-label="Yönetici şifresi">
@@ -136,7 +136,7 @@ export const ADMIN_HTML = `<!doctype html>
 
 	<section id="dashboard" hidden>
 		<header>
-			<h1>Shelfie Yönetim</h1>
+			<h1>Frizzy Yönetim</h1>
 			<span class="muted" id="generated"></span>
 			<span class="spacer"></span>
 			<button id="refresh" type="button">Yenile</button>

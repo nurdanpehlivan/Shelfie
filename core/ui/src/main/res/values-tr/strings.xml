@@ -400,7 +400,7 @@
     <!-- AI allowance, Premium and family sharing. -->
     <string name="error_quota_free">Bugünkü ücretsiz yapay zekâ tarama ya da tarif hakkın bitti. Yarın yenilenir; daha fazlası için Premium\'a geç.</string>
     <string name="error_quota_premium">Bugünkü adil kullanım sınırına ulaştın. Yarın yenilenir.</string>
-    <string name="premium_title">Shelfie Premium</string>
+    <string name="premium_title">Frizzy Premium</string>
     <string name="premium_upgrade">Premium\'a geç</string>
     <string name="premium_settings_subtitle">Günde 50 tarama ve tarif, tüm hane için</string>
     <string name="premium_hero_title">Premium ile daha çok yemeği kurtar</string>
@@ -433,7 +433,7 @@
     <string name="household_invite_new">Yeni kod</string>
     <string name="household_invite_valid">48 saat geçerli. Kodu bilen herkes katılabilir.</string>
     <string name="household_share">Kodu paylaş</string>
-    <string name="household_share_message">Shelfie\'de kilerime katıl! Uygulamayı indir: %2$s\nSonra Ayarlar → Aile paylaşımı\'na %1$s davet kodunu gir. Bu linkten indirirsen kod kendiliğinden gelir.</string>
+    <string name="household_share_message">Frizzy\'de kilerime katıl! Uygulamayı indir: %2$s\nSonra Ayarlar → Aile paylaşımı\'na %1$s davet kodunu gir. Bu linkten indirirsen kod kendiliğinden gelir.</string>
     <string name="household_code">Davet kodu</string>
     <string name="household_join">Katıl</string>
     <string name="household_leave">Haneden ayrıl</string>
@@ -489,7 +489,7 @@
     <string name="edit_expiry_scan_failed">Tarih bulunamadı. Etikete daha yakından dene ya da yukarıdan seç.</string>
 
     <!-- Home-screen widget. -->
-    <string name="widget_label">Shelfie: bitmek üzere</string>
+    <string name="widget_label">Frizzy: bitmek üzere</string>
     <string name="widget_description">En yakında bitecek ürünler</string>
     <string name="widget_title">⏳ Bitmek üzere</string>
     <string name="widget_empty">Hepsi taze 🎉 Yakında biten bir şey yok.</string>
@@ -520,7 +520,7 @@
     </plurals>
     <string name="settings_language_title">Dil</string>
     <string name="settings_language_system">Telefonun dili</string>
-    <string name="settings_language_hint">Shelfie telefonunun dilinde açılır; o dil listede yoksa İngilizce. Sadece Shelfie için değiştirmek istersen birini seç.</string>
+    <string name="settings_language_hint">Frizzy telefonunun dilinde açılır; o dil listede yoksa İngilizce. Sadece Frizzy için değiştirmek istersen birini seç.</string>
     <string name="household_code_ready">Davet kodu %1$s hazır. Yukarıdan giriş yap ya da hesap oluştur, sonra Katıl\'a dokun.</string>
     <string name="household_error_full_free">Bu hane dolu: ücretsiz hanede 2 kişi olabilir. Premium ile 6 kişiye kadar.</string>
     <string name="household_limit">Hanende en fazla %1$d kişi olabilir. Premium ile 6 kişi.</string>
