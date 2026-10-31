@@ -1,5 +1,7 @@
 # Frizzy — Smart Pantry & Recipes
 
+🇬🇧 English · 🇹🇷 [Türkçe](README.tr.md)
+
 Frizzy is an Android app that helps you eat what you buy instead of throwing it away. Snap your
 fridge, a shelf or a receipt and the items are added with their use-by dates; Frizzy, the fridge
 mascot, reminds you before food spoils and turns what's about to go off into quick, real recipes.
@@ -102,3 +104,7 @@ languages.
 ## Privacy
 
 Privacy policy: <https://shelfie-gemini-proxy.shelfie-app.workers.dev/privacy>
+
+## License
+
+All rights reserved; this is not open source. See [LICENSE](LICENSE).
