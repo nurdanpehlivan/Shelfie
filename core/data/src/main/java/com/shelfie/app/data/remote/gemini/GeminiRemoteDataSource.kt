@@ -125,9 +125,10 @@ class GeminiRemoteDataSource @Inject constructor(
      * The last model's error is the one reported.
      */
     private suspend fun callWithRetry(request: GenerateContentRequest, feature: String): GenerateContentResponse {
-        val available = config.models.filter { model -> cooldowns[model]?.hasPassedNow() ?: true }
+        val models = modelsFor(feature)
+        val available = models.filter { model -> cooldowns[model]?.hasPassedNow() ?: true }
         // If every model is cooling down, try them all anyway rather than fail without asking.
-        val candidates = available.ifEmpty { config.models }
+        val candidates = available.ifEmpty { models }
         var lastError: HttpException? = null
         for (model in candidates) {
             try {
@@ -140,6 +141,18 @@ class GeminiRemoteDataSource @Inject constructor(
         }
         throw checkNotNull(lastError)
     }
+
+    /**
+     * The order to try models in for [feature]. Translating a few names or a recipe is easy work:
+     * it goes to the light models first, which are quicker, cheaper and have their own quota,
+     * so a language change doesn't use up the main model that scans and recipes need.
+     */
+    private fun modelsFor(feature: String): List<String> =
+        if (feature == GeminiApiService.FEATURE_TRANSLATE) {
+            config.models.sortedByDescending { it.contains(LIGHT_MODEL_MARK) }
+        } else {
+            config.models
+        }
 
     /**
      * Gemini answers 503 ("model is experiencing high demand") in short spikes, especially on
@@ -200,6 +213,9 @@ class GeminiRemoteDataSource @Inject constructor(
     }
 
     private companion object {
+        /** Names of Gemini's light models contain this, e.g. "gemini-3.5-flash-lite". */
+        const val LIGHT_MODEL_MARK = "lite"
+
         /** Server-side hiccups worth retrying; 429 (quota) is not, retrying only burns quota. */
         val TRANSIENT_HTTP_CODES = setOf(500, 502, 503, 504)
 
