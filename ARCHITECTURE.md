@@ -1,11 +1,13 @@
-# Shelfie architecture
+# Frizzy architecture
+
+(Code packages still use the working title *Shelfie*.)
 
 MVVM with clean layers, split into Gradle modules so each layer can only see what it should.
 
 ```
 app/                 Activity, navigation between features, widget, notifications, background work
 core/domain/         Pure Kotlin: models, repository interfaces, use cases, change rules
-core/data/           Room, sync, Shelfie backend, Gemini (via the proxy), Play Billing, OCR, Hilt modules
+core/data/           Room, sync, the backend, Gemini (via the proxy), translations, Play Billing, OCR, Hilt modules
 core/ui/             Theme, shared components, Frizzy, the item editor, all strings and icons
 feature/pantry/      The pantry list, filters, edit/freeze/thaw, quick add with barcode
 feature/scanner/     Photo scan and review

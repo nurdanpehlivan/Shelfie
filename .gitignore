@@ -24,3 +24,6 @@ keystore.properties
 *.keystore
 # Signed bundles from Build > Generate Signed App Bundle
 app/release/
+
+# Local Cloudflare state of the cf CLI
+.cloudflare/

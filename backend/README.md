@@ -1,4 +1,4 @@
-# Shelfie backend
+# Frizzy backend
 
 A Cloudflare Worker with a D1 database. It does four jobs:
 
@@ -30,10 +30,10 @@ usage rows older than 180 days and expired sessions.
 ## Secrets
 
 ```sh
-cf workers secrets update GEMINI_API_KEY --worker shelfie-gemini-proxy --text "<gemini key>"
-cf workers secrets update APP_TOKEN      --worker shelfie-gemini-proxy --text "<new token>"
-cf workers secrets update ADMIN_PASSWORD --worker shelfie-gemini-proxy --text "<long random password>"
-cf workers secrets update GOOGLE_SERVICE_ACCOUNT --worker shelfie-gemini-proxy --text "$(cat play-service-account.json)"
+cf workers secrets update GEMINI_API_KEY --worker shelfie-gemini-proxy --type secret_text --text "<gemini key>"
+cf workers secrets update APP_TOKEN      --worker shelfie-gemini-proxy --type secret_text --text "<new token>"
+cf workers secrets update ADMIN_PASSWORD --worker shelfie-gemini-proxy --type secret_text --text "<long random password>"
+cf workers secrets update GOOGLE_SERVICE_ACCOUNT --worker shelfie-gemini-proxy --type secret_text --text "$(cat play-service-account.json)"
 ```
 
 `GOOGLE_SERVICE_ACCOUNT` is required by the config: set it before the first deploy with these
