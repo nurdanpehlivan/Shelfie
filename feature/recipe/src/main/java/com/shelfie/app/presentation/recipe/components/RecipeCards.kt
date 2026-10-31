@@ -1,5 +1,6 @@
 package com.shelfie.app.presentation.recipe.components
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,13 +17,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
@@ -254,4 +258,35 @@ fun StepNumber(number: Int, modifier: Modifier = Modifier) {
 @Composable
 fun SectionTitle(text: String, modifier: Modifier = Modifier) {
     SectionHeader(title = text, modifier = modifier)
+}
+
+/**
+ * Videos and recipe sites for the dish, as a YouTube and a web search on its title. Searches,
+ * not links the model writes: a model asked for a URL often makes one up, a search always
+ * leads to pages that exist.
+ */
+@Composable
+fun RecipeLinksCard(title: String, modifier: Modifier = Modifier) {
+    val uriHandler = LocalUriHandler.current
+    val query = Uri.encode(stringResource(R.string.recipe_search_query, title))
+    ShelfieCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(text = stringResource(R.string.recipe_links_title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(R.string.recipe_links_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(
+                    onClick = { uriHandler.openUri("https://www.youtube.com/results?search_query=$query") },
+                    modifier = Modifier.weight(1f),
+                ) { Text("▶ " + stringResource(R.string.recipe_links_video), maxLines = 1) }
+                FilledTonalButton(
+                    onClick = { uriHandler.openUri("https://www.google.com/search?q=$query") },
+                    modifier = Modifier.weight(1f),
+                ) { Text("🔎 " + stringResource(R.string.recipe_links_web), maxLines = 1) }
+            }
+        }
+    }
 }

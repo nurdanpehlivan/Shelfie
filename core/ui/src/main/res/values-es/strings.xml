@@ -523,4 +523,9 @@
     <string name="household_limit">Hasta %1$d personas en tu hogar. Con Premium, 6.</string>
     <string name="settings_currency_title">Moneda</string>
     <string name="settings_currency_auto">Automática (%1$s)</string>
+    <string name="recipe_links_title">Búscalo en internet</string>
+    <string name="recipe_links_hint">Mira cómo se hace o compáralo con otras recetas del plato.</string>
+    <string name="recipe_links_video">Vídeo</string>
+    <string name="recipe_links_web">Webs de recetas</string>
+    <string name="recipe_search_query">receta de %1$s</string>
 </resources>

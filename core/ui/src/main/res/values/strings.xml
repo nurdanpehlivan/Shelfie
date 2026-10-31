@@ -530,4 +530,9 @@
     <string name="household_limit">Up to %1$d people in your household. Premium raises it to 6.</string>
     <string name="settings_currency_title">Currency</string>
     <string name="settings_currency_auto">Automatic (%1$s)</string>
+    <string name="recipe_links_title">Look it up online</string>
+    <string name="recipe_links_hint">Watch how it\'s made or compare with other recipes for this dish.</string>
+    <string name="recipe_links_video">Video</string>
+    <string name="recipe_links_web">Recipe sites</string>
+    <string name="recipe_search_query">%1$s recipe</string>
 </resources>

@@ -524,4 +524,9 @@
     <string name="household_limit">Jusqu\'à %1$d personnes dans ton foyer. 6 avec Premium.</string>
     <string name="settings_currency_title">Devise</string>
     <string name="settings_currency_auto">Automatique (%1$s)</string>
+    <string name="recipe_links_title">Voir en ligne</string>
+    <string name="recipe_links_hint">Regarde comment le faire ou compare avec d\'autres recettes.</string>
+    <string name="recipe_links_video">Vidéo</string>
+    <string name="recipe_links_web">Sites de recettes</string>
+    <string name="recipe_search_query">recette %1$s</string>
 </resources>

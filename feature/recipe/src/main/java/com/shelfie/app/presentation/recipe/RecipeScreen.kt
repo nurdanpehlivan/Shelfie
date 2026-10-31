@@ -72,6 +72,7 @@ import com.shelfie.app.presentation.recipe.components.CookingMode
 import com.shelfie.app.presentation.recipe.components.IngredientGrid
 import com.shelfie.app.presentation.recipe.components.IngredientTile
 import com.shelfie.app.presentation.recipe.components.RecipeHeroCard
+import com.shelfie.app.presentation.recipe.components.RecipeLinksCard
 import com.shelfie.app.presentation.recipe.components.SectionTitle
 import com.shelfie.app.presentation.recipe.components.StepOverviewCard
 import com.shelfie.app.presentation.recipe.components.ingredientEmoji
@@ -317,6 +318,7 @@ private fun RecipeOverview(
             itemsIndexed(recipe.steps, key = { index, _ -> "step_$index" }) { index, step ->
                 StepOverviewCard(number = index + 1, step = step)
             }
+            item(key = "links") { RecipeLinksCard(title = recipe.title) }
         }
         BottomActionBar {
                 OutlinedButton(
