@@ -185,7 +185,7 @@ Gratis: 3 escaneos y 3 recetas al día y familia de 2. Premium: 50 al día y has
 
 **App name (30):** Frizzy : Placard et Recettes
 
-**Short description (80):** Photographie ton frigo, suis ce qui est frais et cuisine-le avant qu'il se perde.
+**Short description (80):** Photographie ton frigo, suis la fraîcheur et cuisine avant que ça se perde.
 
 **Full description:**
 
