@@ -88,7 +88,7 @@ its session and per install otherwise. Free: `FREE_DAILY_SCANS` scans and `FREE_
 recipes a day (3 each), plus one background morning recipe. Premium: `PREMIUM_DAILY_LIMIT`
 (50) each. Over the limit the proxy answers 402 `QUOTA_EXCEEDED` without calling Gemini.
 
-Premium is a live Play subscription (`PREMIUM_PRODUCT_IDS`, default `shelfie_premium`) held by
+Premium is a live Play subscription (`PREMIUM_PRODUCT_IDS`, default `frizzy_premium`) held by
 anyone in the household. The app sends the purchase token to `/api/billing/verify`; the Worker
 checks it with the Play Developer API (`purchases.subscriptionsv2`) and stores the expiry in
 `subscriptions`. Create the subscription in Play Console with that id and a monthly and/or

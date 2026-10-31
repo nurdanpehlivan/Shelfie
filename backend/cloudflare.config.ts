@@ -30,7 +30,7 @@ export default defineConfig({
 			GOOGLE_SERVICE_ACCOUNT: bindings.secret(),
 			PLAY_PACKAGE_NAME: bindings.text("com.nurdanpehlivan.shelfie"),
 			// Comma-separated Play product ids that grant Premium; keep in sync with the app.
-			PREMIUM_PRODUCT_IDS: bindings.text("shelfie_premium"),
+			PREMIUM_PRODUCT_IDS: bindings.text("frizzy_premium"),
 			// Per client IP, per Cloudflare location. Also guards the login and register endpoints.
 			RATE_LIMITER: bindings.rateLimit({
 				namespace: "1001",

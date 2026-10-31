@@ -232,6 +232,6 @@ class PlaySubscriptionRepository @Inject constructor(
 
     private companion object {
         /** Play Console subscription id; keep in sync with PREMIUM_PRODUCT_IDS on the server. */
-        const val PREMIUM_PRODUCT_ID = "shelfie_premium"
+        const val PREMIUM_PRODUCT_ID = "frizzy_premium"
     }
 }
