@@ -433,7 +433,7 @@
     <string name="household_invite_new">Yeni kod</string>
     <string name="household_invite_valid">48 saat geçerli. Kodu bilen herkes katılabilir.</string>
     <string name="household_share">Kodu paylaş</string>
-    <string name="household_share_message">Shelfie\'de kilerime katıl! %2$s bağlantısını aç ya da Ayarlar → Aile paylaşımı\'na %1$s kodunu gir.</string>
+    <string name="household_share_message">Shelfie\'de kilerime katıl! Uygulamayı indir: %2$s\nSonra Ayarlar → Aile paylaşımı\'na %1$s davet kodunu gir. Bu linkten indirirsen kod kendiliğinden gelir.</string>
     <string name="household_code">Davet kodu</string>
     <string name="household_join">Katıl</string>
     <string name="household_leave">Haneden ayrıl</string>

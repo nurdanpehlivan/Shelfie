@@ -20,6 +20,7 @@ datastore = "1.1.7"
 # Google Play services
 codeScanner = "16.1.0"
 billing = "8.0.0"
+installReferrer = "2.2"
 mlkitTextRecognition = "19.0.1"
 glance = "1.1.1"
 
@@ -54,6 +55,7 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 javax-inject = { group = "javax.inject", name = "javax.inject", version = "1" }
 play-services-mlkit-text-recognition = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition", version.ref = "mlkitTextRecognition" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+play-install-referrer = { group = "com.android.installreferrer", name = "installreferrer", version.ref = "installReferrer" }
 play-billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
 # AndroidX core
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

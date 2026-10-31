@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.BuildConfig
+import com.shelfie.app.data.install.InstallReferrerSource
 import com.shelfie.app.domain.model.ThemeMode
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.domain.usecase.RepairCategoriesUseCase
@@ -34,8 +35,10 @@ import com.shelfie.app.presentation.onboarding.OnboardingScreen
 import com.shelfie.app.presentation.theme.ShelfieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -83,7 +86,10 @@ class MainActivity : AppCompatActivity() {
                             // Settings still loading: plain brand background, no flash of either screen.
                             null -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
                             false -> OnboardingScreen(onFinished = viewModel::completeOnboarding)
-                            true -> ShelfieNavHost()
+                            true -> {
+                                val inviteCode by viewModel.inviteCode.collectAsStateWithLifecycle()
+                                ShelfieNavHost(inviteCode = inviteCode, onInviteCodeHandled = viewModel::inviteCodeHandled)
+                            }
                         }
                     }
                 }
@@ -94,6 +100,7 @@ class MainActivity : AppCompatActivity() {
 
 private val APP_INFO = AppInfo(
     versionName = BuildConfig.VERSION_NAME,
+    packageName = BuildConfig.APPLICATION_ID,
     webBaseUrl = com.shelfie.app.core.data.BuildConfig.SHELFIE_PROXY_URL,
 )
 
@@ -101,11 +108,22 @@ private val APP_INFO = AppInfo(
 class MainViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     repairCategories: RepairCategoriesUseCase,
+    installReferrer: InstallReferrerSource,
 ) : ViewModel() {
+
+    private val _inviteCode = MutableStateFlow<String?>(null)
+
+    /** A family invite code from the Play link this app was installed from, until handled. */
+    val inviteCode: StateFlow<String?> = _inviteCode.asStateFlow()
 
     init {
         // Cheap and once per install; a failure just tries again next launch.
         viewModelScope.launch { runCatching { repairCategories() } }
+        viewModelScope.launch { _inviteCode.value = runCatching { installReferrer.consumeInviteCode() }.getOrNull() }
+    }
+
+    fun inviteCodeHandled() {
+        _inviteCode.value = null
     }
 
     /** `null` until DataStore has been read. */

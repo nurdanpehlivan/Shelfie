@@ -146,7 +146,11 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
                 if (invite != null) {
                     Button(
                         onClick = {
-                            val text = resources.getString(R.string.household_share_message, invite.code, appInfo.inviteUrl(invite.code))
+                            val text = resources.getString(
+                                R.string.household_share_message,
+                                invite.code.chunked(4).joinToString(" "),
+                                appInfo.playStoreInviteUrl(invite.code),
+                            )
                             val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
                             context.startActivity(Intent.createChooser(send, null))
                         },

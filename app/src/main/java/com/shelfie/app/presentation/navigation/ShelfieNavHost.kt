@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -118,7 +119,17 @@ private enum class TopLevelTab(
 }
 
 @Composable
-fun ShelfieNavHost(navController: NavHostController = rememberNavController()) {
+fun ShelfieNavHost(
+    navController: NavHostController = rememberNavController(),
+    inviteCode: String? = null,
+    onInviteCodeHandled: () -> Unit = {},
+) {
+    // Installed from a family invite: open "join" with the code filled in, once.
+    LaunchedEffect(inviteCode) {
+        val code = inviteCode ?: return@LaunchedEffect
+        navController.navigate(SettingsDestination(joinCode = code)) { launchSingleTop = true }
+        onInviteCodeHandled()
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     val showBottomBar = TopLevelTab.entries.any { currentDestination.isOn(it) }

@@ -437,7 +437,7 @@
     <string name="household_invite_new">New code</string>
     <string name="household_invite_valid">Valid for 48 hours. Anyone with the code can join.</string>
     <string name="household_share">Share code</string>
-    <string name="household_share_message">Join my pantry on Shelfie! Open %2$s or enter code %1$s in Settings → Family sharing.</string>
+    <string name="household_share_message">Join my pantry on Shelfie! Get the app: %2$s\nThen enter the invite code %1$s in Settings → Family sharing. Installed from this link, the code fills in by itself.</string>
     <string name="household_code">Invite code</string>
     <string name="household_join">Join</string>
     <string name="household_leave">Leave household</string>

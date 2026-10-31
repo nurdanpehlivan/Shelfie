@@ -431,7 +431,7 @@
     <string name="household_invite_new">Nouveau code</string>
     <string name="household_invite_valid">Valable 48 heures. Toute personne ayant le code peut rejoindre.</string>
     <string name="household_share">Partager le code</string>
-    <string name="household_share_message">Rejoins mon placard sur Shelfie ! Ouvre %2$s ou saisis le code %1$s dans Réglages → Partage familial.</string>
+    <string name="household_share_message">Rejoins mon placard sur Shelfie ! Télécharge l\'app : %2$s\nPuis saisis le code %1$s dans Réglages → Partage familial. Installée depuis ce lien, le code se remplit tout seul.</string>
     <string name="household_code">Code d\'invitation</string>
     <string name="household_join">Rejoindre</string>
     <string name="household_leave">Quitter le foyer</string>

@@ -430,7 +430,7 @@
     <string name="household_invite_new">Código nuevo</string>
     <string name="household_invite_valid">Válido 48 horas. Cualquiera con el código puede unirse.</string>
     <string name="household_share">Compartir código</string>
-    <string name="household_share_message">¡Únete a mi despensa en Shelfie! Abre %2$s o introduce el código %1$s en Ajustes → Compartir en familia.</string>
+    <string name="household_share_message">¡Únete a mi despensa en Shelfie! Descarga la app: %2$s\nLuego introduce el código %1$s en Ajustes → Compartir en familia. Si la instalas desde este enlace, el código aparece solo.</string>
     <string name="household_code">Código de invitación</string>
     <string name="household_join">Unirme</string>
     <string name="household_leave">Salir del hogar</string>

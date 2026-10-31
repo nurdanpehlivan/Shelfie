@@ -430,7 +430,7 @@
     <string name="household_invite_new">Neuer Code</string>
     <string name="household_invite_valid">48 Stunden gültig. Jeder mit dem Code kann beitreten.</string>
     <string name="household_share">Code teilen</string>
-    <string name="household_share_message">Teile meinen Vorrat in Shelfie! Öffne %2$s oder gib in Einstellungen → Familie den Code %1$s ein.</string>
+    <string name="household_share_message">Teile meinen Vorrat in Shelfie! Hol dir die App: %2$s\nGib dann in Einstellungen → Familie den Code %1$s ein. Über diesen Link installiert, steht der Code schon da.</string>
     <string name="household_code">Einladungscode</string>
     <string name="household_join">Beitreten</string>
     <string name="household_leave">Haushalt verlassen</string>

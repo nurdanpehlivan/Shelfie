@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // Shelfie Premium subscription; purchases are verified by the backend (backend/src/billing.ts).
     implementation(libs.play.billing)
+    // The family invite code carried by a Play Store link, see InstallReferrerSource.
+    implementation(libs.play.install.referrer)
     // On-device reading of printed expiry dates; the model comes from Play services.
     implementation(libs.play.services.mlkit.text.recognition)
 
