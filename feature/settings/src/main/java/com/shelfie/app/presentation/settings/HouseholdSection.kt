@@ -39,10 +39,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.HouseholdRole
 import com.shelfie.app.presentation.common.LocalAppInfo
+import com.shelfie.app.presentation.common.PremiumNudge
 
 /** Content of the "Family sharing" settings card. */
 @Composable
-fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltViewModel()) {
+fun ColumnScope.HouseholdSectionContent(onOpenPremium: () -> Unit = {}, viewModel: HouseholdViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val resources = LocalResources.current
@@ -181,6 +182,9 @@ fun ColumnScope.HouseholdSectionContent(viewModel: HouseholdViewModel = hiltView
     }
 
     state.errorRes?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium) }
+    if (state.errorRes == R.string.household_error_full_free) {
+        PremiumNudge(message = stringResource(R.string.premium_nudge_family), onOpenPremium = onOpenPremium)
+    }
 
     if (confirmLeave) {
         AlertDialog(

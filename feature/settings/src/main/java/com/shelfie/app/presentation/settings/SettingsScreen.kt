@@ -139,7 +139,7 @@ fun SettingsScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     accountSection: @Composable ColumnScope.() -> Unit = {},
     onOpenPremium: () -> Unit = {},
-    householdSection: @Composable ColumnScope.() -> Unit = { HouseholdSectionContent() },
+    householdSection: @Composable ColumnScope.() -> Unit = { HouseholdSectionContent(onOpenPremium = onOpenPremium) },
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

@@ -24,8 +24,26 @@ data class PremiumOffer(
     val hasIntroOffer: Boolean,
     /** Opaque store token that selects this offer when buying. */
     val offerToken: String,
+    /** The recurring price in millionths of [currencyCode], for comparing plans. */
+    val priceMicros: Long = 0,
+    /** ISO 4217 code of the price, e.g. "TRY". */
+    val currencyCode: String = "",
+    /** Length of a free trial in days, `null` without one. */
+    val freeTrialDays: Int? = null,
 ) {
     val isYearly: Boolean get() = billingPeriod.endsWith("Y")
+}
+
+/**
+ * How much cheaper [yearly] is than twelve months of [monthly], in whole percent; `null` when
+ * the two can't be compared (other currencies, missing prices) or it isn't cheaper.
+ */
+fun yearlySavingsPercent(monthly: PremiumOffer, yearly: PremiumOffer): Int? {
+    if (monthly.currencyCode != yearly.currencyCode || monthly.priceMicros <= 0 || yearly.priceMicros <= 0) return null
+    val twelveMonths = monthly.priceMicros * 12
+    // Rounded down: a savings badge should never overstate.
+    val percent = ((twelveMonths - yearly.priceMicros) * 100 / twelveMonths).toInt()
+    return percent.takeIf { it > 0 }
 }
 
 sealed interface PurchaseEvent {

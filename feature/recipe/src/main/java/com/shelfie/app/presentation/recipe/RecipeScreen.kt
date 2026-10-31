@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,6 +61,7 @@ import com.shelfie.app.domain.model.RecipeIngredient
 import com.shelfie.app.domain.model.RecipeStep
 import com.shelfie.app.presentation.common.BottomActionBar
 import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.PremiumNudge
 import com.shelfie.app.presentation.common.ShelfieTopBar
 import com.shelfie.app.presentation.common.ShimmerBlock
 import com.shelfie.app.presentation.common.displayEmoji
@@ -209,7 +211,23 @@ fun RecipeScreen(
                     primaryAction = stringResource(R.string.action_navigate_up) to onNavigateUp,
                     modifier = contentModifier,
                 )
-                is RecipeUiState.Error -> MascotMessage(
+                is RecipeUiState.Error -> if (current.canUpgrade) {
+                    Column(
+                        modifier = contentModifier.verticalScroll(rememberScrollState()).padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Text(text = stringResource(R.string.scanner_error_title), style = MaterialTheme.typography.headlineSmall)
+                        Text(
+                            text = stringResource(current.messageRes),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        PremiumNudge(message = stringResource(R.string.premium_nudge_recipes), onOpenPremium = onOpenPremium)
+                        TextButton(onClick = onNavigateUp, modifier = Modifier.fillMaxWidth()) {
+                            Text(stringResource(R.string.recipe_action_done))
+                        }
+                    }
+                } else MascotMessage(
                     mood = FrizzyMood.WORRIED,
                     title = stringResource(R.string.scanner_error_title),
                     message = stringResource(current.messageRes),

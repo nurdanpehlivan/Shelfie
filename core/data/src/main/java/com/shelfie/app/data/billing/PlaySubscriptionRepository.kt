@@ -89,12 +89,17 @@ class PlaySubscriptionRepository @Inject constructor(
                 val phases = offer.pricingPhases.pricingPhaseList
                 val recurring = phases.lastOrNull() ?: return@mapNotNull null
                 productsByOfferToken[offer.offerToken] = product
+                // A free first phase is the trial; an intro price is not.
+                val trial = phases.firstOrNull()?.takeIf { phases.size > 1 && it.priceAmountMicros == 0L }
                 PremiumOffer(
                     basePlanId = offer.basePlanId,
                     formattedPrice = recurring.formattedPrice,
                     billingPeriod = recurring.billingPeriod,
                     hasIntroOffer = phases.size > 1,
                     offerToken = offer.offerToken,
+                    priceMicros = recurring.priceAmountMicros,
+                    currencyCode = recurring.priceCurrencyCode,
+                    freeTrialDays = trial?.billingPeriod?.periodDays()?.takeIf { it != Int.MAX_VALUE },
                 )
             }
         }

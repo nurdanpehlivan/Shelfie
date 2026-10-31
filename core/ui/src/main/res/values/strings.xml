@@ -535,4 +535,13 @@
     <string name="recipe_links_video">Video</string>
     <string name="recipe_links_web">Recipe sites</string>
     <string name="recipe_search_query">%1$s recipe</string>
+    <string name="premium_badge_best">Best value · save %1$d%%</string>
+    <string name="premium_trial_then">%1$d days free, then billed as above</string>
+    <string name="premium_start_trial">Start %1$d-day free trial</string>
+    <string name="premium_nudge_title">Want more from Frizzy?</string>
+    <string name="premium_nudge_trial">New subscribers get 7 days free.</string>
+    <string name="premium_nudge_action">See Premium</string>
+    <string name="premium_nudge_scans">You\'ve used today\'s free photo scans. Premium gives you 50 a day.</string>
+    <string name="premium_nudge_recipes">You\'ve used today\'s free recipes. Premium gives you 50 a day.</string>
+    <string name="premium_nudge_family">Free households have 2 people. Premium makes room for 6.</string>
 </resources>

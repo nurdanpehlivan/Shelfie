@@ -531,4 +531,13 @@
     <string name="recipe_links_video">Videosu</string>
     <string name="recipe_links_web">Tarif siteleri</string>
     <string name="recipe_search_query">%1$s tarifi</string>
+    <string name="premium_badge_best">En avantajlı · %%%1$d tasarruf</string>
+    <string name="premium_trial_then">%1$d gün ücretsiz, sonra yukarıdaki fiyat</string>
+    <string name="premium_start_trial">%1$d gün ücretsiz başla</string>
+    <string name="premium_nudge_title">Frizzy\'den daha fazlası?</string>
+    <string name="premium_nudge_trial">Yeni abonelere 7 gün ücretsiz.</string>
+    <string name="premium_nudge_action">Premium\'a göz at</string>
+    <string name="premium_nudge_scans">Bugünkü ücretsiz fotoğraf taramaların bitti. Premium ile günde 50.</string>
+    <string name="premium_nudge_recipes">Bugünkü ücretsiz tariflerin bitti. Premium ile günde 50.</string>
+    <string name="premium_nudge_family">Ücretsiz hanede 2 kişi olabilir. Premium ile 6 kişiye kadar.</string>
 </resources>

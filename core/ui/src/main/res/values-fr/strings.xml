@@ -529,4 +529,13 @@
     <string name="recipe_links_video">Vidéo</string>
     <string name="recipe_links_web">Sites de recettes</string>
     <string name="recipe_search_query">recette %1$s</string>
+    <string name="premium_badge_best">Meilleure offre · %1$d %% d\'économie</string>
+    <string name="premium_trial_then">%1$d jours gratuits, puis le prix ci-dessus</string>
+    <string name="premium_start_trial">Essai gratuit de %1$d jours</string>
+    <string name="premium_nudge_title">Envie de plus avec Frizzy ?</string>
+    <string name="premium_nudge_trial">7 jours offerts aux nouveaux abonnés.</string>
+    <string name="premium_nudge_action">Voir Premium</string>
+    <string name="premium_nudge_scans">Tu as utilisé les scans gratuits du jour. Premium : 50 par jour.</string>
+    <string name="premium_nudge_recipes">Tu as utilisé les recettes gratuites du jour. Premium : 50 par jour.</string>
+    <string name="premium_nudge_family">Un foyer gratuit compte 2 personnes. Avec Premium, jusqu\'à 6.</string>
 </resources>

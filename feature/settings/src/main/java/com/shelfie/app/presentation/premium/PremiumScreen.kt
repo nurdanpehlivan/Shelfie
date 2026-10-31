@@ -44,6 +44,7 @@ import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.PremiumOffer
 import com.shelfie.app.domain.model.PurchaseHost
 import com.shelfie.app.domain.model.QuotaStatus
+import com.shelfie.app.domain.model.yearlySavingsPercent
 import com.shelfie.app.presentation.common.HighlightCard
 import com.shelfie.app.presentation.common.ShelfieCard
 import com.shelfie.app.presentation.common.ShelfieTopBar
@@ -51,9 +52,12 @@ import com.shelfie.app.presentation.common.glow
 import com.shelfie.app.presentation.mascot.Frizzy
 import com.shelfie.app.presentation.mascot.FrizzyMood
 import com.shelfie.app.presentation.theme.extendedColors
+import java.text.NumberFormat
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.Currency
+import java.util.Locale
 
 @Composable
 fun PremiumRoute(
@@ -137,8 +141,14 @@ fun PremiumScreen(
                 }
 
                 else -> {
+                    val monthly = state.offers.firstOrNull { !it.isYearly }
                     state.offers.forEach { offer ->
-                        OfferCard(offer = offer, selected = offer == state.selectedOffer, onClick = { onSelect(offer) })
+                        OfferCard(
+                            offer = offer,
+                            selected = offer == state.selectedOffer,
+                            savingsPercent = if (offer.isYearly && monthly != null) yearlySavingsPercent(monthly, offer) else null,
+                            onClick = { onSelect(offer) },
+                        )
                     }
                     Button(
                         onClick = onBuy,
@@ -148,7 +158,15 @@ fun PremiumScreen(
                         if (state.isWorking) {
                             CircularProgressIndicator(modifier = Modifier.height(20.dp).width(20.dp), strokeWidth = 2.dp)
                         } else {
-                            Text("✨ " + stringResource(R.string.premium_upgrade), style = MaterialTheme.typography.titleMedium)
+                            val trialDays = state.selectedOffer?.freeTrialDays
+                            Text(
+                                text = "✨ " + if (trialDays != null) {
+                                    stringResource(R.string.premium_start_trial, trialDays)
+                                } else {
+                                    stringResource(R.string.premium_upgrade)
+                                },
+                                style = MaterialTheme.typography.titleMedium,
+                            )
                         }
                     }
                     Text(
@@ -246,7 +264,7 @@ private fun UsageRow(label: String, used: Int, limit: Int) {
 }
 
 @Composable
-private fun OfferCard(offer: PremiumOffer, selected: Boolean, onClick: () -> Unit) {
+private fun OfferCard(offer: PremiumOffer, selected: Boolean, savingsPercent: Int?, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val isYearly = offer.isYearly
     ShelfieCard(
@@ -256,11 +274,36 @@ private fun OfferCard(offer: PremiumOffer, selected: Boolean, onClick: () -> Uni
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
+                if (savingsPercent != null) {
+                    Surface(shape = CircleShape, color = scheme.primary, contentColor = scheme.onPrimary) {
+                        Text(
+                            text = stringResource(R.string.premium_badge_best, savingsPercent),
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                        )
+                    }
+                    Spacer(Modifier.height(6.dp))
+                }
                 Text(
                     text = stringResource(if (isYearly) R.string.premium_plan_yearly else R.string.premium_plan_monthly),
                     style = MaterialTheme.typography.titleMedium,
                 )
-                if (offer.hasIntroOffer) {
+                val perMonth = if (isYearly) offer.monthlyEquivalent() else null
+                if (perMonth != null) {
+                    Text(
+                        text = stringResource(R.string.premium_price_per_month, perMonth),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                    )
+                }
+                val trialDays = offer.freeTrialDays
+                if (trialDays != null) {
+                    Text(
+                        text = stringResource(R.string.premium_trial_then, trialDays),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.primary,
+                    )
+                } else if (offer.hasIntroOffer) {
                     Text(stringResource(R.string.premium_intro_offer), style = MaterialTheme.typography.bodySmall, color = scheme.primary)
                 }
             }
@@ -273,4 +316,15 @@ private fun OfferCard(offer: PremiumOffer, selected: Boolean, onClick: () -> Uni
             )
         }
     }
+}
+
+/** A yearly price spread over twelve months, in the price's own currency. */
+private fun PremiumOffer.monthlyEquivalent(): String? {
+    if (priceMicros <= 0 || currencyCode.isEmpty()) return null
+    return runCatching {
+        NumberFormat.getCurrencyInstance(Locale.getDefault()).apply {
+            currency = Currency.getInstance(currencyCode)
+            maximumFractionDigits = 2
+        }.format(priceMicros / 12 / 1_000_000.0)
+    }.getOrNull()
 }

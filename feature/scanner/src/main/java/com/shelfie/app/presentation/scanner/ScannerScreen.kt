@@ -75,6 +75,7 @@ import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.presentation.common.BottomActionBar
 import com.shelfie.app.presentation.common.DetectedItemPlaceholder
 import com.shelfie.app.presentation.common.Pill
+import com.shelfie.app.presentation.common.PremiumNudge
 import com.shelfie.app.presentation.common.ShelfieTopBar
 import com.shelfie.app.presentation.common.item.EditItemSheet
 import com.shelfie.app.presentation.common.scanLineOverlay
@@ -446,9 +447,7 @@ private fun ErrorContent(state: ScannerUiState.Error, onIntent: (ScannerIntent) 
         )
         Spacer(modifier = Modifier.height(32.dp))
         if (state.canUpgrade) {
-            Button(onClick = onOpenPremium, modifier = Modifier.fillMaxWidth().height(56.dp)) {
-                Text("✨ " + stringResource(R.string.premium_upgrade))
-            }
+            PremiumNudge(message = stringResource(R.string.premium_nudge_scans), onOpenPremium = onOpenPremium)
             Spacer(modifier = Modifier.height(12.dp))
         }
         if (state.canRetry && state.imageUri != null) {
