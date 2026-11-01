@@ -34,13 +34,16 @@ cf workers secrets update GEMINI_API_KEY --worker shelfie-gemini-proxy --type se
 cf workers secrets update APP_TOKEN      --worker shelfie-gemini-proxy --type secret_text --text "<new token>"
 cf workers secrets update ADMIN_PASSWORD --worker shelfie-gemini-proxy --type secret_text --text "<long random password>"
 cf workers secrets update GOOGLE_SERVICE_ACCOUNT --worker shelfie-gemini-proxy --type secret_text --text "$(cat play-service-account.json)"
-cf workers secrets update RESEND_API_KEY --worker shelfie-gemini-proxy --type secret_text --text "<re_... key>"
-cf workers secrets update MAIL_FROM      --worker shelfie-gemini-proxy --type secret_text --text "Frizzy <noreply@your-domain>"
+cf workers secrets update FIREBASE_API_KEY --worker shelfie-gemini-proxy --type secret_text --text "<Web API key>"
+cf workers secrets update FIREBASE_SERVICE_ACCOUNT --worker shelfie-gemini-proxy --type secret_text --text "$(cat firebase-service-account.json)"
 ```
 
-`RESEND_API_KEY` and `MAIL_FROM` send the "forgot password" emails (src/reset.ts) through
-[Resend](https://resend.com); the sender must be on a domain verified there. Both are required
-by the config: until mail is set up, set them to `unset` and password reset answers 503.
+`FIREBASE_API_KEY` (Firebase console → Project settings → Web API key) moves the passwords to
+Firebase Authentication, which also sends the "forgot password" emails (src/firebase.ts,
+src/reset.ts). Accounts made before move over on their next login. `FIREBASE_SERVICE_ACCOUNT`
+(Project settings → Service accounts → Generate new private key) deletes Firebase accounts with
+ours and sends the push messages that tell household members about each other's changes
+(src/push.ts). Both are required by the config; `unset` and `{}` keep the old login and no push.
 
 `GOOGLE_SERVICE_ACCOUNT` is required by the config: set it before the first deploy with these
 changes. It is the JSON key of a Google Cloud service account that has been added in Play

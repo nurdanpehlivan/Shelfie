@@ -25,6 +25,9 @@ interface AccountRepository {
      */
     suspend fun requestPasswordReset(email: String): Result<Unit>
 
+    /** Tells the server where to push household news; does nothing while signed out. */
+    suspend fun registerPushToken(token: String)
+
     /** Signs out; on-device data stays. */
     suspend fun signOut()
 

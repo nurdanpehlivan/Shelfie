@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.firebase.messaging.FirebaseMessaging
 import com.shelfie.app.data.local.dao.SyncDao
 import com.shelfie.app.data.sync.AccountStore
 import com.shelfie.app.data.sync.SyncScheduler
 import com.shelfie.app.di.ApplicationScope
+import com.shelfie.app.domain.repository.AccountRepository
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.notification.FreshnessNotifier
@@ -49,6 +51,8 @@ class ShelfieApplication : Application(), Configuration.Provider {
     @Inject lateinit var accountStore: AccountStore
 
     @Inject lateinit var syncDao: SyncDao
+
+    @Inject lateinit var accountRepository: AccountRepository
 
     @Inject lateinit var syncScheduler: SyncScheduler
 
@@ -106,6 +110,10 @@ class ShelfieApplication : Application(), Configuration.Provider {
                 .collect { signedIn ->
                     if (signedIn) {
                         HouseholdActivityWorker.schedule(this@ShelfieApplication)
+                        // The token may predate this session (or the server lost it): send it again.
+                        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                            applicationScope.launch { accountRepository.registerPushToken(token) }
+                        }
                     } else {
                         HouseholdActivityWorker.cancel(this@ShelfieApplication)
                     }

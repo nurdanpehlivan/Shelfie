@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import type { User } from "./auth.ts";
 import { db } from "./db.ts";
+import { accessToken, parseServiceAccount, type ServiceAccount } from "./google.ts";
 import { error, readJson, sha256Hex } from "./http.ts";
 import { premiumUntil } from "./quota.ts";
 
@@ -14,7 +15,6 @@ import { premiumUntil } from "./quota.ts";
  */
 
 const PLAY_API = "https://androidpublisher.googleapis.com/androidpublisher/v3";
-const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 
 /** Still entitled until expiry: cancelled means "won't renew", grace means "payment retrying". */
@@ -23,11 +23,6 @@ const ENTITLED_STATES = new Set([
 	"SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
 	"SUBSCRIPTION_STATE_CANCELED",
 ]);
-
-interface ServiceAccount {
-	client_email: string;
-	private_key: string;
-}
 
 interface SubscriptionV2 {
 	subscriptionState?: string;
@@ -80,51 +75,12 @@ function allowedProducts(): Set<string> {
 }
 
 function serviceAccount(): ServiceAccount | null {
-	try {
-		const parsed = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT ?? "") as Partial<ServiceAccount>;
-		return parsed.client_email && parsed.private_key ? (parsed as ServiceAccount) : null;
-	} catch {
-		return null;
-	}
+	return parseServiceAccount(env.GOOGLE_SERVICE_ACCOUNT);
 }
 
 async function fetchSubscription(account: ServiceAccount, purchaseToken: string): Promise<SubscriptionV2> {
 	const url = `${PLAY_API}/applications/${encodeURIComponent(env.PLAY_PACKAGE_NAME)}/purchases/subscriptionsv2/tokens/${encodeURIComponent(purchaseToken)}`;
-	const response = await fetch(url, { headers: { authorization: `Bearer ${await accessToken(account)}` } });
+	const response = await fetch(url, { headers: { authorization: `Bearer ${await accessToken(account, SCOPE)}` } });
 	if (!response.ok) throw new Error(`Play API ${response.status}: ${await response.text()}`);
 	return (await response.json()) as SubscriptionV2;
-}
-
-let cachedToken: { value: string; expiresAt: number } | undefined;
-
-/** OAuth access token from a self-signed JWT (service-account flow), cached per isolate. */
-async function accessToken(account: ServiceAccount): Promise<string> {
-	if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken.value;
-	const now = Math.floor(Date.now() / 1000);
-	const assertion = await signJwt(account, { iss: account.client_email, scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600 });
-	const response = await fetch(TOKEN_URL, {
-		method: "POST",
-		headers: { "content-type": "application/x-www-form-urlencoded" },
-		body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion }),
-	});
-	if (!response.ok) throw new Error(`token ${response.status}: ${await response.text()}`);
-	const json = (await response.json()) as { access_token: string; expires_in: number };
-	cachedToken = { value: json.access_token, expiresAt: Date.now() + json.expires_in * 1000 };
-	return json.access_token;
-}
-
-async function signJwt(account: ServiceAccount, claims: Record<string, unknown>): Promise<string> {
-	const encode = (value: unknown) => base64Url(new TextEncoder().encode(JSON.stringify(value)));
-	const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode(claims)}`;
-	const pem = account.private_key.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
-	const der = Uint8Array.from(atob(pem), (c) => c.charCodeAt(0));
-	const key = await crypto.subtle.importKey("pkcs8", der, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
-	const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(unsigned));
-	return `${unsigned}.${base64Url(new Uint8Array(signature))}`;
-}
-
-function base64Url(bytes: Uint8Array): string {
-	let binary = "";
-	for (const b of bytes) binary += String.fromCharCode(b);
-	return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }

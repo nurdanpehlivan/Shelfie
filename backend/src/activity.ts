@@ -1,6 +1,7 @@
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
 import { spaceOf, usersInSpace } from "./household.ts";
+import { notifyHousehold } from "./push.ts";
 import type { Change } from "./sync.ts";
 
 /**
@@ -82,6 +83,8 @@ export async function recordActivity(
 		"INSERT INTO household_activity (space, actor_id, action, name, emoji, ts) VALUES (?, ?, ?, ?, ?, ?)",
 	);
 	await d.batch(events.map((e) => insert.bind(space, actorId, e.action, e.name, e.emoji, now)));
+	// A push failure must not fail the sync that caused it.
+	await notifyHousehold(space, actorId).catch((e) => console.error("push", e));
 }
 
 /** What a change means to the rest of the household, or `null` when it isn't worth telling. */

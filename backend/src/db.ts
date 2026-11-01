@@ -115,12 +115,20 @@ const SCHEMA = [
 	)`,
 	`CREATE INDEX IF NOT EXISTS household_activity_space ON household_activity (space, id)`,
 
-	// "Forgot password" links (auth.ts); only the SHA-256 of the emailed token is stored.
-	`CREATE TABLE IF NOT EXISTS password_resets (
-		token_hash TEXT PRIMARY KEY,
-		user_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-		expires_at INTEGER NOT NULL
+	// Firebase Authentication account of each user (auth.ts); absent for accounts not moved yet.
+	`CREATE TABLE IF NOT EXISTS firebase_users (
+		user_id TEXT PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
+		firebase_uid TEXT NOT NULL UNIQUE
 	)`,
+
+	// Firebase Cloud Messaging tokens (push.ts), one per signed-in app; dropped with the session.
+	`CREATE TABLE IF NOT EXISTS push_tokens (
+		token TEXT PRIMARY KEY,
+		user_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+		session_hash TEXT NOT NULL,
+		updated_at INTEGER NOT NULL
+	)`,
+	`CREATE INDEX IF NOT EXISTS push_tokens_user ON push_tokens (user_id)`,
 ];
 
 let ready: Promise<void> | undefined;
@@ -142,7 +150,7 @@ export async function db(): Promise<D1Database> {
 export const USAGE_RETENTION_DAYS = 180;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Daily housekeeping (cron): old usage rows, sessions, login counters, tombstones, invites, quota days, activity, reset links. */
+/** Daily housekeeping (cron): old usage rows, sessions, login counters, tombstones, invites, quota days, activity, push tokens of ended sessions. */
 export async function cleanup(now = Date.now()): Promise<void> {
 	const d = await db();
 	await d.batch([
@@ -155,6 +163,6 @@ export async function cleanup(now = Date.now()): Promise<void> {
 		// Days are ISO strings, so they compare as text.
 		d.prepare("DELETE FROM ai_usage WHERE day < ?").bind(new Date(now - 40 * DAY_MS).toISOString().slice(0, 10)),
 		d.prepare("DELETE FROM household_activity WHERE ts < ?").bind(now - ACTIVITY_RETENTION_DAYS * DAY_MS),
-		d.prepare("DELETE FROM password_resets WHERE expires_at < ?").bind(now),
+		d.prepare("DELETE FROM push_tokens WHERE session_hash NOT IN (SELECT token_hash FROM sessions)"),
 	]);
 }

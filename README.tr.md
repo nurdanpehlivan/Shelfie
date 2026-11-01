@@ -67,7 +67,10 @@ Gerekenler: JDK 21 ile Android Studio, Android SDK 36.
    # İsteğe bağlı: GEMINI_MODEL=..., GEMINI_FALLBACK_MODELS=...
    ```
 
-2. `app` yapılandırmasını çalıştır ya da `./gradlew :app:assembleDebug`.
+2. Firebase ayar dosyasını `app/google-services.json` olarak koy (Firebase konsolu → Project settings →
+   Your apps → Android; bu da git'e girmez). Aile bildirimleri için gerekli.
+
+3. `app` yapılandırmasını çalıştır ya da `./gradlew :app:assembleDebug`.
 
 Debug sürümü adb ile demo verisiyle doldurulabilir:
 

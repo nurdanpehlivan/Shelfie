@@ -65,7 +65,10 @@ Requirements: Android Studio with JDK 21, Android SDK 36.
    # Optional: GEMINI_MODEL=..., GEMINI_FALLBACK_MODELS=...
    ```
 
-2. Run the `app` configuration, or `./gradlew :app:assembleDebug`.
+2. Put the Firebase config in `app/google-services.json` (Firebase console → Project settings →
+   Your apps → Android; also git-ignored). It is needed for the household push messages.
+
+3. Run the `app` configuration, or `./gradlew :app:assembleDebug`.
 
 Debug builds can be filled with demo data from adb:
 

@@ -2,6 +2,7 @@ package com.shelfie.app.data.repository
 
 import com.shelfie.app.data.remote.shelfie.CredentialsRequest
 import com.shelfie.app.data.remote.shelfie.ForgotPasswordRequest
+import com.shelfie.app.data.remote.shelfie.PushTokenRequest
 import com.shelfie.app.data.remote.shelfie.SessionResponse
 import com.shelfie.app.data.remote.shelfie.ShelfieApiService
 import com.shelfie.app.data.sync.AccountStore
@@ -63,6 +64,17 @@ class AccountRepositoryImpl @Inject constructor(
         throw e
     } catch (e: Exception) {
         Result.failure(e.toAccountException())
+    }
+
+    override suspend fun registerPushToken(token: String) {
+        val session = accountStore.currentSession() ?: return
+        try {
+            api.registerPushToken(ShelfieApiService.bearer(session.token), PushTokenRequest(token))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // The next sign-in or app start sends it again; pushes are a bonus, the feed still works.
+        }
     }
 
     override suspend fun signOut() {

@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.shelfie.hilt)
+    // Firebase Cloud Messaging; reads app/google-services.json (untracked, from the Firebase console).
+    alias(libs.plugins.google.services)
 }
 
 // The Play upload key. keystore.properties (untracked, next to settings.gradle.kts) holds
@@ -74,6 +76,8 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:ui"))

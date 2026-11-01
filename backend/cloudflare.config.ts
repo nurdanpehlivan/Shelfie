@@ -31,10 +31,11 @@ export default defineConfig({
 			PLAY_PACKAGE_NAME: bindings.text("com.nurdanpehlivan.shelfie"),
 			// Comma-separated Play product ids that grant Premium; keep in sync with the app.
 			PREMIUM_PRODUCT_IDS: bindings.text("frizzy_premium"),
-			// "Forgot password" mail (src/reset.ts) through Resend: an API key and a sender on a
-			// domain verified there, e.g. "Frizzy <noreply@frizzyapp.com>". Unset, resets answer 503.
-			RESEND_API_KEY: bindings.secret(),
-			MAIL_FROM: bindings.secret(),
+			// Firebase project "frizzy-758c4" (src/firebase.ts): the Web API key from Project settings
+			// signs users in and sends "forgot password" mail; the service account's JSON key deletes
+			// accounts and sends push messages. "unset" / "{}" keep the old login and no push.
+			FIREBASE_API_KEY: bindings.secret(),
+			FIREBASE_SERVICE_ACCOUNT: bindings.secret(),
 			// Per client IP, per Cloudflare location. Also guards the login and register endpoints.
 			RATE_LIMITER: bindings.rateLimit({
 				namespace: "1001",

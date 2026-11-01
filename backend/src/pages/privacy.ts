@@ -40,7 +40,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>Bir fotoğrafı yapay zekâyla taradığında fotoğraf; tarif istediğinde seçtiğin ürünlerin adları; uygulamanın dilini değiştirdiğinde ise kilerindeki ürün adları ve kayıtlı tariflerin, sunucumuz üzerinden Google Gemini'ye gönderilir ve yanıt sana döner. Fotoğraf taramasında Gemini ürünleri, tahmini son kullanma sürelerini ve görünür bozulma belirtilerini bulur. Çeviriler yalnızca telefonunda saklanır. Sunucumuz fotoğrafları ve istek içeriğini saklamaz; yalnızca istek sayısı, özellik, model, süre, yaklaşık ülke, uygulama sürümü ve uygulamanın rastgele kurulum kimliği gibi kullanım kayıtlarını tutar (180 gün). Google'ın bu verileri nasıl işlediği Gemini API koşullarında anlatılır.</p>
 
 <h2>Hesap ve senkronizasyon (isteğe bağlı)</h2>
-<p>Hesap açarsan e-posta adresin ve şifrenin tek yönlü özeti (şifrenin kendisi değil) saklanır. Kilerin, alışveriş listen, tariflerin ve haftalık planın diğer telefonlarınla ve web panelinle eşitlenmek için sunucumuzda tutulur. Web paneli oturumunu açık tutmak için yalnızca zorunlu bir oturum çerezi kullanır; reklam ya da takip çerezi yoktur.</p>
+<p>Hesap açarsan e-posta adresin bizde, şifren ise Google'ın Firebase Authentication hizmetinde tek yönlü özet olarak (şifrenin kendisi değil) saklanır. Şifreni unutursan sıfırlama e-postasını da Firebase gönderir. Kilerin, alışveriş listen, tariflerin ve haftalık planın diğer telefonlarınla ve web panelinle eşitlenmek için sunucumuzda tutulur. Web paneli oturumunu açık tutmak için yalnızca zorunlu bir oturum çerezi kullanır; reklam ya da takip çerezi yoktur.</p>
 
 <h2>Aile paylaşımı</h2>
 <p>Bir haneye davet koduyla katılırsan, hanedeki herkes ortak kileri, listeyi, tarifleri ve planı görür ve değiştirebilir; üyeler birbirinin e-posta adresini görür. Hanedeki hareketler (kimin hangi ürünü eklediği, bitirdiği, attığı, dondurduğu ya da listeye eklediği) hanedeki herkese bir akışta ve bildirim olarak gösterilir; bu kayıt ürün adını, kişiyi ve zamanı içerir ve 30 gün tutulur. Davet linkiyle uygulamayı yüklediğinde Google Play'in bize ilettiği yükleme bilgisi, yalnızca davet kodunu otomatik doldurmak için telefonunda bir kez okunur ve başka bir yere gönderilmez.</p>
@@ -49,10 +49,10 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>Ödemeyi Google Play alır; kart bilgilerini biz görmeyiz. Aboneliğini doğrulamak için Google'dan satın alma durumunu ve bitiş tarihini alırız ve satın alma anahtarının yalnızca özetini saklarız. Premium hanendeki herkes için geçerlidir. Günlük yapay zekâ kullanım sayıların gün gün tutulur ve 40 günde silinir.</p>
 
 <h2>Bildirimler</h2>
-<p>Günlük hatırlatma telefonunda hazırlanır. Kapatmak için Ayarlar'ı ya da telefonunun bildirim ayarlarını kullanabilirsin.</p>
+<p>Günlük hatırlatma telefonunda hazırlanır. Hesapla giriş yaptığında, ailenin hareketlerini anında bildirebilmek için telefonunun Firebase Cloud Messaging bildirim anahtarı sunucumuzda tutulur; çıkış yapınca silinir. Bildirimin içeriği telefonunda hazırlanır. Kapatmak için Ayarlar'ı ya da telefonunun bildirim ayarlarını kullanabilirsin.</p>
 
 <h2>Hizmet sağlayıcılar ve yurt dışına aktarım</h2>
-<p>Sunucumuz Cloudflare üzerinde çalışır; yapay zekâ işlemleri Google (Gemini API) tarafından, ödemeler Google Play tarafından yapılır; şifre sıfırlama e-postaları Resend aracılığıyla gönderilir (yalnızca e-posta adresin ve bağlantı). Bu sağlayıcıların sunucuları Türkiye dışında, örneğin AB ve ABD'de olabilir. Verilerini yalnızca hizmeti sunmak için ve onların koşulları çerçevesinde işlerler.</p>
+<p>Sunucumuz Cloudflare üzerinde çalışır; yapay zekâ işlemleri Google (Gemini API) tarafından, ödemeler Google Play tarafından yapılır; giriş, şifre sıfırlama ve anlık bildirimler Google Firebase (Authentication, Cloud Messaging) tarafından sağlanır. Bu sağlayıcıların sunucuları Türkiye dışında, örneğin AB ve ABD'de olabilir. Verilerini yalnızca hizmeti sunmak için ve onların koşulları çerçevesinde işlerler.</p>
 
 <h2>Hukuki dayanak</h2>
 <p>Hesap, senkronizasyon, aile paylaşımı, yapay zekâ özellikleri ve Premium için verilerini hizmeti sunmak (sözleşmenin ifası) amacıyla; kullanım kayıtlarını ve sınırları ise hizmetin güvenliği ve kötüye kullanımın önlenmesi (meşru menfaat) amacıyla işleriz.</p>
@@ -63,7 +63,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <li>Kullanım kayıtları (istek sayıları, model, ülke, sürüm): 180 gün.</li>
 <li>Günlük yapay zekâ kullanım sayıları: 40 gün.</li>
 <li>Aile hareketleri: 30 gün.</li>
-<li>Şifre sıfırlama bağlantıları: 1 saat (kullanılınca hemen silinir).</li>
+<li>Bildirim anahtarları: çıkış yapana kadar.</li>
 <li>Silinen kayıtların izleri: en geç 1 yıl.</li>
 </ul>
 
@@ -104,7 +104,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>When you scan a photo with AI, the photo; when you ask for a recipe, the names of the chosen products; and when you change the app language, the names of your pantry items and your saved recipes go through our server to Google Gemini and the answer comes back. In photo scans Gemini identifies products, estimates how long they keep and spots visible signs of spoilage. Translations are stored only on your phone. Our server does not store photos or request content; it logs only usage records such as the number of requests, feature, model, latency, approximate country, app version and the app's random install ID (kept 180 days). See the Gemini API terms for how Google handles this data.</p>
 
 <h2>Account and sync (optional)</h2>
-<p>With an account we store your email and a one-way hash of your password (not the password). Your pantry, shopping list, recipes and weekly plan are kept on our server to sync with your other phones and the web panel. The web panel uses only a necessary session cookie to keep you signed in; no advertising or tracking cookies.</p>
+<p>With an account we store your email, and your password is kept as a one-way hash (not the password) by Google's Firebase Authentication. If you forget it, Firebase sends the reset email. Your pantry, shopping list, recipes and weekly plan are kept on our server to sync with your other phones and the web panel. The web panel uses only a necessary session cookie to keep you signed in; no advertising or tracking cookies.</p>
 
 <h2>Family sharing</h2>
 <p>If you join a household with an invite code, everyone in it sees and can change the shared pantry, list, recipes and plan, and members see each other's email addresses. What happens in the household (who added, used up, threw away, froze or put on the list which item) is shown to everyone in it as a feed and as notifications; each entry holds the item name, the person and the time and is kept for 30 days. When you install the app from an invite link, the install referrer Google Play passes to the app is read once on your phone, only to fill in the invite code, and is not sent anywhere.</p>
@@ -113,10 +113,10 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>Google Play takes the payment; we never see card details. To confirm a subscription we get its status and expiry from Google and store only a hash of the purchase token. Premium covers everyone in your household. Daily AI usage counts are kept per day and deleted after 40 days.</p>
 
 <h2>Notifications</h2>
-<p>The daily reminder is prepared on your phone. Turn it off in Settings or in your phone's notification settings.</p>
+<p>The daily reminder is prepared on your phone. When you're signed in, your phone's Firebase Cloud Messaging token is kept on our server so we can tell you right away what your household did; it is deleted when you sign out. The notification text is built on your phone. Turn notifications off in Settings or in your phone's notification settings.</p>
 
 <h2>Service providers and international transfers</h2>
-<p>Our server runs on Cloudflare; AI processing is done by Google (Gemini API) and payments by Google Play; password reset emails are sent through Resend (only your email address and the link). Their servers may be outside your country, for example in the EU and the US. They process your data only to provide the service and under their own terms.</p>
+<p>Our server runs on Cloudflare; AI processing is done by Google (Gemini API) and payments by Google Play; sign-in, password reset and push notifications are provided by Google Firebase (Authentication, Cloud Messaging). Their servers may be outside your country, for example in the EU and the US. They process your data only to provide the service and under their own terms.</p>
 
 <h2>Legal basis</h2>
 <p>We process data for accounts, sync, family sharing, AI features and Premium to provide the service you asked for (performance of a contract), and usage records and limits to keep the service secure and prevent abuse (legitimate interest).</p>
@@ -127,7 +127,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <li>Usage records (request counts, model, country, version): 180 days.</li>
 <li>Daily AI usage counts: 40 days.</li>
 <li>Household activity: 30 days.</li>
-<li>Password reset links: 1 hour (deleted as soon as used).</li>
+<li>Notification tokens: until you sign out.</li>
 <li>Traces of deleted records: purged within 1 year.</li>
 </ul>
 

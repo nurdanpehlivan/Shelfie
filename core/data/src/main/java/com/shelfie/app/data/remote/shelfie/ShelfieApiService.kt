@@ -27,6 +27,10 @@ interface ShelfieApiService {
     @POST("api/sync")
     suspend fun sync(@Header(AUTHORIZATION) bearer: String, @Body request: SyncRequest): SyncResponse
 
+    /** This app's Firebase Cloud Messaging token, for household activity pushes (backend/src/push.ts). */
+    @POST("api/push/token")
+    suspend fun registerPushToken(@Header(AUTHORIZATION) bearer: String, @Body request: PushTokenRequest)
+
     @DELETE("api/account")
     suspend fun deleteAccount(@Header(AUTHORIZATION) bearer: String)
 
@@ -71,6 +75,9 @@ interface ShelfieApiService {
 
 @Serializable
 data class CredentialsRequest(val email: String, val password: String, val installId: String)
+
+@Serializable
+data class PushTokenRequest(val token: String)
 
 @Serializable
 data class ForgotPasswordRequest(val email: String, val lang: String)

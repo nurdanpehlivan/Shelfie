@@ -53,6 +53,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Firebase Cloud Messaging: "someone in your household changed something". -->
+        <service
+            android:name=".notification.FrizzyMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- Home-screen widget: what runs out soonest. -->
         <receiver
             android:name=".presentation.widget.PantryWidgetReceiver"

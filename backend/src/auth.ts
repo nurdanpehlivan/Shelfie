@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { db } from "./db.ts";
+import { deleteFirebaseUser, FirebaseError, firebaseConfigured, signInWithPassword, signUp } from "./firebase.ts";
 import {
 	clientIp,
 	cookie,
@@ -14,7 +15,9 @@ import {
 } from "./http.ts";
 
 /**
- * Email + password accounts for sync and the web panel.
+ * Email + password accounts for sync and the web panel. The passwords live in Firebase
+ * Authentication (firebase.ts) once FIREBASE_API_KEY is set; older accounts move there on their
+ * next login. Sessions are this Worker's own.
  *
  * The app sends `Authorization: Bearer <token>`; the web panel gets the same kind of token in an
  * HttpOnly cookie. Only the token's SHA-256 is stored, so a database leak doesn't leak sessions.
@@ -95,17 +98,29 @@ async function register(email: string, password: string, client: Client, install
 	const existing = await d.prepare("SELECT 1 FROM users WHERE email = ?").bind(email).first();
 	if (existing) return error(409, "Bu e-posta ile zaten bir hesap var.");
 
+	let firebaseUid: string | null = null;
+	if (firebaseConfigured()) {
+		try {
+			firebaseUid = (await signUp(email, password)).localId;
+		} catch (e) {
+			return firebaseFailure(e);
+		}
+	}
 	const id = crypto.randomUUID();
-	const salt = randomToken(16);
-	const iterations = passwordIterations();
+	// With Firebase the password lives there; the columns stay empty.
+	const salt = firebaseUid ? "" : randomToken(16);
+	const iterations = firebaseUid ? 0 : passwordIterations();
+	const hash = firebaseUid ? "" : await hashPassword(password, salt, iterations);
 	const now = Date.now();
-	await d
-		.prepare(
-			`INSERT INTO users (id, email, password_hash, password_salt, password_iterations, created_at, last_seen_at)
-			 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		)
-		.bind(id, email, await hashPassword(password, salt, iterations), salt, iterations, now, now)
-		.run();
+	await d.batch([
+		d
+			.prepare(
+				`INSERT INTO users (id, email, password_hash, password_salt, password_iterations, created_at, last_seen_at)
+				 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			)
+			.bind(id, email, hash, salt, iterations, now, now),
+		...(firebaseUid ? [linkFirebase(d, id, firebaseUid)] : []),
+	]);
 	return startSession({ id, email }, client, installId, 201);
 }
 
@@ -115,19 +130,115 @@ async function login(request: Request, email: string, password: string, client: 
 	if (await tooManyFailures(failureKey)) {
 		return error(429, "Çok fazla hatalı deneme. Biraz sonra tekrar dene.");
 	}
+	const user = firebaseConfigured() ? await firebaseLogin(email, password) : await legacyLogin(email, password);
+	if (user instanceof Response) return user;
+	if (!user) {
+		await recordFailure(failureKey);
+		return error(401, "E-posta ya da şifre hatalı.");
+	}
+	await d.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").bind(Date.now(), user.id).run();
+	return startSession(user, client, installId, 200);
+}
 
+/**
+ * Firebase decides whether the password is right. An account from before Firebase is moved
+ * there on its first login: its old hash is checked here, then the same password is registered
+ * with Firebase and the old hash is dropped.
+ */
+async function firebaseLogin(email: string, password: string): Promise<User | Response | null> {
+	const d = await db();
+	try {
+		const firebaseUser = await signInWithPassword(email, password);
+		return await userForFirebase(firebaseUser.localId, email);
+	} catch (e) {
+		if (!(e instanceof FirebaseError) || !BAD_LOGIN.has(e.code)) return firebaseFailure(e);
+	}
+	const legacy = await legacyLogin(email, password, { unlinkedOnly: true });
+	if (!legacy) return null;
+	try {
+		const firebaseUser = await signUp(email, password);
+		await d.batch([
+			linkFirebase(d, legacy.id, firebaseUser.localId),
+			d.prepare("UPDATE users SET password_hash = '', password_salt = '', password_iterations = 0 WHERE id = ?").bind(legacy.id),
+		]);
+		return legacy;
+	} catch (e) {
+		// A Firebase account with this email and another password: the old one no longer counts.
+		if (e instanceof FirebaseError && e.code === "EMAIL_EXISTS") return null;
+		return firebaseFailure(e);
+	}
+}
+
+/** The user linked to [uid], linking or creating one by email the first time. */
+async function userForFirebase(uid: string, email: string): Promise<User> {
+	const d = await db();
+	const linked = await d
+		.prepare(
+			`SELECT users.id AS id, users.email AS email FROM firebase_users
+			 JOIN users ON users.id = firebase_users.user_id WHERE firebase_uid = ?`,
+		)
+		.bind(uid)
+		.first<User>();
+	if (linked) return linked;
+	const byEmail = await d.prepare("SELECT id, email FROM users WHERE email = ?").bind(email).first<User>();
+	const user = byEmail ?? { id: crypto.randomUUID(), email };
+	const now = Date.now();
+	await d.batch([
+		byEmail
+			? d.prepare("UPDATE users SET password_hash = '', password_salt = '', password_iterations = 0 WHERE id = ?").bind(user.id)
+			: d
+					.prepare(
+						`INSERT INTO users (id, email, password_hash, password_salt, password_iterations, created_at, last_seen_at)
+						 VALUES (?, ?, '', '', 0, ?, ?)`,
+					)
+					.bind(user.id, email, now, now),
+		linkFirebase(d, user.id, uid),
+	]);
+	return user;
+}
+
+function linkFirebase(d: D1Database, userId: string, uid: string): D1PreparedStatement {
+	return d
+		.prepare(
+			`INSERT INTO firebase_users (user_id, firebase_uid) VALUES (?, ?)
+			 ON CONFLICT (user_id) DO UPDATE SET firebase_uid = excluded.firebase_uid`,
+		)
+		.bind(userId, uid);
+}
+
+/** Firebase's answers for a wrong email or password (newer projects only send the first). */
+const BAD_LOGIN = new Set(["INVALID_LOGIN_CREDENTIALS", "EMAIL_NOT_FOUND", "INVALID_PASSWORD", "USER_DISABLED"]);
+
+function firebaseFailure(e: unknown): Response {
+	if (e instanceof FirebaseError) {
+		if (e.code === "EMAIL_EXISTS") return error(409, "Bu e-posta ile zaten bir hesap var.");
+		if (e.code === "TOO_MANY_ATTEMPTS_TRY_LATER") return error(429, "Çok fazla hatalı deneme. Biraz sonra tekrar dene.");
+		if (e.code === "WEAK_PASSWORD" || e.code === "INVALID_EMAIL") return error(400, "Geçerli bir e-posta ve şifre gir.");
+	}
+	console.error("firebase", e);
+	return error(502, "Giriş hizmetine ulaşılamadı.");
+}
+
+/** The pre-Firebase check against the stored PBKDF2 hash; [unlinkedOnly] skips accounts already moved. */
+async function legacyLogin(email: string, password: string, { unlinkedOnly = false } = {}): Promise<User | null> {
+	const d = await db();
 	const row = await d
-		.prepare("SELECT id, email, password_hash, password_salt, password_iterations FROM users WHERE email = ?")
+		.prepare(
+			`SELECT id, email, password_hash, password_salt, password_iterations FROM users
+			 WHERE email = ? ${unlinkedOnly ? "AND id NOT IN (SELECT user_id FROM firebase_users)" : ""}`,
+		)
 		.bind(email)
 		.first<{ id: string; email: string; password_hash: string; password_salt: string; password_iterations: number }>();
 	// Hash even when the user doesn't exist, so response time doesn't reveal which emails have accounts.
 	const target = passwordIterations();
-	const hash = await hashPassword(password, row?.password_salt ?? "00".repeat(16), row?.password_iterations ?? target);
-	if (!row || !timingSafeHexEqual(hash, row.password_hash)) {
-		await recordFailure(failureKey);
-		return error(401, "E-posta ya da şifre hatalı.");
-	}
-	if (row.password_iterations !== target) {
+	const usable = !!row?.password_hash;
+	const hash = await hashPassword(
+		password,
+		usable ? row.password_salt : "00".repeat(16),
+		usable ? row.password_iterations : target,
+	);
+	if (!row || !usable || !timingSafeHexEqual(hash, row.password_hash)) return null;
+	if (!unlinkedOnly && row.password_iterations !== target) {
 		// The round count was changed (e.g. after moving to a paid plan); re-hash while the password is at hand.
 		const salt = randomToken(16);
 		await d
@@ -135,8 +246,7 @@ async function login(request: Request, email: string, password: string, client: 
 			.bind(await hashPassword(password, salt, target), salt, target, row.id)
 			.run();
 	}
-	await d.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").bind(Date.now(), row.id).run();
-	return startSession({ id: row.id, email: row.email }, client, installId, 200);
+	return { id: row.id, email: row.email };
 }
 
 async function startSession(user: User, client: Client, installId: string | null, status: number) {
@@ -160,7 +270,12 @@ async function logout(request: Request, client: Client): Promise<Response> {
 	const token = sessionToken(request, client);
 	if (token) {
 		const d = await db();
-		await d.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256Hex(token)).run();
+		const hash = await sha256Hex(token);
+		// A signed-out phone shouldn't keep hearing about the household.
+		await d.batch([
+			d.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(hash),
+			d.prepare("DELETE FROM push_tokens WHERE session_hash = ?").bind(hash),
+		]);
 	}
 	const headers = client === "web" ? { "set-cookie": cookie(SESSION_COOKIE, "", "/", 0) } : undefined;
 	return Response.json({ ok: true }, { headers });
@@ -192,18 +307,30 @@ export async function authenticate(request: Request, client: Client): Promise<Us
  * household ends with it; the members' apps notice the new space and re-upload their copies.
  */
 export async function deleteAccount(user: User): Promise<Response> {
+	await deleteUserData(user.id);
+	return Response.json({ ok: true }, { headers: { "set-cookie": cookie(SESSION_COOKIE, "", "/", 0) } });
+}
+
+/** Everything about [userId], here and in Firebase; also used by the admin dashboard. */
+export async function deleteUserData(userId: string): Promise<void> {
 	const d = await db();
+	const firebase = await d
+		.prepare("SELECT firebase_uid FROM firebase_users WHERE user_id = ?")
+		.bind(userId)
+		.first<{ firebase_uid: string }>();
+	if (firebase) await deleteFirebaseUser(firebase.firebase_uid);
+	const user = { id: userId };
 	await d.batch([
+		d.prepare("DELETE FROM firebase_users WHERE user_id = ?").bind(user.id),
+		d.prepare("DELETE FROM push_tokens WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM household_members WHERE member_id = ?1 OR owner_id = ?1").bind(user.id),
 		d.prepare("DELETE FROM household_invites WHERE owner_id = ?").bind(user.id),
 		d.prepare("DELETE FROM household_activity WHERE space = ?1 OR actor_id = ?1").bind(user.id),
-		d.prepare("DELETE FROM password_resets WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sync_records WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM users WHERE id = ?").bind(user.id),
 	]);
-	return Response.json({ ok: true }, { headers: { "set-cookie": cookie(SESSION_COOKIE, "", "/", 0) } });
 }
 
 /** Both are hex digests of equal length, so a plain constant-time loop is enough. */

@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { recordFailure, tooManyFailures } from "./auth.ts";
+import { deleteUserData, recordFailure, tooManyFailures } from "./auth.ts";
 import { db } from "./db.ts";
 import { clientIp, cookie, error, getCookie, isSameOrigin, readJson, safeEqual, toHex } from "./http.ts";
 
@@ -180,12 +180,7 @@ export async function handleDeleteUser(request: Request): Promise<Response> {
 	if (!isSameOrigin(request)) return error(403, "Forbidden");
 	const body = await readJson<{ id?: unknown }>(request, 1024);
 	if (typeof body?.id !== "string") return error(400, "Missing id");
-	const d = await db();
-	await d.batch([
-		d.prepare("DELETE FROM sync_records WHERE user_id = ?").bind(body.id),
-		d.prepare("DELETE FROM sessions WHERE user_id = ?").bind(body.id),
-		d.prepare("DELETE FROM users WHERE id = ?").bind(body.id),
-	]);
+	await deleteUserData(body.id);
 	return Response.json({ ok: true });
 }
 
