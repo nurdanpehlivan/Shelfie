@@ -537,4 +537,38 @@
     <string name="premium_nudge_scans">Die kostenlosen Foto-Scans für heute sind aufgebraucht. Premium: 50 am Tag.</string>
     <string name="premium_nudge_recipes">Die kostenlosen Rezepte für heute sind aufgebraucht. Premium: 50 am Tag.</string>
     <string name="premium_nudge_family">Kostenlos sind 2 Personen im Haushalt möglich, mit Premium bis zu 6.</string>
+
+    <!-- Account & family screen, password reset, household activity -->
+    <string name="account_screen_title">Konto &amp; Familie</string>
+    <string name="account_card_signed_out">Nicht angemeldet · melde dich an, um mit deiner Familie zu teilen</string>
+    <string name="account_hero_title">Eine Vorratskammer für die ganze Familie</string>
+    <string name="account_hero_text">Mit einem kostenlosen Konto werden Vorrat, Einkaufsliste und Rezepte gesichert und mit deiner Familie geteilt. Alle sehen, was hinzugefügt, aufgebraucht oder weggeworfen wurde.</string>
+    <string name="account_forgot_password">Passwort vergessen?</string>
+    <string name="account_reset_title">Passwort zurücksetzen</string>
+    <string name="account_reset_hint">Gib die E-Mail deines Kontos ein. Wir schicken dir einen Link für ein neues Passwort.</string>
+    <string name="account_reset_send">Link senden</string>
+    <string name="account_reset_back">Zurück zur Anmeldung</string>
+    <string name="account_reset_sent">Falls es ein Konto mit dieser E-Mail gibt, ist ein Link unterwegs. Sieh in deinen Posteingang (und Spam).</string>
+    <string name="account_reset_unavailable">Passwort zurücksetzen ist noch nicht verfügbar. Bitte versuch es später erneut.</string>
+    <string name="activity_title">Letzte Aktivitäten</string>
+    <string name="activity_loading">Wird geladen…</string>
+    <string name="activity_empty">Noch nichts. Wenn jemand etwas hinzufügt, aufbraucht oder wegwirft, erscheint es hier.</string>
+    <string name="activity_you">Du</string>
+    <string name="activity_added">Hinzugefügt</string>
+    <string name="activity_used">Aufgebraucht</string>
+    <string name="activity_used_some">Teilweise verbraucht</string>
+    <string name="activity_wasted">Weggeworfen</string>
+    <string name="activity_removed">Entfernt</string>
+    <string name="activity_froze">Eingefroren</string>
+    <string name="activity_thawed">Aufgetaut</string>
+    <string name="activity_list_added">Auf die Liste gesetzt</string>
+    <string name="activity_list_bought">Gekauft</string>
+    <string name="activity_recipe_saved">Rezept gespeichert</string>
+    <string name="notification_channel_household">Familienaktivität</string>
+    <string name="notification_channel_household_description">Was die anderen in deinem Haushalt hinzufügen, aufbrauchen oder wegwerfen.</string>
+    <string name="notification_household_line">%1$s · %2$s: %3$s</string>
+    <plurals name="notification_household_title">
+        <item quantity="one">%d Neuigkeit aus deiner Familie</item>
+        <item quantity="other">%d Neuigkeiten aus deiner Familie</item>
+    </plurals>
 </resources>

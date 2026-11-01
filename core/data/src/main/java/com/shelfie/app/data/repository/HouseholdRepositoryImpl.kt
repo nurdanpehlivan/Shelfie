@@ -1,5 +1,6 @@
 package com.shelfie.app.data.repository
 
+import com.shelfie.app.data.remote.shelfie.ActivityDto
 import com.shelfie.app.data.remote.shelfie.HouseholdDto
 import com.shelfie.app.data.remote.shelfie.InviteDto
 import com.shelfie.app.data.remote.shelfie.JoinHouseholdRequest
@@ -8,12 +9,17 @@ import com.shelfie.app.data.remote.shelfie.ShelfieApiService
 import com.shelfie.app.data.sync.AccountStore
 import com.shelfie.app.data.sync.SyncManager
 import com.shelfie.app.domain.model.Household
+import com.shelfie.app.domain.model.HouseholdAction
+import com.shelfie.app.domain.model.HouseholdActivity
 import com.shelfie.app.domain.model.HouseholdException
 import com.shelfie.app.domain.model.HouseholdInvite
 import com.shelfie.app.domain.model.HouseholdMember
 import com.shelfie.app.domain.model.HouseholdRole
 import com.shelfie.app.domain.repository.HouseholdRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -41,6 +47,33 @@ class HouseholdRepositoryImpl @Inject constructor(
 
     override suspend fun removeMember(email: String): Result<Household> =
         call { api.removeMember(it, RemoveMemberRequest(email)).toDomain() }
+
+    /** The last fetched feed; [unseenActivityCount] counts from it. */
+    private val latestActivity = MutableStateFlow<List<HouseholdActivity>>(emptyList())
+
+    override val unseenActivityCount: Flow<Int> =
+        combine(latestActivity, accountStore.activitySeenId) { events, seenId ->
+            events.count { !it.isMe && it.id > seenId }
+        }
+
+    override suspend fun activity(): Result<List<HouseholdActivity>> =
+        call { bearer -> api.householdActivity(bearer).events.mapNotNull { it.toDomain() } }
+            .onSuccess { latestActivity.value = it }
+
+    override suspend fun markActivitySeen() {
+        latestActivity.value.maxOfOrNull { it.id }?.let { accountStore.markActivitySeen(it) }
+    }
+
+    override suspend fun takeActivityToNotify(): List<HouseholdActivity> {
+        val events = activity().getOrNull() ?: return emptyList()
+        val newest = events.maxOfOrNull { it.id } ?: return emptyList()
+        val notifiedId = accountStore.activityNotifiedId()
+        accountStore.markActivityNotified(newest)
+        if (notifiedId == null) return emptyList()
+        val fresh = events.filter { !it.isMe && it.id > notifiedId }.sortedBy { it.id }
+        if (fresh.isNotEmpty()) syncManager.sync()
+        return fresh
+    }
 
     /** Moving between households changes the sync space; syncing now merges the data at once. */
     private suspend fun <T> Result<T>.alsoSync(): Result<T> {
@@ -86,6 +119,20 @@ class HouseholdRepositoryImpl @Inject constructor(
         invite = invite?.toDomain(),
         maxMembers = maxMembers,
     )
+
+    /** `null` for an action this version doesn't know (added by a newer server). */
+    private fun ActivityDto.toDomain(): HouseholdActivity? {
+        val action = runCatching { HouseholdAction.valueOf(action.uppercase()) }.getOrNull() ?: return null
+        return HouseholdActivity(
+            id = id,
+            actor = actor,
+            isMe = isMe,
+            action = action,
+            name = name,
+            emoji = emoji,
+            at = Instant.ofEpochMilli(at),
+        )
+    }
 
     private fun InviteDto.toDomain() = HouseholdInvite(code = code, expiresAt = Instant.ofEpochMilli(expiresAt))
 }

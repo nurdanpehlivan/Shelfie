@@ -17,6 +17,10 @@ interface ShelfieApiService {
     @POST("api/auth/login")
     suspend fun login(@Body request: CredentialsRequest): SessionResponse
 
+    /** Emails a reset link if the account exists; 503 while the server has no mail set up. */
+    @POST("api/auth/forgot")
+    suspend fun forgotPassword(@Body request: ForgotPasswordRequest)
+
     @POST("api/auth/logout")
     suspend fun logout(@Header(AUTHORIZATION) bearer: String)
 
@@ -41,6 +45,10 @@ interface ShelfieApiService {
     @POST("api/household/remove")
     suspend fun removeMember(@Header(AUTHORIZATION) bearer: String, @Body request: RemoveMemberRequest): HouseholdDto
 
+    /** The newest household events, newest first (backend/src/activity.ts). */
+    @GET("api/household/activity")
+    suspend fun householdActivity(@Header(AUTHORIZATION) bearer: String): ActivityResponse
+
     /** Plan and today's AI usage; [bearer] is optional (signed-out users are counted per install). */
     @GET("api/quota")
     suspend fun quota(
@@ -63,6 +71,9 @@ interface ShelfieApiService {
 
 @Serializable
 data class CredentialsRequest(val email: String, val password: String, val installId: String)
+
+@Serializable
+data class ForgotPasswordRequest(val email: String, val lang: String)
 
 @Serializable
 data class SessionResponse(val token: String, val user: UserDto)
@@ -91,6 +102,21 @@ data class HouseholdMemberDto(val email: String, val isOwner: Boolean, val joine
 
 @Serializable
 data class InviteDto(val code: String, val expiresAt: Long)
+
+@Serializable
+data class ActivityResponse(val events: List<ActivityDto>)
+
+/** [action] is one of backend/src/activity.ts `Action`; [at] is epoch millis. */
+@Serializable
+data class ActivityDto(
+    val id: Long,
+    val actor: String,
+    val isMe: Boolean,
+    val action: String,
+    val name: String,
+    val emoji: String? = null,
+    val at: Long,
+)
 
 @Serializable
 data class JoinHouseholdRequest(val code: String)

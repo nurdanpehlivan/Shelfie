@@ -1,3 +1,4 @@
+import { handleActivity } from "./activity.ts";
 import { handleAdminAuth, handleDeleteUser, handleStats, isAdmin } from "./admin.ts";
 import { authenticate, deleteAccount, handleAuth } from "./auth.ts";
 import { handleBillingVerify } from "./billing.ts";
@@ -10,15 +11,18 @@ import { ADMIN_HTML } from "./pages/admin.ts";
 import { PANEL_HTML } from "./pages/panel.ts";
 import { joinPage, JOIN_ROUTE } from "./pages/join.ts";
 import { PRIVACY_HTML } from "./pages/privacy.ts";
+import { RESET_HTML } from "./pages/reset.ts";
 import { handleProxy, PROXY_ROUTE } from "./proxy.ts";
+import { handleForgot, handleReset } from "./reset.ts";
 import { handleSync, handleWebData, handleWebWrite } from "./sync.ts";
 
 /**
  * Routes:
  * - `POST /v1beta/models/{model}:generateContent`: Gemini proxy (app token), see proxy.ts
  * - `/api/auth/*`, `/api/sync`, `/api/account`: the app's account and sync API (bearer token)
+ * - `/api/auth/forgot`, `/api/auth/reset` + `/reset`: "forgot password" by email, see reset.ts
  * - `/join/<code>`: landing page of a family invite link (opens the app or the Play Store)
- * - `/api/household/*`, `/api/billing/verify`: family sharing and Play subscriptions (bearer token)
+ * - `/api/household/*`, `/api/billing/verify`: family sharing, its activity feed and Play subscriptions (bearer token)
  * - `GET /api/quota`: plan and today's AI usage (app token, optional bearer), see quota.ts
  * - `/panel` + `/api/web/*`: the user's web panel (session cookie)
  * - `/privacy`: the privacy policy (public)
@@ -40,6 +44,7 @@ export default {
 		}
 		if (path === "/panel" && isRead) return html(PANEL_HTML);
 		if (path === "/privacy" && isRead) return html(PRIVACY_HTML);
+		if (path === "/reset" && isRead) return html(RESET_HTML);
 		const join = JOIN_ROUTE.exec(path);
 		if (join && isRead) return html(joinPage(join[1]));
 		if (path === "/admin" && isRead) return html(ADMIN_HTML);
@@ -61,11 +66,15 @@ async function route(request: Request, url: URL, path: string): Promise<Response
 	// App API (bearer token).
 	const appAuth = /^\/api\/auth\/(register|login|logout)$/.exec(path);
 	if (appAuth) return handleAuth(request, appAuth[1], "app");
+	// Same for the app and the web panel: neither needs a session.
+	if (path === "/api/auth/forgot" || path === "/api/web/auth/forgot") return handleForgot(request);
+	if (path === "/api/auth/reset") return handleReset(request);
 	if (path === "/api/quota" && request.method === "GET") return handleQuota(request);
-	const household = /^\/api\/household(?:\/(invite|join|leave|remove))?$/.exec(path);
+	const household = /^\/api\/household(?:\/(invite|join|leave|remove|activity))?$/.exec(path);
 	if (household || path === "/api/billing/verify") {
 		const user = await authenticate(request, "app");
 		if (!user) return error(401, "Unauthorized");
+		if (household?.[1] === "activity") return request.method === "GET" ? handleActivity(user) : error(405, "Method not allowed");
 		if (household) return handleHousehold(request, household[1] ?? "", user);
 		return handleBillingVerify(request, user);
 	}

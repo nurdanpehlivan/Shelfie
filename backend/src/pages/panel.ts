@@ -112,6 +112,7 @@ export const PANEL_HTML = `<!doctype html>
 			<div class="error-msg" id="auth-error" role="alert"></div>
 		</form>
 		<div class="switch muted"><span id="switch-text">Hesabın yok mu?</span> <button type="button" class="link" id="switch-mode">Hesap oluştur</button></div>
+		<div class="switch muted"><button type="button" class="link" id="forgot">Şifremi unuttum</button></div>
 	</section>
 
 	<section id="app" hidden>
@@ -241,6 +242,18 @@ export const PANEL_HTML = `<!doctype html>
 			f.password.value = "";
 			await load();
 		} catch (err) { $("auth-error").textContent = err.message; }
+	});
+	// Mails a link to /reset (see reset.ts); the answer is the same whether or not the account exists.
+	$("forgot").addEventListener("click", async () => {
+		const email = $("auth-form").email.value.trim() || prompt("Hesabının e-posta adresi:")?.trim();
+		if (!email) return;
+		$("auth-error").textContent = "";
+		try {
+			await api("/api/web/auth/forgot", { method: "POST", body: JSON.stringify({ email, lang: "tr" }) });
+			$("auth-error").textContent = "Bu e-postayla bir hesap varsa şifre sıfırlama bağlantısı gönderildi.";
+		} catch (err) {
+			$("auth-error").textContent = err.message === "Password reset is not available" ? "Şifre sıfırlama henüz kullanılamıyor." : err.message;
+		}
 	});
 	$("logout").addEventListener("click", async () => { await api("/api/web/auth/logout", { method: "POST" }).catch(() => {}); showAuth(); });
 	$("delete-account").addEventListener("click", async () => {

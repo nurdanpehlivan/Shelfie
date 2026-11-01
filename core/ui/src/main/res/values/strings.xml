@@ -544,4 +544,38 @@
     <string name="premium_nudge_scans">You\'ve used today\'s free photo scans. Premium gives you 50 a day.</string>
     <string name="premium_nudge_recipes">You\'ve used today\'s free recipes. Premium gives you 50 a day.</string>
     <string name="premium_nudge_family">Free households have 2 people. Premium makes room for 6.</string>
+
+    <!-- Account & family screen, password reset, household activity -->
+    <string name="account_screen_title">Account &amp; family</string>
+    <string name="account_card_signed_out">Not signed in · sign in to share with your family</string>
+    <string name="account_hero_title">One pantry for the whole family</string>
+    <string name="account_hero_text">With a free account your pantry, shopping list and recipes are backed up and shared with your family. Everyone sees what was added, used up or thrown away.</string>
+    <string name="account_forgot_password">Forgot password?</string>
+    <string name="account_reset_title">Reset password</string>
+    <string name="account_reset_hint">Enter your account\'s email. We\'ll send you a link to choose a new password.</string>
+    <string name="account_reset_send">Send link</string>
+    <string name="account_reset_back">Back to sign in</string>
+    <string name="account_reset_sent">If there\'s an account with this email, a link is on its way. Check your inbox (and spam).</string>
+    <string name="account_reset_unavailable">Password reset isn\'t available yet. Please try again later.</string>
+    <string name="activity_title">Recent activity</string>
+    <string name="activity_loading">Loading…</string>
+    <string name="activity_empty">Nothing yet. When someone adds, uses or throws something away, it shows up here.</string>
+    <string name="activity_you">You</string>
+    <string name="activity_added">Added</string>
+    <string name="activity_used">Used up</string>
+    <string name="activity_used_some">Partly used</string>
+    <string name="activity_wasted">Thrown away</string>
+    <string name="activity_removed">Removed</string>
+    <string name="activity_froze">Frozen</string>
+    <string name="activity_thawed">Thawed</string>
+    <string name="activity_list_added">Added to the list</string>
+    <string name="activity_list_bought">Bought</string>
+    <string name="activity_recipe_saved">Recipe saved</string>
+    <string name="notification_channel_household">Family activity</string>
+    <string name="notification_channel_household_description">What the rest of your household adds, uses up or throws away.</string>
+    <string name="notification_household_line">%1$s · %2$s: %3$s</string>
+    <plurals name="notification_household_title">
+        <item quantity="one">%d update from your family</item>
+        <item quantity="other">%d updates from your family</item>
+    </plurals>
 </resources>

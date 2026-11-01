@@ -78,23 +78,14 @@ import java.time.format.FormatStyle
 fun SettingsRoute(
     onNavigateUp: () -> Unit,
     onOpenPremium: () -> Unit = {},
+    onOpenAccount: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val account by viewModel.account.collectAsStateWithLifecycle()
-    val accountUi by viewModel.accountUi.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val resources = LocalResources.current
-
-    LaunchedEffect(accountUi.message) {
-        val message = accountUi.message ?: return@LaunchedEffect
-        viewModel.messageShown()
-        snackbarHostState.showSnackbar(resources.getString(message))
-    }
 
     SettingsScreen(
         settings = settings,
-        snackbarHostState = snackbarHostState,
         onNavigateUp = onNavigateUp,
         onNotificationsChange = viewModel::setNotificationsEnabled,
         onReminderHourChange = viewModel::setReminderHour,
@@ -103,26 +94,9 @@ fun SettingsRoute(
         onThemeModeChange = viewModel::setThemeMode,
         onCurrencyChange = viewModel::setCurrencyCode,
         onOpenPremium = onOpenPremium,
-        accountSection = {
-            AccountSectionContent(
-                account = account,
-                isWorking = accountUi.isWorking,
-                onSignInClick = viewModel::openSignIn,
-                onSyncNow = viewModel::syncNow,
-                onSignOut = viewModel::signOut,
-                onDeleteAccount = viewModel::deleteAccount,
-            )
-        },
+        accountEmail = account?.email,
+        onOpenAccount = onOpenAccount,
     )
-
-    if (accountUi.isSheetOpen) {
-        AccountSheet(
-            isWorking = accountUi.isWorking,
-            errorRes = accountUi.formError,
-            onSubmit = viewModel::submitCredentials,
-            onDismiss = viewModel::closeSignIn,
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,9 +111,9 @@ fun SettingsScreen(
     onThemeModeChange: (ThemeMode) -> Unit = {},
     onCurrencyChange: (String?) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    accountSection: @Composable ColumnScope.() -> Unit = {},
     onOpenPremium: () -> Unit = {},
-    householdSection: @Composable ColumnScope.() -> Unit = { HouseholdSectionContent(onOpenPremium = onOpenPremium) },
+    accountEmail: String? = null,
+    onOpenAccount: () -> Unit = {},
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -160,6 +134,8 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             PremiumCard(onClick = onOpenPremium)
+
+            AccountCard(email = accountEmail, onClick = onOpenAccount)
 
             SettingsCard(title = stringResource(R.string.settings_section_appearance)) {
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
@@ -226,10 +202,6 @@ fun SettingsScreen(
                 CurrencyPicker(selected = settings.currencyCode, onSelect = onCurrencyChange)
             }
 
-            SettingsCard(title = stringResource(R.string.settings_section_account), content = accountSection)
-
-            SettingsCard(title = stringResource(R.string.household_title), content = householdSection)
-
             AboutCard()
         }
     }
@@ -258,6 +230,34 @@ private fun PremiumCard(onClick: () -> Unit) {
                     color = extended.onHeroVariant,
                 )
             }
+        }
+    }
+}
+
+/** Account and family live on their own screen; this leads there and says who is signed in. */
+@Composable
+private fun AccountCard(email: String?, onClick: () -> Unit) {
+    ShelfieCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(R.drawable.ic_group),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.account_screen_title), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = email ?: stringResource(R.string.account_card_signed_out),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                painter = painterResource(R.drawable.ic_chevron_right),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline,
+            )
         }
     }
 }

@@ -57,6 +57,7 @@ import com.shelfie.app.presentation.recipe.RecipeDestination
 import com.shelfie.app.presentation.recipe.RecipeRoute
 import com.shelfie.app.presentation.recipe.picker.IngredientPickerRoute
 import com.shelfie.app.presentation.scanner.ScannerRoute
+import com.shelfie.app.presentation.settings.AccountRoute
 import com.shelfie.app.presentation.settings.SettingsRoute
 import com.shelfie.app.presentation.shopping.ShoppingListRoute
 import com.shelfie.app.presentation.statistics.StatisticsRoute
@@ -88,9 +89,18 @@ data object ShoppingListDestination
 @Serializable
 data object StatisticsDestination
 
-/** [joinCode]: a family invite code from an invite link, filled into "join" on arrival. */
 @Serializable
-data class SettingsDestination(val joinCode: String = "")
+data object SettingsDestination
+
+/**
+ * Account, family sharing and its activity. [joinCode]: a family invite code from an invite
+ * link, filled into "join" on arrival.
+ */
+@Serializable
+data class AccountDestination(val joinCode: String = "")
+
+/** Opens the account and family screen, e.g. from a household activity notification. */
+const val ACCOUNT_DEEP_LINK = "shelfie://account"
 
 /** Opens the rescue recipe, e.g. from the daily freshness notification. */
 const val RECIPE_DEEP_LINK = "shelfie://recipe"
@@ -127,7 +137,7 @@ fun ShelfieNavHost(
     // Installed from a family invite: open "join" with the code filled in, once.
     LaunchedEffect(inviteCode) {
         val code = inviteCode ?: return@LaunchedEffect
-        navController.navigate(SettingsDestination(joinCode = code)) { launchSingleTop = true }
+        navController.navigate(AccountDestination(joinCode = code)) { launchSingleTop = true }
         onInviteCodeHandled()
     }
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -176,7 +186,10 @@ fun ShelfieNavHost(
                     },
                     onNavigateToRecipe = { navigateToRecipe() },
                     onNavigateToSettings = {
-                        navController.navigate(SettingsDestination()) { launchSingleTop = true }
+                        navController.navigate(SettingsDestination) { launchSingleTop = true }
+                    },
+                    onNavigateToAccount = {
+                        navController.navigate(AccountDestination()) { launchSingleTop = true }
                     },
                     savedItemsCount = savedItemsCount,
                     onSavedItemsMessageShown = {
@@ -227,10 +240,20 @@ fun ShelfieNavHost(
             composable<StatisticsDestination> {
                 StatisticsRoute()
             }
-            composable<SettingsDestination>(
-                deepLinks = listOf(navDeepLink<SettingsDestination>(basePath = JOIN_DEEP_LINK)),
-            ) {
+            composable<SettingsDestination> {
                 SettingsRoute(
+                    onNavigateUp = { navController.navigateUp() },
+                    onOpenPremium = { navController.navigate(PremiumDestination) { launchSingleTop = true } },
+                    onOpenAccount = { navController.navigate(AccountDestination()) { launchSingleTop = true } },
+                )
+            }
+            composable<AccountDestination>(
+                deepLinks = listOf(
+                    navDeepLink<AccountDestination>(basePath = JOIN_DEEP_LINK),
+                    navDeepLink<AccountDestination>(basePath = ACCOUNT_DEEP_LINK),
+                ),
+            ) {
+                AccountRoute(
                     onNavigateUp = { navController.navigateUp() },
                     onOpenPremium = { navController.navigate(PremiumDestination) { launchSingleTop = true } },
                 )
@@ -238,9 +261,9 @@ fun ShelfieNavHost(
             composable<PremiumDestination> {
                 PremiumRoute(
                     onNavigateUp = { navController.navigateUp() },
-                    // Premium needs an account; settings is where one is made.
+                    // Premium needs an account; this is where one is made.
                     onOpenSettings = {
-                        navController.navigate(SettingsDestination()) {
+                        navController.navigate(AccountDestination()) {
                             popUpTo(PremiumDestination) { inclusive = true }
                             launchSingleTop = true
                         }

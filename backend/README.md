@@ -34,7 +34,13 @@ cf workers secrets update GEMINI_API_KEY --worker shelfie-gemini-proxy --type se
 cf workers secrets update APP_TOKEN      --worker shelfie-gemini-proxy --type secret_text --text "<new token>"
 cf workers secrets update ADMIN_PASSWORD --worker shelfie-gemini-proxy --type secret_text --text "<long random password>"
 cf workers secrets update GOOGLE_SERVICE_ACCOUNT --worker shelfie-gemini-proxy --type secret_text --text "$(cat play-service-account.json)"
+cf workers secrets update RESEND_API_KEY --worker shelfie-gemini-proxy --type secret_text --text "<re_... key>"
+cf workers secrets update MAIL_FROM      --worker shelfie-gemini-proxy --type secret_text --text "Frizzy <noreply@your-domain>"
 ```
+
+`RESEND_API_KEY` and `MAIL_FROM` send the "forgot password" emails (src/reset.ts) through
+[Resend](https://resend.com); the sender must be on a domain verified there. Both are required
+by the config: until mail is set up, set them to `unset` and password reset answers 503.
 
 `GOOGLE_SERVICE_ACCOUNT` is required by the config: set it before the first deploy with these
 changes. It is the JSON key of a Google Cloud service account that has been added in Play

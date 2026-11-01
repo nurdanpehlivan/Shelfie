@@ -26,7 +26,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <nav class="muted"><a href="#tr">Türkçe</a> · <a href="#en">English</a></nav>
 
 <h1 id="tr">Gizlilik politikası</h1>
-<p class="muted">Son güncelleme: 31 Ekim 2026</p>
+<p class="muted">Son güncelleme: 1 Kasım 2026</p>
 
 <p>Frizzy, evdeki yiyeceklerini takip edip israfı azaltman için var. Bu sayfa hangi verileri, neden ve ne kadar süre işlediğimizi anlatır. Kısaca: hesap açmadan kullanırsan verilerin telefonunda kalır; reklam yok, veri satışı yok, verilerini kimseyle pazarlama için paylaşmayız.</p>
 
@@ -43,7 +43,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>Hesap açarsan e-posta adresin ve şifrenin tek yönlü özeti (şifrenin kendisi değil) saklanır. Kilerin, alışveriş listen, tariflerin ve haftalık planın diğer telefonlarınla ve web panelinle eşitlenmek için sunucumuzda tutulur. Web paneli oturumunu açık tutmak için yalnızca zorunlu bir oturum çerezi kullanır; reklam ya da takip çerezi yoktur.</p>
 
 <h2>Aile paylaşımı</h2>
-<p>Bir haneye davet koduyla katılırsan, hanedeki herkes ortak kileri, listeyi, tarifleri ve planı görür ve değiştirebilir; üyeler birbirinin e-posta adresini görür. Davet linkiyle uygulamayı yüklediğinde Google Play'in bize ilettiği yükleme bilgisi, yalnızca davet kodunu otomatik doldurmak için telefonunda bir kez okunur ve başka bir yere gönderilmez.</p>
+<p>Bir haneye davet koduyla katılırsan, hanedeki herkes ortak kileri, listeyi, tarifleri ve planı görür ve değiştirebilir; üyeler birbirinin e-posta adresini görür. Hanedeki hareketler (kimin hangi ürünü eklediği, bitirdiği, attığı, dondurduğu ya da listeye eklediği) hanedeki herkese bir akışta ve bildirim olarak gösterilir; bu kayıt ürün adını, kişiyi ve zamanı içerir ve 30 gün tutulur. Davet linkiyle uygulamayı yüklediğinde Google Play'in bize ilettiği yükleme bilgisi, yalnızca davet kodunu otomatik doldurmak için telefonunda bir kez okunur ve başka bir yere gönderilmez.</p>
 
 <h2>Premium</h2>
 <p>Ödemeyi Google Play alır; kart bilgilerini biz görmeyiz. Aboneliğini doğrulamak için Google'dan satın alma durumunu ve bitiş tarihini alırız ve satın alma anahtarının yalnızca özetini saklarız. Premium hanendeki herkes için geçerlidir. Günlük yapay zekâ kullanım sayıların gün gün tutulur ve 40 günde silinir.</p>
@@ -52,7 +52,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>Günlük hatırlatma telefonunda hazırlanır. Kapatmak için Ayarlar'ı ya da telefonunun bildirim ayarlarını kullanabilirsin.</p>
 
 <h2>Hizmet sağlayıcılar ve yurt dışına aktarım</h2>
-<p>Sunucumuz Cloudflare üzerinde çalışır; yapay zekâ işlemleri Google (Gemini API) tarafından, ödemeler Google Play tarafından yapılır. Bu sağlayıcıların sunucuları Türkiye dışında, örneğin AB ve ABD'de olabilir. Verilerini yalnızca hizmeti sunmak için ve onların koşulları çerçevesinde işlerler.</p>
+<p>Sunucumuz Cloudflare üzerinde çalışır; yapay zekâ işlemleri Google (Gemini API) tarafından, ödemeler Google Play tarafından yapılır; şifre sıfırlama e-postaları Resend aracılığıyla gönderilir (yalnızca e-posta adresin ve bağlantı). Bu sağlayıcıların sunucuları Türkiye dışında, örneğin AB ve ABD'de olabilir. Verilerini yalnızca hizmeti sunmak için ve onların koşulları çerçevesinde işlerler.</p>
 
 <h2>Hukuki dayanak</h2>
 <p>Hesap, senkronizasyon, aile paylaşımı, yapay zekâ özellikleri ve Premium için verilerini hizmeti sunmak (sözleşmenin ifası) amacıyla; kullanım kayıtlarını ve sınırları ise hizmetin güvenliği ve kötüye kullanımın önlenmesi (meşru menfaat) amacıyla işleriz.</p>
@@ -62,6 +62,8 @@ export const PRIVACY_HTML = `<!doctype html>
 <li>Hesap ve senkron verileri: hesabını silene kadar.</li>
 <li>Kullanım kayıtları (istek sayıları, model, ülke, sürüm): 180 gün.</li>
 <li>Günlük yapay zekâ kullanım sayıları: 40 gün.</li>
+<li>Aile hareketleri: 30 gün.</li>
+<li>Şifre sıfırlama bağlantıları: 1 saat (kullanılınca hemen silinir).</li>
 <li>Silinen kayıtların izleri: en geç 1 yıl.</li>
 </ul>
 
@@ -88,7 +90,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <hr>
 
 <h1 id="en">Privacy policy</h1>
-<p class="muted">Last updated: 31 October 2026</p>
+<p class="muted">Last updated: 1 November 2026</p>
 
 <p>Frizzy helps you track the food at home and waste less. This page explains what data we process, why and for how long. In short: without an account your data stays on your phone; there are no ads, no data sales, and nothing is shared for marketing.</p>
 
@@ -105,7 +107,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>With an account we store your email and a one-way hash of your password (not the password). Your pantry, shopping list, recipes and weekly plan are kept on our server to sync with your other phones and the web panel. The web panel uses only a necessary session cookie to keep you signed in; no advertising or tracking cookies.</p>
 
 <h2>Family sharing</h2>
-<p>If you join a household with an invite code, everyone in it sees and can change the shared pantry, list, recipes and plan, and members see each other's email addresses. When you install the app from an invite link, the install referrer Google Play passes to the app is read once on your phone, only to fill in the invite code, and is not sent anywhere.</p>
+<p>If you join a household with an invite code, everyone in it sees and can change the shared pantry, list, recipes and plan, and members see each other's email addresses. What happens in the household (who added, used up, threw away, froze or put on the list which item) is shown to everyone in it as a feed and as notifications; each entry holds the item name, the person and the time and is kept for 30 days. When you install the app from an invite link, the install referrer Google Play passes to the app is read once on your phone, only to fill in the invite code, and is not sent anywhere.</p>
 
 <h2>Premium</h2>
 <p>Google Play takes the payment; we never see card details. To confirm a subscription we get its status and expiry from Google and store only a hash of the purchase token. Premium covers everyone in your household. Daily AI usage counts are kept per day and deleted after 40 days.</p>
@@ -114,7 +116,7 @@ export const PRIVACY_HTML = `<!doctype html>
 <p>The daily reminder is prepared on your phone. Turn it off in Settings or in your phone's notification settings.</p>
 
 <h2>Service providers and international transfers</h2>
-<p>Our server runs on Cloudflare; AI processing is done by Google (Gemini API) and payments by Google Play. Their servers may be outside your country, for example in the EU and the US. They process your data only to provide the service and under their own terms.</p>
+<p>Our server runs on Cloudflare; AI processing is done by Google (Gemini API) and payments by Google Play; password reset emails are sent through Resend (only your email address and the link). Their servers may be outside your country, for example in the EU and the US. They process your data only to provide the service and under their own terms.</p>
 
 <h2>Legal basis</h2>
 <p>We process data for accounts, sync, family sharing, AI features and Premium to provide the service you asked for (performance of a contract), and usage records and limits to keep the service secure and prevent abuse (legitimate interest).</p>
@@ -124,6 +126,8 @@ export const PRIVACY_HTML = `<!doctype html>
 <li>Account and synced data: until you delete your account.</li>
 <li>Usage records (request counts, model, country, version): 180 days.</li>
 <li>Daily AI usage counts: 40 days.</li>
+<li>Household activity: 30 days.</li>
+<li>Password reset links: 1 hour (deleted as soon as used).</li>
 <li>Traces of deleted records: purged within 1 year.</li>
 </ul>
 

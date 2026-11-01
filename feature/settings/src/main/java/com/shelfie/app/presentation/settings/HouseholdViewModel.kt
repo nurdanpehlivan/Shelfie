@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shelfie.app.core.ui.R
 import com.shelfie.app.domain.model.Household
+import com.shelfie.app.domain.model.HouseholdActivity
 import com.shelfie.app.domain.model.HouseholdException
+import com.shelfie.app.domain.model.HouseholdRole
 import com.shelfie.app.domain.repository.AccountRepository
 import com.shelfie.app.domain.repository.HouseholdRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +30,11 @@ data class HouseholdUiState(
     val justJoined: Boolean = false,
     /** A code from an invite link, to fill in; it waits through signing in. */
     val linkCode: String = "",
-)
+    /** The household's recent events, newest first; `null` until loaded. */
+    val activity: List<HouseholdActivity>? = null,
+) {
+    val isShared: Boolean get() = household != null && household.role != HouseholdRole.NONE
+}
 
 @HiltViewModel
 class HouseholdViewModel @Inject constructor(
@@ -76,8 +82,17 @@ class HouseholdViewModel @Inject constructor(
             action()
                 .onSuccess { household ->
                     _uiState.update { it.copy(household = household, isWorking = false, justJoined = joining || it.justJoined) }
+                    if (household.role != HouseholdRole.NONE) loadActivity()
                 }
                 .onFailure { error -> _uiState.update { it.copy(isWorking = false, errorRes = error.toMessageRes()) } }
+        }
+    }
+
+    /** The feed is on screen whenever it loads, so loading it also marks it seen. */
+    private suspend fun loadActivity() {
+        householdRepository.activity().onSuccess { events ->
+            _uiState.update { it.copy(activity = events) }
+            householdRepository.markActivitySeen()
         }
     }
 

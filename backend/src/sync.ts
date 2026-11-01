@@ -1,3 +1,4 @@
+import { loadPrevious, recordActivity } from "./activity.ts";
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
 import { spaceOf } from "./household.ts";
@@ -63,7 +64,7 @@ export async function handleSync(request: Request, user: User): Promise<Response
 	}
 
 	const space = await spaceOf(user.id);
-	await applyChanges(space, changes);
+	await applyChanges(space, changes, user.id);
 
 	const d = await db();
 	const { results } = await d
@@ -107,9 +108,13 @@ export function parseChange(raw: unknown, now: number): Change | null {
 	};
 }
 
-/** Upserts [changes] in one transaction; older writes than what's stored are ignored. */
-export async function applyChanges(userId: string, changes: Change[]): Promise<void> {
+/**
+ * Upserts [changes] in one transaction; older writes than what's stored are ignored. With an
+ * [actorId], what they did is added to the household's activity feed (activity.ts).
+ */
+export async function applyChanges(userId: string, changes: Change[], actorId?: string): Promise<void> {
 	if (!changes.length) return;
+	const previous = actorId ? await loadPrevious(userId, changes) : null;
 	const d = await db();
 	const statement = d.prepare(
 		`INSERT INTO sync_records (user_id, collection, sync_id, data, deleted, changed_at, rev)
@@ -123,6 +128,7 @@ export async function applyChanges(userId: string, changes: Change[]): Promise<v
 			statement.bind(userId, c.collection, c.syncId, c.data ? JSON.stringify(c.data) : null, c.deleted ? 1 : 0, c.changedAt),
 		),
 	);
+	if (actorId && previous) await recordActivity(userId, actorId, changes, previous);
 }
 
 function toChange(row: RecordRow): Change {
@@ -165,6 +171,6 @@ export async function handleWebWrite(request: Request, user: User): Promise<Resp
 	const now = Date.now();
 	const change = body && parseChange({ ...body, syncId: body.syncId ?? crypto.randomUUID(), changedAt: now }, now);
 	if (!change) return error(400, "Invalid record");
-	await applyChanges(await spaceOf(user.id), [change]);
+	await applyChanges(await spaceOf(user.id), [change], user.id);
 	return Response.json({ syncId: change.syncId, changedAt: change.changedAt });
 }

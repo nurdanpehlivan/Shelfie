@@ -4,6 +4,7 @@ import com.shelfie.app.domain.model.AppSettings
 import com.shelfie.app.domain.model.Category
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.StorageLocation
+import com.shelfie.app.domain.repository.HouseholdRepository
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.domain.repository.ShoppingListRepository
@@ -54,6 +55,7 @@ class DashboardViewModelTest {
     }
     private val shopping = mockk<ShoppingListRepository> { coEvery { addItems(any()) } returns 1 }
     private val settings = mockk<SettingsRepository> { every { settings } returns flowOf(AppSettings()) }
+    private val household = mockk<HouseholdRepository> { every { unseenActivityCount } returns flowOf(0) }
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -63,7 +65,7 @@ class DashboardViewModelTest {
 
     @Test
     fun `freeze from the item sheet moves the item to the freezer and closes the sheet`() = runTest {
-        val viewModel = DashboardViewModel(pantry, mockk(), shopping, clock = clock, settingsRepository = settings)
+        val viewModel = DashboardViewModel(pantry, mockk(), shopping, clock = clock, settingsRepository = settings, householdRepository = household)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         runCurrent()
 
@@ -86,7 +88,7 @@ class DashboardViewModelTest {
 
     @Test
     fun `undo after freezing puts the item back as it was`() = runTest {
-        val viewModel = DashboardViewModel(pantry, mockk(), shopping, clock = clock, settingsRepository = settings)
+        val viewModel = DashboardViewModel(pantry, mockk(), shopping, clock = clock, settingsRepository = settings, householdRepository = household)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         val effects = mutableListOf<DashboardEffect>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.effects.collect { effects += it } }
@@ -105,7 +107,7 @@ class DashboardViewModelTest {
 
     @Test
     fun `add to list puts the item's name on the shopping list`() = runTest {
-        val viewModel = DashboardViewModel(pantry, mockk(), shopping, clock = clock, settingsRepository = settings)
+        val viewModel = DashboardViewModel(pantry, mockk(), shopping, clock = clock, settingsRepository = settings, householdRepository = household)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         runCurrent()
 

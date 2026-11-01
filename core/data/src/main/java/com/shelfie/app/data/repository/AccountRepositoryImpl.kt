@@ -1,6 +1,7 @@
 package com.shelfie.app.data.repository
 
 import com.shelfie.app.data.remote.shelfie.CredentialsRequest
+import com.shelfie.app.data.remote.shelfie.ForgotPasswordRequest
 import com.shelfie.app.data.remote.shelfie.SessionResponse
 import com.shelfie.app.data.remote.shelfie.ShelfieApiService
 import com.shelfie.app.data.sync.AccountStore
@@ -55,6 +56,15 @@ class AccountRepositoryImpl @Inject constructor(
         Result.failure(e.toAccountException())
     }
 
+    override suspend fun requestPasswordReset(email: String): Result<Unit> = try {
+        api.forgotPassword(ForgotPasswordRequest(email = normalizeEmail(email), lang = Locale.getDefault().language))
+        Result.success(Unit)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e.toAccountException())
+    }
+
     override suspend fun signOut() {
         val session = accountStore.currentSession()
         syncManager.signOutLocally()
@@ -92,6 +102,7 @@ class AccountRepositoryImpl @Inject constructor(
             401 -> AccountException.InvalidCredentials(this)
             409 -> AccountException.EmailTaken(this)
             429 -> AccountException.TooManyAttempts(this)
+            503 -> AccountException.Unavailable(this)
             else -> AccountException.Server(this)
         }
         is IOException -> AccountException.Network(this)

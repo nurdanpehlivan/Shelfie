@@ -30,12 +30,12 @@ const WEB_SESSION_DAYS = 30;
  * allows 10 ms of CPU per request, which 100 000 rounds exceed; Workers caps PBKDF2 at 100 000.
  * Each user's hash records its own count, and login re-hashes to the current one.
  */
-function passwordIterations(): number {
+export function passwordIterations(): number {
 	const n = Number(env.PASSWORD_ITERATIONS);
 	return Number.isInteger(n) ? Math.min(100_000, Math.max(10_000, n)) : 20_000;
 }
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 200;
+export const MIN_PASSWORD_LENGTH = 8;
+export const MAX_PASSWORD_LENGTH = 200;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const MAX_LOGIN_FAILURES = 10;
@@ -196,6 +196,8 @@ export async function deleteAccount(user: User): Promise<Response> {
 	await d.batch([
 		d.prepare("DELETE FROM household_members WHERE member_id = ?1 OR owner_id = ?1").bind(user.id),
 		d.prepare("DELETE FROM household_invites WHERE owner_id = ?").bind(user.id),
+		d.prepare("DELETE FROM household_activity WHERE space = ?1 OR actor_id = ?1").bind(user.id),
+		d.prepare("DELETE FROM password_resets WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sync_records WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),

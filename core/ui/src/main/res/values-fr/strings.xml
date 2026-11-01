@@ -538,4 +538,38 @@
     <string name="premium_nudge_scans">Tu as utilisé les scans gratuits du jour. Premium : 50 par jour.</string>
     <string name="premium_nudge_recipes">Tu as utilisé les recettes gratuites du jour. Premium : 50 par jour.</string>
     <string name="premium_nudge_family">Un foyer gratuit compte 2 personnes. Avec Premium, jusqu\'à 6.</string>
+
+    <!-- Account & family screen, password reset, household activity -->
+    <string name="account_screen_title">Compte et famille</string>
+    <string name="account_card_signed_out">Non connecté · connecte-toi pour partager avec ta famille</string>
+    <string name="account_hero_title">Un garde-manger pour toute la famille</string>
+    <string name="account_hero_text">Avec un compte gratuit, ton garde-manger, ta liste de courses et tes recettes sont sauvegardés et partagés avec ta famille. Chacun voit ce qui a été ajouté, terminé ou jeté.</string>
+    <string name="account_forgot_password">Mot de passe oublié ?</string>
+    <string name="account_reset_title">Réinitialiser le mot de passe</string>
+    <string name="account_reset_hint">Saisis l\'e-mail de ton compte. Nous t\'enverrons un lien pour choisir un nouveau mot de passe.</string>
+    <string name="account_reset_send">Envoyer le lien</string>
+    <string name="account_reset_back">Retour à la connexion</string>
+    <string name="account_reset_sent">S\'il existe un compte avec cet e-mail, un lien est en route. Vérifie ta boîte de réception (et les spams).</string>
+    <string name="account_reset_unavailable">La réinitialisation du mot de passe n\'est pas encore disponible. Réessaie plus tard.</string>
+    <string name="activity_title">Activité récente</string>
+    <string name="activity_loading">Chargement…</string>
+    <string name="activity_empty">Rien pour l\'instant. Quand quelqu\'un ajoute, termine ou jette quelque chose, ça s\'affiche ici.</string>
+    <string name="activity_you">Toi</string>
+    <string name="activity_added">Ajouté</string>
+    <string name="activity_used">Terminé</string>
+    <string name="activity_used_some">En partie utilisé</string>
+    <string name="activity_wasted">Jeté</string>
+    <string name="activity_removed">Supprimé</string>
+    <string name="activity_froze">Congelé</string>
+    <string name="activity_thawed">Décongelé</string>
+    <string name="activity_list_added">Ajouté à la liste</string>
+    <string name="activity_list_bought">Acheté</string>
+    <string name="activity_recipe_saved">Recette enregistrée</string>
+    <string name="notification_channel_household">Activité de la famille</string>
+    <string name="notification_channel_household_description">Ce que le reste de ton foyer ajoute, termine ou jette.</string>
+    <string name="notification_household_line">%1$s · %2$s : %3$s</string>
+    <plurals name="notification_household_title">
+        <item quantity="one">%d nouveauté de ta famille</item>
+        <item quantity="other">%d nouveautés de ta famille</item>
+    </plurals>
 </resources>

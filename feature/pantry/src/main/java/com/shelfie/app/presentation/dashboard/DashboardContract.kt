@@ -126,6 +126,8 @@ sealed interface DashboardIntent {
 
     data object OpenSettings : DashboardIntent
 
+    data object OpenAccount : DashboardIntent
+
     data object OpenAddItem : DashboardIntent
 
     data object DismissAddItem : DashboardIntent
@@ -152,6 +154,8 @@ sealed interface DashboardEffect {
     data object NavigateToRecipe : DashboardEffect
 
     data object NavigateToSettings : DashboardEffect
+
+    data object NavigateToAccount : DashboardEffect
 
     data class ItemAdded(val itemName: String) : DashboardEffect
 

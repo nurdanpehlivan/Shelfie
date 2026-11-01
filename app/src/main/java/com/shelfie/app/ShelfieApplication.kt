@@ -11,8 +11,10 @@ import com.shelfie.app.di.ApplicationScope
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.notification.FreshnessNotifier
+import com.shelfie.app.notification.HouseholdActivityNotifier
 import com.shelfie.app.presentation.widget.PantryWidget
 import com.shelfie.app.work.FreshnessCheckScheduler
+import com.shelfie.app.work.HouseholdActivityWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +38,8 @@ class ShelfieApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var freshnessNotifier: FreshnessNotifier
 
+    @Inject lateinit var householdActivityNotifier: HouseholdActivityNotifier
+
     @Inject lateinit var freshnessCheckScheduler: FreshnessCheckScheduler
 
     @Inject lateinit var settingsRepository: SettingsRepository
@@ -58,8 +62,10 @@ class ShelfieApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         freshnessNotifier.createChannel()
+        householdActivityNotifier.createChannel()
         keepDailyCheckInSyncWithSettings()
         syncLocalChanges()
+        watchHouseholdActivityWhileSignedIn()
         keepWidgetInSyncWithPantry()
     }
 
@@ -88,6 +94,22 @@ class ShelfieApplication : Application(), Configuration.Provider {
                     syncDao.observeOutboxCount().filter { it > 0 }
                 }
                 .collect { syncScheduler.requestSync() }
+        }
+    }
+
+    /** The household feed only exists for accounts; see [HouseholdActivityWorker]. */
+    private fun watchHouseholdActivityWhileSignedIn() {
+        applicationScope.launch {
+            accountStore.session
+                .map { it != null }
+                .distinctUntilChanged()
+                .collect { signedIn ->
+                    if (signedIn) {
+                        HouseholdActivityWorker.schedule(this@ShelfieApplication)
+                    } else {
+                        HouseholdActivityWorker.cancel(this@ShelfieApplication)
+                    }
+                }
         }
     }
 

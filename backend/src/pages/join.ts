@@ -51,8 +51,8 @@ export function joinPage(code: string): string {
 	</div>
 	<ol>
 		<li>Frizzy'yi indir ve aç.</li>
-		<li>Ayarlar → Hesap'tan giriş yap ya da hesap oluştur.</li>
-		<li>Ayarlar → Aile paylaşımı'nda bu kodu girip "Katıl"a dokun.</li>
+		<li>Kiler ekranının sağ üstündeki aile simgesine dokun; giriş yap ya da hesap oluştur.</li>
+		<li>Aynı ekranda bu kodu girip "Katıl"a dokun.</li>
 	</ol>
 </main>
 </body>

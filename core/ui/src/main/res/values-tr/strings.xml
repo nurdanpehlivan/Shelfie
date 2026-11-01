@@ -540,4 +540,38 @@
     <string name="premium_nudge_scans">Bugünkü ücretsiz fotoğraf taramaların bitti. Premium ile günde 50.</string>
     <string name="premium_nudge_recipes">Bugünkü ücretsiz tariflerin bitti. Premium ile günde 50.</string>
     <string name="premium_nudge_family">Ücretsiz hanede 2 kişi olabilir. Premium ile 6 kişiye kadar.</string>
+
+    <!-- Account & family screen, password reset, household activity -->
+    <string name="account_screen_title">Hesap ve aile</string>
+    <string name="account_card_signed_out">Giriş yapılmadı · ailenle paylaşmak için giriş yap</string>
+    <string name="account_hero_title">Bütün aileye tek kiler</string>
+    <string name="account_hero_text">Ücretsiz bir hesapla kilerin, alışveriş listen ve tariflerin yedeklenir ve ailenle paylaşılır. Herkes neyin eklendiğini, bittiğini ya da çöpe gittiğini görür.</string>
+    <string name="account_forgot_password">Şifremi unuttum</string>
+    <string name="account_reset_title">Şifreni sıfırla</string>
+    <string name="account_reset_hint">Hesabının e-posta adresini yaz. Yeni şifre belirlemen için bir bağlantı gönderelim.</string>
+    <string name="account_reset_send">Bağlantı gönder</string>
+    <string name="account_reset_back">Girişe dön</string>
+    <string name="account_reset_sent">Bu e-postayla bir hesap varsa bağlantı yolda. Gelen kutunu (ve spam klasörünü) kontrol et.</string>
+    <string name="account_reset_unavailable">Şifre sıfırlama henüz kullanılamıyor. Lütfen daha sonra tekrar dene.</string>
+    <string name="activity_title">Son hareketler</string>
+    <string name="activity_loading">Yükleniyor…</string>
+    <string name="activity_empty">Henüz bir şey yok. Evden biri bir şey ekleyince, bitirince ya da atınca burada görünür.</string>
+    <string name="activity_you">Sen</string>
+    <string name="activity_added">Eklendi</string>
+    <string name="activity_used">Bitirildi</string>
+    <string name="activity_used_some">Bir kısmı kullanıldı</string>
+    <string name="activity_wasted">Çöpe atıldı</string>
+    <string name="activity_removed">Silindi</string>
+    <string name="activity_froze">Donduruldu</string>
+    <string name="activity_thawed">Çözdürüldü</string>
+    <string name="activity_list_added">Listeye eklendi</string>
+    <string name="activity_list_bought">Satın alındı</string>
+    <string name="activity_recipe_saved">Tarif kaydedildi</string>
+    <string name="notification_channel_household">Aile hareketleri</string>
+    <string name="notification_channel_household_description">Evdeki diğer kişilerin eklediği, bitirdiği ya da attığı ürünler.</string>
+    <string name="notification_household_line">%1$s · %2$s: %3$s</string>
+    <plurals name="notification_household_title">
+        <item quantity="one">Aileden %d yenilik</item>
+        <item quantity="other">Aileden %d yenilik</item>
+    </plurals>
 </resources>

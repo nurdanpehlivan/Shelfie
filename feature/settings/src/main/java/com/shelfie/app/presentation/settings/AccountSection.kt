@@ -126,7 +126,9 @@ fun ColumnScope.AccountSectionContent(
     }
 }
 
-/** Sign in or create an account, in one sheet with a mode switch. */
+private enum class SheetMode { SIGN_IN, REGISTER, RESET }
+
+/** Sign in, create an account or ask for a new password, in one sheet with a mode switch. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSheet(
@@ -134,15 +136,26 @@ fun AccountSheet(
     errorRes: Int?,
     onSubmit: (email: String, password: String, isRegistration: Boolean) -> Unit,
     onDismiss: () -> Unit,
+    infoRes: Int? = null,
+    onRequestReset: (email: String) -> Unit = {},
+    onModeChange: () -> Unit = {},
 ) {
-    var isRegistration by rememberSaveable { mutableStateOf(false) }
+    var mode by rememberSaveable { mutableStateOf(SheetMode.SIGN_IN) }
     var email by rememberSaveable { mutableStateOf("") }
     // Not saveable on purpose: a password shouldn't end up in the saved instance state.
     var password by remember { mutableStateOf("") }
     val emailValid = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
     val passwordValid = password.length >= MIN_PASSWORD_LENGTH
-    val canSubmit = emailValid && passwordValid && !isWorking
-    val submit = { if (canSubmit) onSubmit(email, password, isRegistration) }
+    val canSubmit = emailValid && (mode == SheetMode.RESET || passwordValid) && !isWorking
+    val submit = {
+        if (canSubmit) {
+            if (mode == SheetMode.RESET) onRequestReset(email) else onSubmit(email, password, mode == SheetMode.REGISTER)
+        }
+    }
+    fun switchTo(newMode: SheetMode) {
+        mode = newMode
+        onModeChange()
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -158,11 +171,17 @@ fun AccountSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = stringResource(if (isRegistration) R.string.account_register_title else R.string.account_sign_in_title),
+                text = stringResource(
+                    when (mode) {
+                        SheetMode.SIGN_IN -> R.string.account_sign_in_title
+                        SheetMode.REGISTER -> R.string.account_register_title
+                        SheetMode.RESET -> R.string.account_reset_title
+                    },
+                ),
                 style = MaterialTheme.typography.headlineSmall,
             )
             Text(
-                text = stringResource(R.string.account_sheet_hint),
+                text = stringResource(if (mode == SheetMode.RESET) R.string.account_reset_hint else R.string.account_sheet_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -172,34 +191,68 @@ fun AccountSheet(
                 label = { Text(stringResource(R.string.account_email)) },
                 singleLine = true,
                 isError = email.isNotBlank() && !emailValid,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text(stringResource(R.string.account_password)) },
-                supportingText = { Text(stringResource(R.string.account_password_hint, MIN_PASSWORD_LENGTH)) },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = if (mode == SheetMode.RESET) ImeAction.Done else ImeAction.Next,
+                ),
                 keyboardActions = KeyboardActions(onDone = { submit() }),
                 shape = MaterialTheme.shapes.small,
                 modifier = Modifier.fillMaxWidth(),
             )
+            if (mode != SheetMode.RESET) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.account_password)) },
+                    supportingText = { Text(stringResource(R.string.account_password_hint, MIN_PASSWORD_LENGTH)) },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { submit() }),
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            if (mode == SheetMode.SIGN_IN) {
+                TextButton(
+                    onClick = { switchTo(SheetMode.RESET) },
+                    modifier = Modifier.align(Alignment.End),
+                ) { Text(stringResource(R.string.account_forgot_password)) }
+            }
             if (errorRes != null) {
                 Text(stringResource(errorRes), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+            }
+            if (infoRes != null) {
+                Text(stringResource(infoRes), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
             }
             Button(onClick = submit, enabled = canSubmit, modifier = Modifier.fillMaxWidth().height(52.dp)) {
                 if (isWorking) {
                     CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))
                 }
-                Text(stringResource(if (isRegistration) R.string.account_register else R.string.account_sign_in))
+                Text(
+                    stringResource(
+                        when (mode) {
+                            SheetMode.SIGN_IN -> R.string.account_sign_in
+                            SheetMode.REGISTER -> R.string.account_register
+                            SheetMode.RESET -> R.string.account_reset_send
+                        },
+                    ),
+                )
             }
-            TextButton(onClick = { isRegistration = !isRegistration }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text(stringResource(if (isRegistration) R.string.account_switch_to_sign_in else R.string.account_switch_to_register))
+            TextButton(
+                onClick = { switchTo(if (mode == SheetMode.SIGN_IN) SheetMode.REGISTER else SheetMode.SIGN_IN) },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            ) {
+                Text(
+                    stringResource(
+                        when (mode) {
+                            SheetMode.SIGN_IN -> R.string.account_switch_to_register
+                            SheetMode.REGISTER -> R.string.account_switch_to_sign_in
+                            SheetMode.RESET -> R.string.account_reset_back
+                        },
+                    ),
+                )
             }
             Spacer(Modifier.height(8.dp))
         }

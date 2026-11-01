@@ -21,6 +21,9 @@ sealed class AccountException(message: String, cause: Throwable? = null) : Excep
 
     class TooManyAttempts(cause: Throwable? = null) : AccountException("Too many attempts", cause)
 
+    /** The server can't do this yet, e.g. password reset before mail is set up. */
+    class Unavailable(cause: Throwable? = null) : AccountException("Not available", cause)
+
     class Network(cause: Throwable) : AccountException("Network error", cause)
 
     class Server(cause: Throwable) : AccountException("Server error", cause)

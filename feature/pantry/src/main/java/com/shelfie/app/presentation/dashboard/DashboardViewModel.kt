@@ -16,6 +16,7 @@ import com.shelfie.app.domain.model.halved
 import com.shelfie.app.domain.model.hasEstimatedExpiry
 import com.shelfie.app.domain.model.opened
 import com.shelfie.app.domain.model.thawed
+import com.shelfie.app.domain.repository.HouseholdRepository
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.ProductLookupRepository
 import com.shelfie.app.domain.repository.SettingsRepository
@@ -54,6 +55,7 @@ class DashboardViewModel @Inject constructor(
     private val shoppingListRepository: ShoppingListRepository,
     settingsRepository: SettingsRepository,
     private val clock: Clock,
+    private val householdRepository: HouseholdRepository,
 ) : ViewModel() {
 
     private val selectedFilter = MutableStateFlow<PantryFilter?>(null)
@@ -112,6 +114,15 @@ class DashboardViewModel @Inject constructor(
         initialValue = DashboardUiState(),
     )
 
+    /** What the rest of the household did since the user last looked; a badge on the family button. */
+    val unseenActivity: StateFlow<Int> = householdRepository.unseenActivityCount
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
+    /** Checks the household feed; does nothing useful (and fails quietly) when signed out. */
+    fun refreshActivity() {
+        viewModelScope.launch { householdRepository.activity() }
+    }
+
     private val _editItem = MutableStateFlow<PantryItem?>(null)
 
     /** The item whose edit sheet is open, `null` while it is closed. */
@@ -147,6 +158,7 @@ class DashboardViewModel @Inject constructor(
             DashboardIntent.ScanNewPhoto -> sendEffect(DashboardEffect.NavigateToScanner)
             DashboardIntent.OpenRescueRecipe -> sendEffect(DashboardEffect.NavigateToRecipe)
             DashboardIntent.OpenSettings -> sendEffect(DashboardEffect.NavigateToSettings)
+            DashboardIntent.OpenAccount -> sendEffect(DashboardEffect.NavigateToAccount)
             DashboardIntent.OpenAddItem -> _addItem.value = AddItemState(draft = emptyDraft())
             DashboardIntent.DismissAddItem -> dismissAddItem()
             is DashboardIntent.BarcodeScanned -> lookUpBarcode(intent.barcode)

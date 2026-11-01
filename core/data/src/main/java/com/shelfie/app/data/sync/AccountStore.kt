@@ -81,8 +81,24 @@ class AccountStore @Inject constructor(
         }
     }
 
+    /** Id of the newest household event the user has looked at; drives the unread badge. */
+    val activitySeenId: Flow<Long> = prefs.map { it[ACTIVITY_SEEN] ?: 0L }.distinctUntilChanged()
+
+    suspend fun markActivitySeen(id: Long) {
+        dataStore.edit { p -> if (id > (p[ACTIVITY_SEEN] ?: 0L)) p[ACTIVITY_SEEN] = id }
+    }
+
+    /** Id of the newest household event already notified about; `null` before the first check. */
+    suspend fun activityNotifiedId(): Long? = prefs.first()[ACTIVITY_NOTIFIED]
+
+    suspend fun markActivityNotified(id: Long) {
+        dataStore.edit { p -> if (id > (p[ACTIVITY_NOTIFIED] ?: 0L)) p[ACTIVITY_NOTIFIED] = id }
+    }
+
     suspend fun signOut() {
         dataStore.edit { p ->
+            p.remove(ACTIVITY_SEEN)
+            p.remove(ACTIVITY_NOTIFIED)
             p.remove(TOKEN)
             p.remove(EMAIL)
             p.remove(CURSOR)
@@ -107,5 +123,7 @@ class AccountStore @Inject constructor(
         val CURSOR = longPreferencesKey("sync_cursor")
         val LAST_SYNC_AT = longPreferencesKey("last_sync_at")
         val SPACE = stringPreferencesKey("sync_space")
+        val ACTIVITY_SEEN = longPreferencesKey("activity_seen_id")
+        val ACTIVITY_NOTIFIED = longPreferencesKey("activity_notified_id")
     }
 }

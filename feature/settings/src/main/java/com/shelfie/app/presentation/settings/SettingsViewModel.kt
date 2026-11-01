@@ -53,9 +53,26 @@ class SettingsViewModel @Inject constructor(
 
     fun setCurrencyCode(code: String?) = launch { setCurrencyCode(code) }
 
-    fun openSignIn() = _accountUi.update { it.copy(isSheetOpen = true, formError = null) }
+    fun openSignIn() = _accountUi.update { it.copy(isSheetOpen = true, formError = null, formInfo = null) }
 
-    fun closeSignIn() = _accountUi.update { it.copy(isSheetOpen = false, formError = null) }
+    fun closeSignIn() = _accountUi.update { it.copy(isSheetOpen = false, formError = null, formInfo = null) }
+
+    /** Clears the sheet's messages when it switches between sign-in, sign-up and reset. */
+    fun clearFormMessages() = _accountUi.update { it.copy(formError = null, formInfo = null) }
+
+    fun requestPasswordReset(email: String) {
+        if (_accountUi.value.isWorking) return
+        _accountUi.update { it.copy(isWorking = true, formError = null, formInfo = null) }
+        viewModelScope.launch {
+            val result = accountRepository.requestPasswordReset(email)
+            _accountUi.update { state ->
+                result.fold(
+                    onSuccess = { state.copy(isWorking = false, formInfo = R.string.account_reset_sent) },
+                    onFailure = { state.copy(isWorking = false, formError = it.toMessage()) },
+                )
+            }
+        }
+    }
 
     fun submitCredentials(email: String, password: String, isRegistration: Boolean) {
         if (_accountUi.value.isWorking) return
@@ -122,6 +139,7 @@ class SettingsViewModel @Inject constructor(
         is AccountException.EmailTaken -> R.string.account_error_email_taken
         is AccountException.InvalidInput -> R.string.account_error_input
         is AccountException.TooManyAttempts -> R.string.account_error_too_many
+        is AccountException.Unavailable -> R.string.account_reset_unavailable
         is AccountException.Network, is SyncException.Network -> R.string.account_error_network
         is SyncException.SessionExpired -> R.string.account_error_session_expired
         else -> R.string.account_error_server
@@ -134,6 +152,8 @@ data class AccountUiState(
     val isWorking: Boolean = false,
     /** Shown inside the sign-in sheet. */
     @StringRes val formError: Int? = null,
+    /** Good news inside the sheet, e.g. "check your email". */
+    @StringRes val formInfo: Int? = null,
     /** One-off result shown as a snackbar, then cleared with [SettingsViewModel.messageShown]. */
     @StringRes val message: Int? = null,
 )

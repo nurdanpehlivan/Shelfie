@@ -18,6 +18,13 @@ interface AccountRepository {
     /** Signs in; on-device data is merged with what the account already has. */
     suspend fun signIn(email: String, password: String): Result<Unit>
 
+    /**
+     * Emails a link to choose a new password. Succeeds whether or not the account exists, so the
+     * answer doesn't reveal who has one; fails with [com.shelfie.app.domain.model.AccountException.Unavailable]
+     * while the server can't send mail.
+     */
+    suspend fun requestPasswordReset(email: String): Result<Unit>
+
     /** Signs out; on-device data stays. */
     suspend fun signOut()
 

@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -88,6 +91,7 @@ fun DashboardRoute(
     onNavigateToScanner: () -> Unit,
     onNavigateToRecipe: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToAccount: () -> Unit = {},
     savedItemsCount: Int? = null,
     onSavedItemsMessageShown: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel(),
@@ -99,6 +103,14 @@ fun DashboardRoute(
     val currentOnNavigateToScanner by rememberUpdatedState(onNavigateToScanner)
     val currentOnNavigateToRecipe by rememberUpdatedState(onNavigateToRecipe)
     val currentOnNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
+    val currentOnNavigateToAccount by rememberUpdatedState(onNavigateToAccount)
+    val unseenActivity by viewModel.unseenActivity.collectAsStateWithLifecycle()
+
+    // The household may have changed things while the app was away.
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refreshActivity()
+        onPauseOrDispose {}
+    }
     val addItem by viewModel.addItem.collectAsStateWithLifecycle()
     val editItem by viewModel.editItem.collectAsStateWithLifecycle()
 
@@ -111,6 +123,7 @@ fun DashboardRoute(
                         DashboardEffect.NavigateToScanner -> currentOnNavigateToScanner()
                         DashboardEffect.NavigateToRecipe -> currentOnNavigateToRecipe()
                         DashboardEffect.NavigateToSettings -> currentOnNavigateToSettings()
+                        DashboardEffect.NavigateToAccount -> currentOnNavigateToAccount()
 
                         is DashboardEffect.ItemAdded -> snackbarScope.launch {
                             snackbarHostState.showSnackbar(
@@ -175,6 +188,7 @@ fun DashboardRoute(
         state = state,
         snackbarHostState = snackbarHostState,
         onIntent = viewModel::onIntent,
+        unseenActivity = unseenActivity,
     )
 
     editItem?.let { item ->
@@ -193,6 +207,8 @@ fun DashboardScreen(
     onIntent: (DashboardIntent) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    /** News from the household since the user last looked: a badge on the family button. */
+    unseenActivity: Int = 0,
 ) {
     val listState = rememberLazyListState()
     val fabExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
@@ -223,14 +239,19 @@ fun DashboardScreen(
                 CircularProgressIndicator()
             }
 
-            state.isEmpty -> MascotMessage(
-                mood = FrizzyMood.SLEEPY,
-                title = stringResource(R.string.dashboard_empty_title),
-                message = stringResource(R.string.dashboard_empty_subtitle),
-                primaryAction = stringResource(R.string.dashboard_action_scan) to { onIntent(DashboardIntent.ScanNewPhoto) },
-                secondaryAction = stringResource(R.string.add_item_title) to { onIntent(DashboardIntent.OpenAddItem) },
-                modifier = Modifier.padding(innerPadding),
-            )
+            state.isEmpty -> Box(modifier = Modifier.padding(innerPadding)) {
+                MascotMessage(
+                    mood = FrizzyMood.SLEEPY,
+                    title = stringResource(R.string.dashboard_empty_title),
+                    message = stringResource(R.string.dashboard_empty_subtitle),
+                    primaryAction = stringResource(R.string.dashboard_action_scan) to { onIntent(DashboardIntent.ScanNewPhoto) },
+                    secondaryAction = stringResource(R.string.add_item_title) to { onIntent(DashboardIntent.OpenAddItem) },
+                )
+                // A new member's pantry starts empty; family and settings must still be reachable.
+                Row(modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 20.dp)) {
+                    HeaderActions(unseenActivity = unseenActivity, onIntent = onIntent)
+                }
+            }
 
             else -> LazyColumn(
                 state = listState,
@@ -252,11 +273,7 @@ fun DashboardScreen(
                                 onClick = { isSearching = true },
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            GlassIconButton(
-                                painter = painterResource(R.drawable.ic_settings),
-                                contentDescription = stringResource(R.string.settings_title),
-                                onClick = { onIntent(DashboardIntent.OpenSettings) },
-                            )
+                            HeaderActions(unseenActivity = unseenActivity, onIntent = onIntent)
                         },
                     )
                 }
@@ -427,3 +444,27 @@ private fun DashboardEmptyPreview() {
         DashboardScreen(state = DashboardUiState(isLoading = false), onIntent = {})
     }
 }
+
+/** Family (with a badge for news from the household) and settings, top right of the pantry. */
+@Composable
+private fun HeaderActions(unseenActivity: Int, onIntent: (DashboardIntent) -> Unit) {
+    BadgedBox(
+        badge = {
+            if (unseenActivity > 0) Badge { Text(if (unseenActivity > MAX_BADGE) "$MAX_BADGE+" else "$unseenActivity") }
+        },
+    ) {
+        GlassIconButton(
+            painter = painterResource(R.drawable.ic_group),
+            contentDescription = stringResource(R.string.account_screen_title),
+            onClick = { onIntent(DashboardIntent.OpenAccount) },
+        )
+    }
+    Spacer(modifier = Modifier.width(8.dp))
+    GlassIconButton(
+        painter = painterResource(R.drawable.ic_settings),
+        contentDescription = stringResource(R.string.settings_title),
+        onClick = { onIntent(DashboardIntent.OpenSettings) },
+    )
+}
+
+private const val MAX_BADGE = 9

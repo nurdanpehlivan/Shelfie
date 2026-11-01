@@ -36,3 +36,29 @@ sealed class HouseholdException(message: String, cause: Throwable? = null) : Exc
 
     class Server(cause: Throwable) : HouseholdException("Server error", cause)
 }
+
+/** One thing someone in the household did, for the activity feed and its notifications. */
+data class HouseholdActivity(
+    val id: Long,
+    /** The person's email. */
+    val actor: String,
+    val isMe: Boolean,
+    val action: HouseholdAction,
+    /** The item, list entry or recipe, as named when it happened. */
+    val name: String,
+    val emoji: String?,
+    val at: Instant,
+)
+
+enum class HouseholdAction {
+    ADDED,
+    USED,
+    USED_SOME,
+    WASTED,
+    REMOVED,
+    FROZE,
+    THAWED,
+    LIST_ADDED,
+    LIST_BOUGHT,
+    RECIPE_SAVED,
+}
