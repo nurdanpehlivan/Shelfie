@@ -24,3 +24,10 @@
 # mapping file (app/build/outputs/mapping/release/mapping.txt) with each release.
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
+
+# ML Kit looks its parts up at runtime through Firebase's component registry. R8 optimized that
+# lookup away in release builds, so the barcode scanner got a null SharedPrefManager and the app
+# crashed when Quick add opened. Keep ML Kit and the registry as they ship.
+-keep class com.google.mlkit.** { *; }
+-keep class com.google.android.gms.internal.mlkit_** { *; }
+-keep class com.google.firebase.components.** { *; }
