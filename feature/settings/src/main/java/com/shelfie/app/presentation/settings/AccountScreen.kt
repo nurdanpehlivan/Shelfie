@@ -172,7 +172,8 @@ private fun ColumnScope.ActivityFeed(events: List<HouseholdActivity>?) {
                     text = listOf(
                         if (event.isMe) you else displayName(event.actor),
                         stringResource(event.action.activityLabelRes),
-                        DateUtils.getRelativeTimeSpanString(event.at.toEpochMilli()).toString(),
+                        // Server time; a phone clock running behind would otherwise say "in 1 minute".
+                        DateUtils.getRelativeTimeSpanString(minOf(event.at.toEpochMilli(), System.currentTimeMillis())).toString(),
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (event.isMe) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,

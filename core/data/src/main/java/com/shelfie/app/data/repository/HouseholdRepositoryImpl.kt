@@ -25,6 +25,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import retrofit2.HttpException
 import java.io.IOException
+import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,6 +36,7 @@ class HouseholdRepositoryImpl @Inject constructor(
     private val api: ShelfieApiService,
     private val accountStore: AccountStore,
     private val syncManager: SyncManager,
+    private val clock: Clock,
 ) : HouseholdRepository {
 
     override suspend fun household(): Result<Household> = call { api.household(it).toDomain() }
@@ -69,8 +72,11 @@ class HouseholdRepositoryImpl @Inject constructor(
         val newest = events.maxOfOrNull { it.id } ?: return emptyList()
         val notifiedId = accountStore.activityNotifiedId()
         accountStore.markActivityNotified(newest)
-        if (notifiedId == null) return emptyList()
-        val fresh = events.filter { !it.isMe && it.id > notifiedId }.sortedBy { it.id }
+        // First check on this phone: only what just happened, not the household's history.
+        val since = clock.instant().minus(FIRST_CHECK_WINDOW)
+        val fresh = events
+            .filter { !it.isMe && if (notifiedId == null) it.at > since else it.id > notifiedId }
+            .sortedBy { it.id }
         if (fresh.isNotEmpty()) syncManager.sync()
         return fresh
     }
@@ -135,4 +141,8 @@ class HouseholdRepositoryImpl @Inject constructor(
     }
 
     private fun InviteDto.toDomain() = HouseholdInvite(code = code, expiresAt = Instant.ofEpochMilli(expiresAt))
+
+    private companion object {
+        val FIRST_CHECK_WINDOW: Duration = Duration.ofMinutes(15)
+    }
 }
