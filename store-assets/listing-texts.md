@@ -31,7 +31,7 @@ Bozulmak üzere olan ürünlerle 15 dakikalık, gerçek ve bilinen tarifler al. 
 Haftanın öğünlerini tariflerinle planla, eksik malzemeleri tek dokunuşla alışveriş listesine ekle. Liste reyonlara göre düzenlenir; aldıklarını doğrudan kilerine aktar.
 
 👨‍👩‍👧 AİLEYLE PAYLAŞ
-Davet linkiyle tüm hane aynı kileri, alışveriş listesini, tarifleri ve haftalık planı birlikte kullanır. İstersen web panelden bilgisayarında da görebilirsin.
+Davet linkiyle tüm hane aynı kileri, alışveriş listesini, tarifleri ve haftalık planı birlikte kullanır. İstersen web panelden bilgisayarında da görebilirsin. Kim neyi ekledi, bitirdi ya da attı, anında bildirim olarak gelir; hanenin son hareketlerini tek ekranda görürsün.
 
 📊 İSRAFI NE KADAR AZALTTIĞINI GÖR
 Zamanında tükettiklerini, çöpe gidenleri ve tahmini tasarrufunu haftalık grafiklerle takip et.
@@ -75,7 +75,7 @@ Get quick, real 15-minute recipes from what's about to spoil. Cook step by step 
 Plan the week's meals with your recipes and add what's missing to your list in one tap. The list is sorted by aisle; move what you bought straight into your pantry.
 
 👨‍👩‍👧 SHARE WITH YOUR FAMILY
-With one invite link, your whole household shares the same pantry, shopping list, recipes and weekly plan. See it all on the web panel too.
+With one invite link, your whole household shares the same pantry, shopping list, recipes and weekly plan. See it all on the web panel too. When someone adds, uses up or throws something away, everyone gets a notification right away and sees it in the household's recent activity.
 
 📊 SEE HOW MUCH YOU SAVED
 Track what you ate in time, what was thrown away and your estimated savings, week by week.
@@ -119,7 +119,7 @@ Schnelle, echte 15-Minuten-Rezepte mit dem, was bald verdirbt. Schritt für Schr
 Plane die Mahlzeiten der Woche und setze Fehlendes mit einem Tipp auf die Liste – sortiert nach Abteilung. Gekauftes wandert direkt in den Vorrat.
 
 👨‍👩‍👧 MIT DER FAMILIE TEILEN
-Mit einem Einladungslink teilt der ganze Haushalt Vorrat, Einkaufsliste, Rezepte und Wochenplan – auch im Web-Panel.
+Mit einem Einladungslink teilt der ganze Haushalt Vorrat, Einkaufsliste, Rezepte und Wochenplan – auch im Web-Panel. Wenn jemand etwas hinzufügt, aufbraucht oder wegwirft, bekommen alle sofort eine Benachrichtigung und sehen es in den letzten Aktivitäten.
 
 📊 SIEH, WIE VIEL DU GERETTET HAST
 Gegessen, weggeworfen und geschätzte Ersparnis – Woche für Woche.
@@ -163,7 +163,7 @@ Recetas reales y rápidas de 15 minutos con lo que está a punto de estropearse.
 Planifica las comidas de la semana y añade lo que falta a la lista, ordenada por pasillos. Lo que compras pasa directo a la despensa.
 
 👨‍👩‍👧 COMPARTE CON TU FAMILIA
-Con un enlace de invitación, todo el hogar comparte despensa, lista, recetas y plan semanal, también en el panel web.
+Con un enlace de invitación, todo el hogar comparte despensa, lista, recetas y plan semanal, también en el panel web. Cuando alguien añade, termina o tira algo, todos reciben un aviso al instante y lo ven en la actividad reciente del hogar.
 
 📊 MIRA CUÁNTO HAS SALVADO
 Lo que comiste a tiempo, lo que tiraste y tu ahorro estimado, semana a semana.
@@ -207,7 +207,7 @@ De vraies recettes rapides de 15 minutes avec ce qui va bientôt se perdre. Cuis
 Planifie les repas de la semaine et ajoute ce qui manque à la liste, triée par rayon. Tes achats passent directement dans ton placard.
 
 👨‍👩‍👧 PARTAGE EN FAMILLE
-Avec un lien d'invitation, tout le foyer partage placard, liste, recettes et planning, aussi sur le panneau web.
+Avec un lien d'invitation, tout le foyer partage placard, liste, recettes et planning, aussi sur le panneau web. Quand quelqu'un ajoute, termine ou jette quelque chose, tout le monde reçoit une notification tout de suite et le voit dans l'activité récente du foyer.
 
 📊 VOIS CE QUE TU AS SAUVÉ
 Ce que tu as mangé à temps, ce qui a été jeté et tes économies estimées, semaine après semaine.
