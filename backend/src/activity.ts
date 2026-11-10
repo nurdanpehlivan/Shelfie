@@ -1,7 +1,6 @@
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
 import { spaceOf, usersInSpace } from "./household.ts";
-import { notifyHousehold } from "./push.ts";
 import type { Change } from "./sync.ts";
 
 /**
@@ -14,7 +13,7 @@ import type { Change } from "./sync.ts";
 const FRESH_MS = 6 * 60 * 60 * 1000;
 const MAX_NAME_LENGTH = 60;
 const MAX_EVENTS = 50;
-export const ACTIVITY_RETENTION_DAYS = 30;
+export const ACTIVITY_RETENTION_DAYS = 180;
 
 export type Action =
 	| "added"
@@ -66,25 +65,27 @@ export async function loadPrevious(space: string, changes: Change[]): Promise<Ma
 	return previous;
 }
 
-/** Records the events in [changes] made by [actorId]; [previous] comes from [loadPrevious] before the write. */
+/**
+ * Records the events in [changes] made by [actorId]; [previous] comes from [loadPrevious] before
+ * the write. Returns whether there was anything to tell the household.
+ */
 export async function recordActivity(
 	space: string,
 	actorId: string,
 	changes: Change[],
 	previous: Map<string, PreviousState>,
 	now = Date.now(),
-): Promise<void> {
+): Promise<boolean> {
 	const events = changes
 		.map((c) => describeChange(c, previous.get(`${c.collection}/${c.syncId}`), now))
 		.filter((e): e is Event => e !== null);
-	if (!events.length) return;
+	if (!events.length) return false;
 	const d = await db();
 	const insert = d.prepare(
 		"INSERT INTO household_activity (space, actor_id, action, name, emoji, ts) VALUES (?, ?, ?, ?, ?, ?)",
 	);
 	await d.batch(events.map((e) => insert.bind(space, actorId, e.action, e.name, e.emoji, now)));
-	// A push failure must not fail the sync that caused it.
-	await notifyHousehold(space, actorId).catch((e) => console.error("push", e));
+	return true;
 }
 
 /** What a change means to the rest of the household, or `null` when it isn't worth telling. */
@@ -130,20 +131,28 @@ function text(value: unknown): string | null {
 	return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-/** `GET /api/household/activity`: the newest events of the user's household, newest first. */
-export async function handleActivity(user: User): Promise<Response> {
+/**
+ * `GET /api/household/activity[?before=<id>]`: a page of the household's events, newest first.
+ * Without `before`, the newest page; with it, the page of events older than that id. `hasMore`
+ * says whether there is an older page.
+ */
+export async function handleActivity(user: User, url: URL): Promise<Response> {
 	const space = await spaceOf(user.id);
+	const beforeParam = Number(url.searchParams.get("before"));
+	const before = Number.isSafeInteger(beforeParam) && beforeParam > 0 ? beforeParam : Number.MAX_SAFE_INTEGER;
 	const d = await db();
-	const { results } = await d
+	const { results: rows } = await d
 		.prepare(
 			`SELECT household_activity.id AS id, household_activity.actor_id AS actor_id, users.email AS email,
 			        action, name, emoji, ts
 			 FROM household_activity JOIN users ON users.id = household_activity.actor_id
-			 WHERE space = ? ORDER BY household_activity.id DESC LIMIT ?`,
+			 WHERE space = ? AND household_activity.id < ? ORDER BY household_activity.id DESC LIMIT ?`,
 		)
-		.bind(space, MAX_EVENTS)
+		.bind(space, before, MAX_EVENTS + 1)
 		.all<{ id: number; actor_id: string; email: string; action: Action; name: string; emoji: string | null; ts: number }>();
+	const results = rows.slice(0, MAX_EVENTS);
 	return Response.json({
+		hasMore: rows.length > MAX_EVENTS,
 		events: results.map((r) => ({
 			id: r.id,
 			actor: r.email,

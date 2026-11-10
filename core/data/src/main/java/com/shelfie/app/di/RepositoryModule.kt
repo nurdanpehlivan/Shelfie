@@ -22,6 +22,7 @@ import com.shelfie.app.domain.repository.RecipeRepository
 import com.shelfie.app.domain.repository.SettingsRepository
 import com.shelfie.app.domain.repository.ShoppingListRepository
 import com.shelfie.app.domain.repository.SubscriptionRepository
+import com.shelfie.app.data.sync.SharedSettingsStore
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -31,6 +32,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindSharedSettingsStore(impl: SettingsRepositoryImpl): SharedSettingsStore
 
     @Binds
     @Singleton

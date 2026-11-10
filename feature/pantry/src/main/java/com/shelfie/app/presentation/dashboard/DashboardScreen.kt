@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +29,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -91,7 +93,7 @@ fun DashboardRoute(
     onNavigateToScanner: () -> Unit,
     onNavigateToRecipe: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToAccount: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
     savedItemsCount: Int? = null,
     onSavedItemsMessageShown: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel(),
@@ -103,7 +105,7 @@ fun DashboardRoute(
     val currentOnNavigateToScanner by rememberUpdatedState(onNavigateToScanner)
     val currentOnNavigateToRecipe by rememberUpdatedState(onNavigateToRecipe)
     val currentOnNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
-    val currentOnNavigateToAccount by rememberUpdatedState(onNavigateToAccount)
+    val currentOnNavigateToNotifications by rememberUpdatedState(onNavigateToNotifications)
     val unseenActivity by viewModel.unseenActivity.collectAsStateWithLifecycle()
 
     // The household may have changed things while the app was away.
@@ -123,7 +125,7 @@ fun DashboardRoute(
                         DashboardEffect.NavigateToScanner -> currentOnNavigateToScanner()
                         DashboardEffect.NavigateToRecipe -> currentOnNavigateToRecipe()
                         DashboardEffect.NavigateToSettings -> currentOnNavigateToSettings()
-                        DashboardEffect.NavigateToAccount -> currentOnNavigateToAccount()
+                        DashboardEffect.NavigateToNotifications -> currentOnNavigateToNotifications()
 
                         is DashboardEffect.ItemAdded -> snackbarScope.launch {
                             snackbarHostState.showSnackbar(
@@ -160,6 +162,21 @@ fun DashboardRoute(
                             )
                             if (result == SnackbarResult.ActionPerformed && effect.undo != null) {
                                 viewModel.onIntent(DashboardIntent.UndoChange(effect.undo))
+                            }
+                        }
+
+                        is DashboardEffect.ShowExpiredDiscarded -> snackbarScope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            val result = snackbarHostState.showSnackbar(
+                                message = resources.getString(
+                                    R.string.dashboard_expired_discarded,
+                                    effect.itemIds.size,
+                                ),
+                                actionLabel = resources.getString(R.string.action_undo),
+                                duration = SnackbarDuration.Long,
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                viewModel.onIntent(DashboardIntent.UndoDiscardExpired(effect.itemIds))
                             }
                         }
 
@@ -298,6 +315,15 @@ fun DashboardScreen(
                         onFilterSelected = { onIntent(DashboardIntent.SelectFilter(it)) },
                     )
                 }
+                if (state.selectedFilter != null) {
+                    item(key = "showAll") {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = { onIntent(DashboardIntent.SelectFilter(null)) }) {
+                                Text("✕  " + stringResource(R.string.dashboard_show_all))
+                            }
+                        }
+                    }
+                }
                 item(key = "freshnessBar") {
                     FreshnessBar(
                         safeCount = state.fresh.size,
@@ -349,6 +375,15 @@ fun DashboardScreen(
                     stickyHeader(key = "header_$status") {
                         GroupHeader(status = status, count = items.size, thresholds = state.thresholds)
                     }
+                    val expiredCount = state.expiredItems.size
+                    if (status == FreshnessStatus.CRITICAL && expiredCount > 0) {
+                        item(key = "discardExpired") {
+                            DiscardExpiredButton(
+                                count = expiredCount,
+                                onConfirm = { onIntent(DashboardIntent.DiscardExpired) },
+                            )
+                        }
+                    }
                     if (items.isEmpty()) {
                         item(key = "empty_$status") {
                             Text(
@@ -371,6 +406,43 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+}
+
+/** One tap (plus a confirmation) to throw away every expired item instead of swiping each. */
+@Composable
+private fun DiscardExpiredButton(count: Int, onConfirm: () -> Unit) {
+    var showConfirm by rememberSaveable { mutableStateOf(false) }
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        TextButton(onClick = { showConfirm = true }) {
+            Text(
+                text = "🗑  " + stringResource(R.string.dashboard_discard_expired, count),
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+    }
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = { Text(stringResource(R.string.dashboard_discard_expired_title)) },
+            text = { Text(stringResource(R.string.dashboard_discard_expired_message, count)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirm = false
+                    onConfirm()
+                }) {
+                    Text(
+                        stringResource(R.string.dashboard_discard_expired_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirm = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
     }
 }
 
@@ -445,7 +517,7 @@ private fun DashboardEmptyPreview() {
     }
 }
 
-/** Family (with a badge for news from the household) and settings, top right of the pantry. */
+/** Notifications (with a badge for news from the household) and settings, top right of the pantry. */
 @Composable
 private fun HeaderActions(unseenActivity: Int, onIntent: (DashboardIntent) -> Unit) {
     BadgedBox(
@@ -454,9 +526,9 @@ private fun HeaderActions(unseenActivity: Int, onIntent: (DashboardIntent) -> Un
         },
     ) {
         GlassIconButton(
-            painter = painterResource(R.drawable.ic_group),
-            contentDescription = stringResource(R.string.account_screen_title),
-            onClick = { onIntent(DashboardIntent.OpenAccount) },
+            painter = painterResource(R.drawable.ic_notifications),
+            contentDescription = stringResource(R.string.notifications_title),
+            onClick = { onIntent(DashboardIntent.OpenNotifications) },
         )
     }
     Spacer(modifier = Modifier.width(8.dp))

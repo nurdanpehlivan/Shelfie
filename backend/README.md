@@ -86,9 +86,12 @@ Deletions are kept as tombstones for a year.
 A household is its owner's data space: members read and write records under the owner's
 `user_id` (`household_members`), so they share the pantry, shopping list, recipes and meal plan.
 Owners create 8-character invite codes valid for 48 hours (`household_invites`); a household
-holds up to 6 people. The sync response carries `space`; when it changes (join, leave, removal,
-owner deleted), the app re-uploads what it has and pulls the new space from rev 0, which merges
-the data. Leaving keeps a copy on the phone.
+holds up to 6 people. Joining copies the member's records into the owner's space. Each record's
+first writer is kept in `record_authors`; leaving, being removed or the owner deleting their
+account splits the household again (`splitOut`): the member's space is rebuilt from what they
+added, and those records leave the owner's space as deletions. The sync response carries `space`;
+when it changes, the app pushes its pending changes, clears its synced data and pulls the new
+space from rev 0.
 
 ## Plans and AI allowance
 

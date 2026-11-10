@@ -32,6 +32,9 @@ data class HouseholdUiState(
     val linkCode: String = "",
     /** The household's recent events, newest first; `null` until loaded. */
     val activity: List<HouseholdActivity>? = null,
+    /** Older events can be loaded ([HouseholdViewModel.loadMoreActivity]). */
+    val hasMoreActivity: Boolean = false,
+    val isLoadingMoreActivity: Boolean = false,
 ) {
     val isShared: Boolean get() = household != null && household.role != HouseholdRole.NONE
 }
@@ -90,9 +93,32 @@ class HouseholdViewModel @Inject constructor(
 
     /** The feed is on screen whenever it loads, so loading it also marks it seen. */
     private suspend fun loadActivity() {
-        householdRepository.activity().onSuccess { events ->
-            _uiState.update { it.copy(activity = events) }
+        householdRepository.newestActivity().onSuccess { page ->
+            _uiState.update { it.copy(activity = page.events, hasMoreActivity = page.hasMore) }
             householdRepository.markActivitySeen()
+        }
+    }
+
+    /** The next older page, when the list has been scrolled to its end. */
+    fun loadMoreActivity() {
+        val state = _uiState.value
+        val oldest = state.activity?.lastOrNull()?.id ?: return
+        if (!state.hasMoreActivity || state.isLoadingMoreActivity) return
+        _uiState.update { it.copy(isLoadingMoreActivity = true) }
+        viewModelScope.launch {
+            householdRepository.olderActivity(oldest)
+                .onSuccess { page ->
+                    _uiState.update { s ->
+                        val known = s.activity.orEmpty().mapTo(HashSet()) { it.id }
+                        s.copy(
+                            activity = s.activity.orEmpty() + page.events.filter { it.id !in known },
+                            hasMoreActivity = page.hasMore,
+                            isLoadingMoreActivity = false,
+                        )
+                    }
+                }
+                // Stays possible to try again by scrolling.
+                .onFailure { _uiState.update { it.copy(isLoadingMoreActivity = false) } }
         }
     }
 

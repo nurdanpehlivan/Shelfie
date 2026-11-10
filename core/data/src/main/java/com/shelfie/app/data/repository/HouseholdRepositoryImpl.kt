@@ -1,5 +1,7 @@
 package com.shelfie.app.data.repository
 
+import com.shelfie.app.data.remote.shelfie.ActivityResponse
+import com.shelfie.app.domain.model.HouseholdActivityPage
 import com.shelfie.app.data.remote.shelfie.ActivityDto
 import com.shelfie.app.data.remote.shelfie.HouseholdDto
 import com.shelfie.app.data.remote.shelfie.InviteDto
@@ -49,7 +51,7 @@ class HouseholdRepositoryImpl @Inject constructor(
     override suspend fun leave(): Result<Household> = call { api.leaveHousehold(it).toDomain() }.alsoSync()
 
     override suspend fun removeMember(email: String): Result<Household> =
-        call { api.removeMember(it, RemoveMemberRequest(email)).toDomain() }
+        call { api.removeMember(it, RemoveMemberRequest(email)).toDomain() }.alsoSync()
 
     /** The last fetched feed; [unseenActivityCount] counts from it. */
     private val latestActivity = MutableStateFlow<List<HouseholdActivity>>(emptyList())
@@ -59,9 +61,14 @@ class HouseholdRepositoryImpl @Inject constructor(
             events.count { !it.isMe && it.id > seenId }
         }
 
-    override suspend fun activity(): Result<List<HouseholdActivity>> =
-        call { bearer -> api.householdActivity(bearer).events.mapNotNull { it.toDomain() } }
-            .onSuccess { latestActivity.value = it }
+    override suspend fun newestActivity(): Result<HouseholdActivityPage> =
+        call { bearer -> api.householdActivity(bearer).toPage() }
+            .onSuccess { latestActivity.value = it.events }
+
+    override suspend fun olderActivity(beforeId: Long): Result<HouseholdActivityPage> =
+        call { bearer -> api.householdActivity(bearer, before = beforeId).toPage() }
+
+    private fun ActivityResponse.toPage() = HouseholdActivityPage(events = events.mapNotNull { it.toDomain() }, hasMore = hasMore)
 
     override suspend fun markActivitySeen() {
         latestActivity.value.maxOfOrNull { it.id }?.let { accountStore.markActivitySeen(it) }

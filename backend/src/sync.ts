@@ -1,8 +1,9 @@
 import { loadPrevious, recordActivity } from "./activity.ts";
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
-import { spaceOf } from "./household.ts";
-import { error, readJson } from "./http.ts";
+import { describe, spaceOf } from "./household.ts";
+import { error, readJson, sha256Hex } from "./http.ts";
+import { notifySpaceChanged } from "./push.ts";
 
 /**
  * Record sync between the app's Room database, the server and the web panel.
@@ -34,7 +35,16 @@ export interface Change {
 interface SyncRequest {
 	cursor?: unknown;
 	changes?: unknown;
+	settings?: unknown;
 }
+
+/** Household-wide settings; the app's FreshnessThresholds bounds. */
+export interface SpaceSettings {
+	criticalDays: number;
+	changedAt: number;
+}
+const MIN_CRITICAL_DAYS = 1;
+const MAX_CRITICAL_DAYS = 4;
 
 interface RecordRow {
 	collection: Collection;
@@ -64,7 +74,13 @@ export async function handleSync(request: Request, user: User): Promise<Response
 	}
 
 	const space = await spaceOf(user.id);
-	await applyChanges(space, changes, user.id);
+	const session = (request.headers.get("authorization") ?? "").slice("Bearer ".length).trim();
+	const sessionHash = await sha256Hex(session);
+	await applyChanges(space, changes, user.id, sessionHash);
+	const settingsIn = parseSettings(body.settings, Date.now());
+	if (settingsIn && (await saveSettings(space, settingsIn))) {
+		await notifySpaceChanged(space, user.id, sessionHash, false).catch((e) => console.error("push", e));
+	}
 
 	const d = await db();
 	const { results } = await d
@@ -79,10 +95,44 @@ export async function handleSync(request: Request, user: User): Promise<Response
 
 	return Response.json({
 		space,
+		settings: await loadSettings(space),
 		cursor: page.length ? page[page.length - 1].rev : cursor,
 		hasMore,
 		records: page.map(toChange),
 	});
+}
+
+function parseSettings(raw: unknown, now: number): SpaceSettings | null {
+	if (typeof raw !== "object" || raw === null) return null;
+	const r = raw as Record<string, unknown>;
+	const days = r.criticalDays;
+	if (typeof days !== "number" || !Number.isInteger(days) || days < MIN_CRITICAL_DAYS || days > MAX_CRITICAL_DAYS) return null;
+	if (typeof r.changedAt !== "number" || !Number.isFinite(r.changedAt)) return null;
+	return { criticalDays: days, changedAt: Math.min(Math.floor(r.changedAt), now + 5 * 60 * 1000) };
+}
+
+/** Stores [settings] unless the space has newer ones; returns whether they changed. */
+async function saveSettings(space: string, settings: SpaceSettings): Promise<boolean> {
+	const d = await db();
+	const result = await d
+		.prepare(
+			`INSERT INTO space_settings (space, critical_days, changed_at) VALUES (?, ?, ?)
+			 ON CONFLICT (space) DO UPDATE SET critical_days = excluded.critical_days, changed_at = excluded.changed_at
+			 WHERE excluded.changed_at > space_settings.changed_at`,
+		)
+		.bind(space, settings.criticalDays, settings.changedAt)
+		.run();
+	return (result.meta?.changes ?? 0) > 0;
+}
+
+/** The space's shared settings, `null` while nobody has changed them (the app keeps its own). */
+export async function loadSettings(space: string): Promise<SpaceSettings | null> {
+	const d = await db();
+	const row = await d
+		.prepare("SELECT critical_days, changed_at FROM space_settings WHERE space = ?")
+		.bind(space)
+		.first<{ critical_days: number; changed_at: number }>();
+	return row ? { criticalDays: row.critical_days, changedAt: row.changed_at } : null;
 }
 
 /**
@@ -110,12 +160,28 @@ export function parseChange(raw: unknown, now: number): Change | null {
 
 /**
  * Upserts [changes] in one transaction; older writes than what's stored are ignored. With an
- * [actorId], what they did is added to the household's activity feed (activity.ts).
+ * [actorId], what they did is added to the household's activity feed (activity.ts), and the
+ * space's other devices (all but session [sourceSession]) are told to sync (push.ts).
  */
-export async function applyChanges(userId: string, changes: Change[], actorId?: string): Promise<void> {
+export async function applyChanges(
+	userId: string,
+	changes: Change[],
+	actorId?: string,
+	sourceSession: string | null = null,
+): Promise<void> {
 	if (!changes.length) return;
 	const previous = actorId ? await loadPrevious(userId, changes) : null;
 	const d = await db();
+	// Before the upsert: only a record new to the space gets an author, so editing someone
+	// else's item never takes it over.
+	const author = d.prepare(
+		`INSERT OR IGNORE INTO record_authors (space, collection, sync_id, author_id)
+		 SELECT ?1, ?2, ?3, ?4
+		 WHERE NOT EXISTS (SELECT 1 FROM sync_records WHERE user_id = ?1 AND collection = ?2 AND sync_id = ?3)`,
+	);
+	const authorStatements = changes
+		.filter((c) => !c.deleted)
+		.map((c) => author.bind(userId, c.collection, c.syncId, actorId ?? userId));
 	const statement = d.prepare(
 		`INSERT INTO sync_records (user_id, collection, sync_id, data, deleted, changed_at, rev)
 		 VALUES (?1, ?2, ?3, ?4, ?5, ?6, (SELECT COALESCE(MAX(rev), 0) + 1 FROM sync_records WHERE user_id = ?1))
@@ -123,12 +189,15 @@ export async function applyChanges(userId: string, changes: Change[], actorId?: 
 		   data = excluded.data, deleted = excluded.deleted, changed_at = excluded.changed_at, rev = excluded.rev
 		 WHERE excluded.changed_at >= sync_records.changed_at`,
 	);
-	await d.batch(
-		changes.map((c) =>
+	await d.batch([
+		...authorStatements,
+		...changes.map((c) =>
 			statement.bind(userId, c.collection, c.syncId, c.data ? JSON.stringify(c.data) : null, c.deleted ? 1 : 0, c.changedAt),
 		),
-	);
-	if (actorId && previous) await recordActivity(userId, actorId, changes, previous);
+	]);
+	const news = actorId && previous ? await recordActivity(userId, actorId, changes, previous) : false;
+	// A push failure must not fail the write that caused it.
+	if (actorId) await notifySpaceChanged(userId, actorId, sourceSession, news).catch((e) => console.error("push", e));
 }
 
 function toChange(row: RecordRow): Change {
@@ -141,10 +210,29 @@ function toChange(row: RecordRow): Change {
 	};
 }
 
-/** `GET /api/web/data`: the live records of the signed-in user's space, for the web panel. */
+/**
+ * `GET /api/web/data`: the live records of the signed-in user's space for the web panel, with
+ * the household and, in a shared space, who added each record (`addedBy`, an email).
+ */
 export async function handleWebData(user: User): Promise<Response> {
 	const space = await spaceOf(user.id);
 	const d = await db();
+	const household = await describe(user);
+	const authors = new Map<string, string>();
+	if (household.role !== "none") {
+		const { results: rows } = await d
+			.prepare(
+				`SELECT record_authors.collection AS collection, record_authors.sync_id AS sync_id, users.email AS email
+				 FROM record_authors JOIN users ON users.id = record_authors.author_id
+				 WHERE record_authors.space = ?`,
+			)
+			.bind(space)
+			.all<{ collection: string; sync_id: string; email: string }>();
+		for (const r of rows) authors.set(`${r.collection}/${r.sync_id}`, r.email);
+		// No author row means the household's owner.
+		const owner = household.members.find((m) => m.isOwner)?.email;
+		if (owner) authors.set("", owner);
+	}
 	const { results } = await d
 		.prepare(
 			`SELECT collection, sync_id, data, deleted, changed_at, rev FROM sync_records
@@ -159,9 +247,37 @@ export async function handleWebData(user: User): Promise<Response> {
 		mealplan: [],
 	};
 	for (const row of results) {
-		grouped[row.collection]?.push({ ...JSON.parse(row.data ?? "{}"), syncId: row.sync_id, changedAt: row.changed_at });
+		const addedBy = authors.size ? (authors.get(`${row.collection}/${row.sync_id}`) ?? authors.get("")) : undefined;
+		grouped[row.collection]?.push({ ...JSON.parse(row.data ?? "{}"), syncId: row.sync_id, changedAt: row.changed_at, addedBy });
 	}
-	return Response.json({ user, ...grouped });
+	return Response.json({ user, household, settings: await loadSettings(space), ...grouped });
+}
+
+/**
+ * `POST /api/web/author` `{collection, syncId, email}`: the household owner corrects who added a
+ * record, e.g. one from before authors were kept; it then goes with that person if they leave.
+ */
+export async function handleSetAuthor(request: Request, user: User): Promise<Response> {
+	if (request.method !== "POST") return error(405, "Method not allowed");
+	const body = await readJson<Record<string, unknown>>(request, 2048);
+	const collection = body?.collection as Collection;
+	const syncId = typeof body?.syncId === "string" ? body.syncId : "";
+	const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+	if (!COLLECTIONS.includes(collection) || !SYNC_ID.test(syncId) || !email) return error(400, "Invalid request");
+	const household = await describe(user);
+	if (household.role !== "owner") return error(403, "Only the household owner can change this");
+	if (!household.members.some((m) => m.email.toLowerCase() === email)) return error(400, "Not a member of this household");
+	const d = await db();
+	const author = await d.prepare("SELECT id FROM users WHERE email = ?").bind(email).first<{ id: string }>();
+	if (!author) return error(400, "Not a member of this household");
+	await d
+		.prepare(
+			`INSERT INTO record_authors (space, collection, sync_id, author_id) VALUES (?, ?, ?, ?)
+			 ON CONFLICT (space, collection, sync_id) DO UPDATE SET author_id = excluded.author_id`,
+		)
+		.bind(user.id, collection, syncId, author.id)
+		.run();
+	return Response.json({ ok: true });
 }
 
 /** `POST /api/web/records`: one edit from the web panel, stamped with the server's time. */

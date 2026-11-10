@@ -40,6 +40,11 @@
     <string name="dashboard_action_wasted">Thrown away</string>
     <string name="dashboard_removed_consumed">%1$s marked as eaten</string>
     <string name="dashboard_removed_wasted">%1$s marked as thrown away</string>
+    <string name="dashboard_discard_expired">Throw away expired (%1$d)</string>
+    <string name="dashboard_discard_expired_title">Throw away expired items?</string>
+    <string name="dashboard_discard_expired_message">%1$d expired items will be marked as thrown away and leave your pantry.</string>
+    <string name="dashboard_discard_expired_confirm">Throw away</string>
+    <string name="dashboard_expired_discarded">Expired items thrown away: %1$d</string>
     <string name="dashboard_action_scan">Scan</string>
     <string name="dashboard_empty_title">Your pantry is empty</string>
     <string name="dashboard_empty_subtitle">Scan your fridge or pantry to start tracking what\'s about to spoil.</string>
@@ -144,6 +149,7 @@
     <string name="dashboard_subtitle">Your fridge, freezer and pantry in one place</string>
     <string name="dashboard_use_soon">Use soon</string>
     <string name="dashboard_quick_add">Quick add</string>
+    <string name="dashboard_show_all">Show all</string>
     <!-- Unit shown next to a big count, so it carries no number itself. -->
     <plurals name="dashboard_product_count">
         <item quantity="one">product</item>
@@ -170,6 +176,7 @@
     <!-- Bottom navigation -->
     <string name="tab_pantry">Pantry</string>
     <string name="tab_recipes">Recipes</string>
+    <string name="tab_family">Family</string>
     <string name="tab_shopping">Shopping</string>
     <string name="tab_statistics">Stats</string>
 
@@ -227,6 +234,14 @@
     <string name="stats_tile_rescued">eaten in time</string>
     <string name="stats_tile_wasted">thrown away</string>
     <string name="stats_tile_savings">estimated savings</string>
+    <string name="stats_tile_savings_detail">estimated savings · %1$d saved just in time</string>
+    <string name="stats_tile_wasted_value">thrown away (value)</string>
+    <string name="stats_breakdown_open">Show details</string>
+    <string name="stats_breakdown_saved_hint">%1$d items eaten close to or past their date, which would otherwise have been thrown away.</string>
+    <string name="stats_breakdown_wasted_hint">%1$d items thrown away in this period.</string>
+    <string name="stats_breakdown_formula">Each item = average product value (%1$s) × category (meat ×2.5, fish ×3, dairy ×1, vegetables ×0.6…) × amount (per kg/L or pack; extra pieces count a quarter). The ×-figure next to an item is these two multipliers together.</string>
+    <string name="stats_breakdown_average">What an average product costs you</string>
+    <string name="stats_breakdown_empty">Nothing here for this period yet.</string>
     <string name="stats_tile_cooked">rescue recipes cooked</string>
     <string name="stats_chart_title">Last 8 weeks</string>
     <string name="stats_show_table">Table</string>
@@ -241,7 +256,7 @@
         <item quantity="one">%d product</item>
         <item quantity="other">%d products</item>
     </plurals>
-    <string name="stats_footnote">Savings are an estimate: eaten products × the average product value in Settings.</string>
+    <string name="stats_footnote">Savings count only food eaten close to or past its date — food that would otherwise have gone to waste. Each item is valued from the average product value in Settings, adjusted for its category (meat and fish more, greens less) and amount (kg, packs, pieces).</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -256,6 +271,7 @@
         <item quantity="other">%d days</item>
     </plurals>
     <string name="settings_critical_hint">Critical: 0–%1$d days left · Heads up: up to %2$d days left</string>
+    <string name="settings_critical_shared">👨‍👩‍👧 Shared with your household and the web panel.</string>
     <string name="settings_section_statistics">Statistics</string>
     <string name="settings_average_value">Average product value</string>
     <string name="settings_average_value_hint">Used only to estimate how much you saved.</string>
@@ -442,7 +458,7 @@
     <string name="household_join">Join</string>
     <string name="household_leave">Leave household</string>
     <string name="household_leave_title">Leave the household?</string>
-    <string name="household_leave_message">You keep a copy of everything on this phone; new changes are no longer shared.</string>
+    <string name="household_leave_message">You keep what you added; what the others added stays with them. New changes are no longer shared.</string>
     <string name="household_remove">Remove %1$s</string>
     <string name="household_error_code">That code is wrong or expired.</string>
     <string name="household_error_full">That household is full.</string>
@@ -560,6 +576,33 @@
     <string name="activity_title">Recent activity</string>
     <string name="activity_loading">Loading…</string>
     <string name="activity_empty">Nothing yet. When someone adds, uses or throws something away, it shows up here.</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_empty">Join a household and everything the others add, use up or throw away shows up here.</string>
+    <string name="notifications_open_family">Go to Family</string>
+    <string name="activity_see_all">See all</string>
+    <string name="activity_today">Today</string>
+    <string name="activity_yesterday">Yesterday</string>
+    <string name="activity_kind_all">All</string>
+    <string name="activity_kind_added">Added</string>
+    <string name="activity_kind_used">Eaten</string>
+    <string name="activity_kind_wasted">Thrown away</string>
+    <string name="activity_kind_freezer">Freezer</string>
+    <string name="activity_kind_shopping">Shopping</string>
+    <string name="activity_kind_recipes">Recipes</string>
+    <string name="family_subtitle">Share one pantry with the people you live with</string>
+    <string name="household_hero_title">Your household</string>
+    <string name="household_members_count">%1$d / %2$d people</string>
+    <string name="household_role_owner">Owner</string>
+    <string name="household_role_member">Member</string>
+    <string name="household_alone_title">It\'s just you for now</string>
+    <string name="household_members_title">Members</string>
+    <string name="household_you">You</string>
+    <string name="household_invite_title">Invite</string>
+    <string name="household_invite_hint">Create a code and send it; whoever enters it joins your pantry.</string>
+    <string name="household_join_title">Join a household</string>
+    <string name="household_copy">Copy</string>
+    <string name="household_remove_message">They keep what they added; what you added stays with you.</string>
+    <string name="household_remove_confirm">Remove</string>
     <string name="activity_you">You</string>
     <string name="activity_added">Added</string>
     <string name="activity_used">Used up</string>

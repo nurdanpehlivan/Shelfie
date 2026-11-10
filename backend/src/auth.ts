@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { db } from "./db.ts";
 import { deleteFirebaseUser, FirebaseError, firebaseConfigured, signInWithPassword, signUp } from "./firebase.ts";
+import { splitOut } from "./household.ts";
 import {
 	clientIp,
 	cookie,
@@ -304,7 +305,7 @@ export async function authenticate(request: Request, client: Client): Promise<Us
 
 /**
  * `DELETE /api/account`: removes the user, their sessions and every synced record. An owner's
- * household ends with it; the members' apps notice the new space and re-upload their copies.
+ * household ends with it; each member keeps what they added (household.ts `splitOut`).
  */
 export async function deleteAccount(user: User): Promise<Response> {
 	await deleteUserData(user.id);
@@ -319,6 +320,12 @@ export async function deleteUserData(userId: string): Promise<void> {
 		.bind(userId)
 		.first<{ firebase_uid: string }>();
 	if (firebase) await deleteFirebaseUser(firebase.firebase_uid);
+	// An owner's household ends with the account: each member first takes back what they added.
+	const { results: members } = await d
+		.prepare("SELECT member_id FROM household_members WHERE owner_id = ?")
+		.bind(userId)
+		.all<{ member_id: string }>();
+	for (const m of members) await splitOut(userId, m.member_id);
 	const user = { id: userId };
 	await d.batch([
 		d.prepare("DELETE FROM firebase_users WHERE user_id = ?").bind(user.id),
@@ -328,6 +335,7 @@ export async function deleteUserData(userId: string): Promise<void> {
 		d.prepare("DELETE FROM household_activity WHERE space = ?1 OR actor_id = ?1").bind(user.id),
 		d.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM sync_records WHERE user_id = ?").bind(user.id),
+		d.prepare("DELETE FROM record_authors WHERE space = ?1 OR author_id = ?1").bind(user.id),
 		d.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
 		d.prepare("DELETE FROM users WHERE id = ?").bind(user.id),
 	]);

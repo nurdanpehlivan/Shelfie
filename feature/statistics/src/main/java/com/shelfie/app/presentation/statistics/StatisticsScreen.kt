@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -34,6 +35,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -59,12 +61,32 @@ import java.text.NumberFormat
 @Composable
 fun StatisticsRoute(viewModel: StatisticsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    StatisticsScreen(state = state, onPeriodSelected = viewModel::selectPeriod)
+    StatisticsScreen(
+        state = state,
+        onPeriodSelected = viewModel::selectPeriod,
+        onAverageValueChange = viewModel::setAverageItemValue,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatisticsScreen(state: StatisticsUiState, onPeriodSelected: (StatisticsPeriod) -> Unit) {
+fun StatisticsScreen(
+    state: StatisticsUiState,
+    onPeriodSelected: (StatisticsPeriod) -> Unit,
+    onAverageValueChange: (Double) -> Unit = {},
+) {
+    var breakdownName by rememberSaveable { mutableStateOf<String?>(null) }
+    val breakdown = ValueBreakdown.entries.firstOrNull { it.name == breakdownName }
+    val loaded = state.statistics
+    if (breakdown != null && loaded != null) {
+        ValueBreakdownSheet(
+            kind = breakdown,
+            stats = loaded,
+            onAverageValueChange = onAverageValueChange,
+            onDismiss = { breakdownName = null },
+        )
+    }
+
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -99,11 +121,25 @@ fun StatisticsScreen(state: StatisticsUiState, onPeriodSelected: (StatisticsPeri
                 StatTile("♻", stats.rescuedCount.toString(), stringResource(R.string.stats_tile_rescued), Modifier.weight(1f))
                 StatTile("🗑", stats.wastedCount.toString(), stringResource(R.string.stats_tile_wasted), Modifier.weight(1f))
             }
+            val currency = rememberMoneyFormat(stats.currencyCode)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                val currency = rememberMoneyFormat(stats.currencyCode)
-                StatTile("💰", currency.format(stats.estimatedSavings), stringResource(R.string.stats_tile_savings), Modifier.weight(1f))
-                StatTile("👩‍🍳", stats.cookedRecipeCount.toString(), stringResource(R.string.stats_tile_cooked), Modifier.weight(1f))
+                // Tappable: each opens what the amount is made of.
+                StatTile(
+                    "💰",
+                    currency.format(stats.estimatedSavings),
+                    stringResource(R.string.stats_tile_savings_detail, stats.savedCount),
+                    Modifier.weight(1f),
+                    onClick = { breakdownName = ValueBreakdown.SAVED.name },
+                )
+                StatTile(
+                    "💸",
+                    currency.format(stats.wastedValue),
+                    stringResource(R.string.stats_tile_wasted_value),
+                    Modifier.weight(1f),
+                    onClick = { breakdownName = ValueBreakdown.WASTED.name },
+                )
             }
+            StatTile("👩‍🍳", stats.cookedRecipeCount.toString(), stringResource(R.string.stats_tile_cooked), Modifier.fillMaxWidth())
 
             ChartCard(stats)
 
@@ -154,16 +190,28 @@ private fun HeroCard(stats: PantryStatistics) {
 }
 
 @Composable
-private fun StatTile(icon: String, value: String, label: String, modifier: Modifier = Modifier) {
-    ShelfieCard(modifier = modifier) {
+private fun StatTile(icon: String, value: String, label: String, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
+    ShelfieCard(modifier = modifier, onClick = onClick) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(text = icon, style = MaterialTheme.typography.bodyLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = icon, style = MaterialTheme.typography.bodyLarge)
+                }
+                if (onClick != null) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    // Says the tile opens something, like a list row's chevron.
+                    Icon(
+                        painter = painterResource(R.drawable.ic_chevron_right),
+                        contentDescription = stringResource(R.string.stats_breakdown_open),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(text = value, style = MaterialTheme.typography.headlineMedium, maxLines = 1)

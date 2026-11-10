@@ -116,6 +116,11 @@ class PantryRepositoryImpl @Inject constructor(
         pantryDao.markAsWasted(id = id, updatedAt = now())
     }
 
+    override suspend fun markAllAsWasted(ids: Collection<Long>): Int {
+        if (ids.isEmpty()) return 0
+        return pantryDao.markAllAsWasted(ids = ids.distinct(), updatedAt = now())
+    }
+
     override suspend fun restoreToPantry(id: Long) {
         pantryDao.restoreToPantry(id = id, updatedAt = now())
     }

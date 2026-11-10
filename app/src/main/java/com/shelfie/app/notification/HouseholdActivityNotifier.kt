@@ -16,7 +16,7 @@ import com.shelfie.app.domain.model.HouseholdActivity
 import com.shelfie.app.presentation.MainActivity
 import com.shelfie.app.presentation.common.activityLabelRes
 import com.shelfie.app.presentation.common.displayName
-import com.shelfie.app.presentation.navigation.ACCOUNT_DEEP_LINK
+import com.shelfie.app.presentation.navigation.NOTIFICATIONS_DEEP_LINK
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,7 +52,7 @@ class HouseholdActivityNotifier @Inject constructor(
         val title = context.resources.getQuantityString(R.plurals.notification_household_title, events.size, events.size)
         val style = NotificationCompat.InboxStyle().setBigContentTitle(title)
         lines.takeLast(MAX_LINES).asReversed().forEach(style::addLine)
-        val intent = Intent(Intent.ACTION_VIEW, ACCOUNT_DEEP_LINK.toUri(), context, MainActivity::class.java)
+        val intent = Intent(Intent.ACTION_VIEW, NOTIFICATIONS_DEEP_LINK.toUri(), context, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)

@@ -40,6 +40,11 @@
     <string name="dashboard_action_wasted">Jeté</string>
     <string name="dashboard_removed_consumed">%1$s marqué comme mangé</string>
     <string name="dashboard_removed_wasted">%1$s marqué comme jeté</string>
+    <string name="dashboard_discard_expired">Jeter les périmés (%1$d)</string>
+    <string name="dashboard_discard_expired_title">Jeter les produits périmés ?</string>
+    <string name="dashboard_discard_expired_message">%1$d produits périmés seront marqués comme jetés et retirés de ton garde-manger.</string>
+    <string name="dashboard_discard_expired_confirm">Jeter</string>
+    <string name="dashboard_expired_discarded">Produits périmés jetés : %1$d</string>
     <string name="dashboard_action_scan">Scanner</string>
     <string name="dashboard_empty_title">Ton garde-manger est vide</string>
     <string name="dashboard_empty_subtitle">Scanne ton frigo ou tes placards pour suivre ce qui va bientôt périmer.</string>
@@ -50,6 +55,7 @@
     <string name="dashboard_subtitle">Ton frigo, ton congélateur et tes placards au même endroit</string>
     <string name="dashboard_use_soon">À consommer vite</string>
     <string name="dashboard_quick_add">Ajout rapide</string>
+    <string name="dashboard_show_all">Tout afficher</string>
     <!-- Unit shown next to a big count, so it carries no number itself. -->
     <plurals name="dashboard_product_count">
         <item quantity="one">produit</item>
@@ -185,6 +191,7 @@
     <!-- Bottom navigation -->
     <string name="tab_pantry">Garde-manger</string>
     <string name="tab_recipes">Recettes</string>
+    <string name="tab_family">Famille</string>
     <string name="tab_shopping">Courses</string>
     <string name="tab_statistics">Stats</string>
 
@@ -222,6 +229,14 @@
     <string name="stats_tile_rescued">mangés à temps</string>
     <string name="stats_tile_wasted">jetés</string>
     <string name="stats_tile_savings">économies estimées</string>
+    <string name="stats_tile_savings_detail">économies estimées · %1$d sauvés à temps</string>
+    <string name="stats_tile_wasted_value">jeté (valeur)</string>
+    <string name="stats_breakdown_open">Voir le détail</string>
+    <string name="stats_breakdown_saved_hint">%1$d produits mangés près de leur date ou après, qui auraient sinon fini à la poubelle.</string>
+    <string name="stats_breakdown_wasted_hint">%1$d produits jetés sur cette période.</string>
+    <string name="stats_breakdown_formula">Chaque produit = valeur moyenne (%1$s) × catégorie (viande ×2,5, poisson ×3, laitier ×1, légumes ×0,6…) × quantité (par kg/L ou paquet ; les pièces en plus comptent pour un quart). Le chiffre × à côté d’un produit réunit ces deux facteurs.</string>
+    <string name="stats_breakdown_average">Ce que te coûte un produit moyen</string>
+    <string name="stats_breakdown_empty">Rien pour cette période pour l’instant.</string>
     <string name="stats_tile_cooked">recettes anti-gaspi cuisinées</string>
     <string name="stats_chart_title">8 dernières semaines</string>
     <string name="stats_show_table">Tableau</string>
@@ -235,7 +250,7 @@
         <item quantity="one">%d produit</item>
         <item quantity="other">%d produits</item>
     </plurals>
-    <string name="stats_footnote">Les économies sont une estimation : produits mangés × valeur moyenne d’un produit définie dans les Réglages.</string>
+    <string name="stats_footnote">Les économies ne comptent que ce qui a été mangé près de sa date ou après, donc ce qui aurait fini à la poubelle. Chaque produit est estimé à partir de la valeur moyenne des Réglages, ajustée selon la catégorie (viande et poisson plus, légumes moins) et la quantité (kg, paquets, pièces).</string>
 
     <!-- Settings -->
     <string name="settings_title">Réglages</string>
@@ -250,6 +265,7 @@
         <item quantity="other">%d jours</item>
     </plurals>
     <string name="settings_critical_hint">Critique : 0–%1$d jours restants · Attention : jusqu’à %2$d jours</string>
+    <string name="settings_critical_shared">👨‍👩‍👧 Partagé avec ton foyer et le panneau web.</string>
     <string name="settings_section_statistics">Statistiques</string>
     <string name="settings_average_value">Valeur moyenne d’un produit</string>
     <string name="settings_average_value_hint">Sert uniquement à estimer tes économies.</string>
@@ -436,7 +452,7 @@
     <string name="household_join">Rejoindre</string>
     <string name="household_leave">Quitter le foyer</string>
     <string name="household_leave_title">Quitter le foyer ?</string>
-    <string name="household_leave_message">Tu gardes une copie de tout sur ce téléphone ; les nouveaux changements ne sont plus partagés.</string>
+    <string name="household_leave_message">Tu gardes ce que tu as ajouté ; ce que les autres ont ajouté reste chez eux. Les nouveaux changements ne sont plus partagés.</string>
     <string name="household_remove">Retirer %1$s</string>
     <string name="household_error_code">Ce code est faux ou expiré.</string>
     <string name="household_error_full">Ce foyer est complet.</string>
@@ -554,6 +570,33 @@
     <string name="activity_title">Activité récente</string>
     <string name="activity_loading">Chargement…</string>
     <string name="activity_empty">Rien pour l\'instant. Quand quelqu\'un ajoute, termine ou jette quelque chose, ça s\'affiche ici.</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_empty">Rejoins un foyer et tout ce que les autres ajoutent, finissent ou jettent apparaîtra ici.</string>
+    <string name="notifications_open_family">Aller à Famille</string>
+    <string name="activity_see_all">Tout voir</string>
+    <string name="activity_today">Aujourd’hui</string>
+    <string name="activity_yesterday">Hier</string>
+    <string name="activity_kind_all">Tout</string>
+    <string name="activity_kind_added">Ajouté</string>
+    <string name="activity_kind_used">Mangé</string>
+    <string name="activity_kind_wasted">Jeté</string>
+    <string name="activity_kind_freezer">Congélateur</string>
+    <string name="activity_kind_shopping">Courses</string>
+    <string name="activity_kind_recipes">Recettes</string>
+    <string name="family_subtitle">Partage un garde-manger avec ton foyer</string>
+    <string name="household_hero_title">Ton foyer</string>
+    <string name="household_members_count">%1$d / %2$d personnes</string>
+    <string name="household_role_owner">Propriétaire</string>
+    <string name="household_role_member">Membre</string>
+    <string name="household_alone_title">Pour l\'instant, il n\'y a que toi</string>
+    <string name="household_members_title">Membres</string>
+    <string name="household_you">Toi</string>
+    <string name="household_invite_title">Inviter</string>
+    <string name="household_invite_hint">Crée un code et envoie-le ; qui le saisit rejoint ton garde-manger.</string>
+    <string name="household_join_title">Rejoindre un foyer</string>
+    <string name="household_copy">Copier</string>
+    <string name="household_remove_message">Cette personne garde ce qu\'elle a ajouté ; ce que tu as ajouté reste chez toi.</string>
+    <string name="household_remove_confirm">Retirer</string>
     <string name="activity_you">Toi</string>
     <string name="activity_added">Ajouté</string>
     <string name="activity_used">Terminé</string>

@@ -38,6 +38,11 @@
     <string name="dashboard_action_wasted">Çöpe gitti</string>
     <string name="dashboard_removed_consumed">%1$s tüketildi olarak işaretlendi</string>
     <string name="dashboard_removed_wasted">%1$s çöpe gitti olarak işaretlendi</string>
+    <string name="dashboard_discard_expired">Süresi geçenleri at (%1$d)</string>
+    <string name="dashboard_discard_expired_title">Süresi geçenler atılsın mı?</string>
+    <string name="dashboard_discard_expired_message">Süresi geçmiş %1$d ürün çöpe gitti olarak işaretlenip kilerden kaldırılacak.</string>
+    <string name="dashboard_discard_expired_confirm">Hepsini at</string>
+    <string name="dashboard_expired_discarded">Süresi geçen %1$d ürün atıldı</string>
     <string name="dashboard_action_scan">Tara</string>
     <string name="dashboard_empty_title">Kilerin boş</string>
     <string name="dashboard_empty_subtitle">Bozulmak üzere olanları takip etmeye başlamak için buzdolabını ya da kilerini tara.</string>
@@ -142,6 +147,7 @@
     <string name="dashboard_subtitle">Buzdolabın, dondurucun ve kilerin tek yerde</string>
     <string name="dashboard_use_soon">Tüketilmesi gerekenler</string>
     <string name="dashboard_quick_add">Hızlı ekle</string>
+    <string name="dashboard_show_all">Tümünü göster</string>
     <!-- Unit shown next to a big count, so it carries no number itself. -->
     <plurals name="dashboard_product_count">
         <item quantity="one">ürün</item>
@@ -167,6 +173,7 @@
     <!-- Bottom navigation -->
     <string name="tab_pantry">Kiler</string>
     <string name="tab_recipes">Tarifler</string>
+    <string name="tab_family">Aile</string>
     <string name="tab_shopping">Alışveriş</string>
     <string name="tab_statistics">İstatistik</string>
 
@@ -224,6 +231,14 @@
     <string name="stats_tile_rescued">zamanında tüketildi</string>
     <string name="stats_tile_wasted">çöpe gitti</string>
     <string name="stats_tile_savings">tahmini tasarruf</string>
+    <string name="stats_tile_savings_detail">tahmini tasarruf · %1$d ürün son anda kurtarıldı</string>
+    <string name="stats_tile_wasted_value">çöpe giden değer</string>
+    <string name="stats_breakdown_open">Ayrıntıları göster</string>
+    <string name="stats_breakdown_saved_hint">Tarihi yaklaşmışken ya da geçmişken tüketilen, aksi halde çöpe gidecek %1$d ürün.</string>
+    <string name="stats_breakdown_wasted_hint">Bu dönemde çöpe giden %1$d ürün.</string>
+    <string name="stats_breakdown_formula">Her ürün = ortalama ürün değeri (%1$s) × kategori (et ×2,5, balık ×3, süt ×1, sebze ×0,6…) × miktar (kg/L ya da paket başına; ilkinden sonraki adetler çeyrek sayılır). Ürünün yanındaki × bu iki çarpanın toplamıdır.</string>
+    <string name="stats_breakdown_average">Ortalama bir ürün sana kaça mal oluyor</string>
+    <string name="stats_breakdown_empty">Bu dönemde burada henüz bir şey yok.</string>
     <string name="stats_tile_cooked">pişirilen kurtarma tarifi</string>
     <string name="stats_chart_title">Son 8 hafta</string>
     <string name="stats_show_table">Tablo</string>
@@ -237,7 +252,7 @@
         <item quantity="one">%d ürün</item>
         <item quantity="other">%d ürün</item>
     </plurals>
-    <string name="stats_footnote">Tasarruf bir tahmindir: tüketilen ürün sayısı × Ayarlar\'daki ortalama ürün değeri.</string>
+    <string name="stats_footnote">Tasarruf, yalnızca tarihi yaklaşmışken ya da geçmişken tüketilen, yani aksi halde çöpe gidecek ürünleri sayar. Her ürünün değeri Ayarlar\'daki ortalama ürün değerinden hesaplanır; kategoriye (et ve balık daha değerli, yeşillik daha az) ve miktara (kg, paket, adet) göre ayarlanır.</string>
 
     <!-- Settings -->
     <string name="settings_title">Ayarlar</string>
@@ -252,6 +267,7 @@
         <item quantity="other">%d gün</item>
     </plurals>
     <string name="settings_critical_hint">Kritik: 0–%1$d gün kaldı · Dikkat: %2$d güne kadar</string>
+    <string name="settings_critical_shared">👨‍👩‍👧 Hanendeki herkes ve web paneli için geçerli.</string>
     <string name="settings_section_statistics">İstatistik</string>
     <string name="settings_average_value">Ortalama ürün değeri</string>
     <string name="settings_average_value_hint">Yalnızca ne kadar tasarruf ettiğini tahmin etmek için kullanılır.</string>
@@ -438,7 +454,7 @@
     <string name="household_join">Katıl</string>
     <string name="household_leave">Haneden ayrıl</string>
     <string name="household_leave_title">Haneden ayrılınsın mı?</string>
-    <string name="household_leave_message">Bu telefondaki her şeyin bir kopyası sende kalır; yeni değişiklikler artık paylaşılmaz.</string>
+    <string name="household_leave_message">Senin eklediklerin sende kalır, diğerlerinin ekledikleri onlarda. Yeni değişiklikler artık paylaşılmaz.</string>
     <string name="household_remove">%1$s kişisini çıkar</string>
     <string name="household_error_code">Kod hatalı ya da süresi dolmuş.</string>
     <string name="household_error_full">Bu hane dolu.</string>
@@ -556,6 +572,33 @@
     <string name="activity_title">Son hareketler</string>
     <string name="activity_loading">Yükleniyor…</string>
     <string name="activity_empty">Henüz bir şey yok. Evden biri bir şey ekleyince, bitirince ya da atınca burada görünür.</string>
+    <string name="notifications_title">Bildirimler</string>
+    <string name="notifications_empty">Bir haneye katıldığında evdekilerin eklediği, bitirdiği ve attığı her şey burada görünür.</string>
+    <string name="notifications_open_family">Aileye git</string>
+    <string name="activity_see_all">Tümünü gör</string>
+    <string name="activity_today">Bugün</string>
+    <string name="activity_yesterday">Dün</string>
+    <string name="activity_kind_all">Tümü</string>
+    <string name="activity_kind_added">Eklenen</string>
+    <string name="activity_kind_used">Tüketilen</string>
+    <string name="activity_kind_wasted">Çöpe giden</string>
+    <string name="activity_kind_freezer">Dondurucu</string>
+    <string name="activity_kind_shopping">Alışveriş</string>
+    <string name="activity_kind_recipes">Tarifler</string>
+    <string name="family_subtitle">Kileri evdekilerle paylaş</string>
+    <string name="household_hero_title">Hanen</string>
+    <string name="household_members_count">%1$d / %2$d kişi</string>
+    <string name="household_role_owner">Hane sahibi</string>
+    <string name="household_role_member">Üye</string>
+    <string name="household_alone_title">Şimdilik sadece sen varsın</string>
+    <string name="household_members_title">Hanedekiler</string>
+    <string name="household_you">Sen</string>
+    <string name="household_invite_title">Davet et</string>
+    <string name="household_invite_hint">Bir kod oluştur ve gönder; kodu giren kilerine katılır.</string>
+    <string name="household_join_title">Bir haneye katıl</string>
+    <string name="household_copy">Kopyala</string>
+    <string name="household_remove_message">Onun eklediği her şey onda kalır, seninkiler sende.</string>
+    <string name="household_remove_confirm">Çıkar</string>
     <string name="activity_you">Sen</string>
     <string name="activity_added">Eklendi</string>
     <string name="activity_used">Bitirildi</string>

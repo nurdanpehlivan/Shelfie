@@ -7,6 +7,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 /** Account and sync API of the Shelfie Worker (backend/src/auth.ts, backend/src/sync.ts). */
 interface ShelfieApiService {
@@ -49,9 +50,12 @@ interface ShelfieApiService {
     @POST("api/household/remove")
     suspend fun removeMember(@Header(AUTHORIZATION) bearer: String, @Body request: RemoveMemberRequest): HouseholdDto
 
-    /** The newest household events, newest first (backend/src/activity.ts). */
+    /** A page of household events, newest first; [before] an event id for the older page (backend/src/activity.ts). */
     @GET("api/household/activity")
-    suspend fun householdActivity(@Header(AUTHORIZATION) bearer: String): ActivityResponse
+    suspend fun householdActivity(
+        @Header(AUTHORIZATION) bearer: String,
+        @Query("before") before: Long? = null,
+    ): ActivityResponse
 
     /** Plan and today's AI usage; [bearer] is optional (signed-out users are counted per install). */
     @GET("api/quota")
@@ -89,11 +93,29 @@ data class SessionResponse(val token: String, val user: UserDto)
 data class UserDto(val id: String, val email: String)
 
 @Serializable
-data class SyncRequest(val cursor: Long, val changes: List<SyncChangeDto>)
+data class SyncRequest(
+    val cursor: Long,
+    val changes: List<SyncChangeDto>,
+    /** A settings change made on this phone, not sent yet. */
+    val settings: SpaceSettingsDto? = null,
+)
 
-/** [space] is the data space synced with: the account's own, or its household owner's. */
+/**
+ * [space] is the data space synced with: the account's own, or its household owner's.
+ * [settings] are the space's shared settings, `null` while nobody has set them.
+ */
 @Serializable
-data class SyncResponse(val cursor: Long, val hasMore: Boolean, val records: List<SyncChangeDto>, val space: String? = null)
+data class SyncResponse(
+    val cursor: Long,
+    val hasMore: Boolean,
+    val records: List<SyncChangeDto>,
+    val space: String? = null,
+    val settings: SpaceSettingsDto? = null,
+)
+
+/** Settings a household shares (backend/src/sync.ts `SpaceSettings`); last write wins on [changedAt]. */
+@Serializable
+data class SpaceSettingsDto(val criticalDays: Long, val changedAt: Long)
 
 @Serializable
 data class HouseholdDto(
@@ -111,7 +133,7 @@ data class HouseholdMemberDto(val email: String, val isOwner: Boolean, val joine
 data class InviteDto(val code: String, val expiresAt: Long)
 
 @Serializable
-data class ActivityResponse(val events: List<ActivityDto>)
+data class ActivityResponse(val events: List<ActivityDto>, val hasMore: Boolean = false)
 
 /** [action] is one of backend/src/activity.ts `Action`; [at] is epoch millis. */
 @Serializable

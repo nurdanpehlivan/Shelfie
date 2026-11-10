@@ -39,6 +39,11 @@
     <string name="dashboard_action_wasted">Tirado</string>
     <string name="dashboard_removed_consumed">%1$s marcado como comido</string>
     <string name="dashboard_removed_wasted">%1$s marcado como tirado</string>
+    <string name="dashboard_discard_expired">Tirar caducados (%1$d)</string>
+    <string name="dashboard_discard_expired_title">¿Tirar los caducados?</string>
+    <string name="dashboard_discard_expired_message">%1$d productos caducados se marcarán como tirados y saldrán de tu despensa.</string>
+    <string name="dashboard_discard_expired_confirm">Tirar</string>
+    <string name="dashboard_expired_discarded">Productos caducados tirados: %1$d</string>
     <string name="dashboard_action_scan">Escanear</string>
     <string name="dashboard_empty_title">Tu despensa está vacía</string>
     <string name="dashboard_empty_subtitle">Escanea tu nevera o despensa para saber qué está a punto de caducar.</string>
@@ -49,6 +54,7 @@
     <string name="dashboard_subtitle">Tu nevera, congelador y despensa en un solo lugar</string>
     <string name="dashboard_use_soon">Consumir pronto</string>
     <string name="dashboard_quick_add">Añadir rápido</string>
+    <string name="dashboard_show_all">Mostrar todo</string>
     <!-- Unit shown next to a big count, so it carries no number itself. -->
     <plurals name="dashboard_product_count">
         <item quantity="one">producto</item>
@@ -184,6 +190,7 @@
     <!-- Bottom navigation -->
     <string name="tab_pantry">Despensa</string>
     <string name="tab_recipes">Recetas</string>
+    <string name="tab_family">Familia</string>
     <string name="tab_shopping">Compra</string>
     <string name="tab_statistics">Estadísticas</string>
 
@@ -221,6 +228,14 @@
     <string name="stats_tile_rescued">comidos a tiempo</string>
     <string name="stats_tile_wasted">tirados</string>
     <string name="stats_tile_savings">ahorro estimado</string>
+    <string name="stats_tile_savings_detail">ahorro estimado · %1$d salvados a tiempo</string>
+    <string name="stats_tile_wasted_value">tirado (valor)</string>
+    <string name="stats_breakdown_open">Ver detalles</string>
+    <string name="stats_breakdown_saved_hint">%1$d productos comidos cerca o después de su fecha, que si no habrían acabado en la basura.</string>
+    <string name="stats_breakdown_wasted_hint">%1$d productos tirados en este periodo.</string>
+    <string name="stats_breakdown_formula">Cada producto = valor medio (%1$s) × categoría (carne ×2,5, pescado ×3, lácteos ×1, verduras ×0,6…) × cantidad (por kg/L o paquete; las unidades extra cuentan un cuarto). La cifra × junto a cada producto son ambos factores juntos.</string>
+    <string name="stats_breakdown_average">Cuánto te cuesta un producto medio</string>
+    <string name="stats_breakdown_empty">Todavía no hay nada en este periodo.</string>
     <string name="stats_tile_cooked">recetas de rescate cocinadas</string>
     <string name="stats_chart_title">Últimas 8 semanas</string>
     <string name="stats_show_table">Tabla</string>
@@ -234,7 +249,7 @@
         <item quantity="one">%d producto</item>
         <item quantity="other">%d productos</item>
     </plurals>
-    <string name="stats_footnote">El ahorro es una estimación: productos comidos × el valor medio de producto de Ajustes.</string>
+    <string name="stats_footnote">El ahorro solo cuenta lo que se comió cerca o después de su fecha, lo que si no habría acabado en la basura. Cada producto se valora a partir del valor medio de Ajustes, ajustado por categoría (carne y pescado más, verduras menos) y cantidad (kg, paquetes, unidades).</string>
 
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>
@@ -249,6 +264,7 @@
         <item quantity="other">%d días</item>
     </plurals>
     <string name="settings_critical_hint">Crítico: quedan 0–%1$d días · Atención: hasta %2$d días</string>
+    <string name="settings_critical_shared">👨‍👩‍👧 Se comparte con tu hogar y el panel web.</string>
     <string name="settings_section_statistics">Estadísticas</string>
     <string name="settings_average_value">Valor medio de un producto</string>
     <string name="settings_average_value_hint">Solo se usa para estimar cuánto has ahorrado.</string>
@@ -435,7 +451,7 @@
     <string name="household_join">Unirme</string>
     <string name="household_leave">Salir del hogar</string>
     <string name="household_leave_title">¿Salir del hogar?</string>
-    <string name="household_leave_message">Te quedas una copia de todo en este móvil; los cambios nuevos ya no se comparten.</string>
+    <string name="household_leave_message">Te quedas con lo que añadiste; lo que añadieron los demás se queda con ellos. Los cambios nuevos ya no se comparten.</string>
     <string name="household_remove">Quitar a %1$s</string>
     <string name="household_error_code">Ese código es incorrecto o ha caducado.</string>
     <string name="household_error_full">Ese hogar está lleno.</string>
@@ -553,6 +569,33 @@
     <string name="activity_title">Actividad reciente</string>
     <string name="activity_loading">Cargando…</string>
     <string name="activity_empty">Nada todavía. Cuando alguien añada, termine o tire algo, aparecerá aquí.</string>
+    <string name="notifications_title">Notificaciones</string>
+    <string name="notifications_empty">Únete a un hogar y aquí verás todo lo que los demás añaden, terminan o tiran.</string>
+    <string name="notifications_open_family">Ir a Familia</string>
+    <string name="activity_see_all">Ver todo</string>
+    <string name="activity_today">Hoy</string>
+    <string name="activity_yesterday">Ayer</string>
+    <string name="activity_kind_all">Todo</string>
+    <string name="activity_kind_added">Añadido</string>
+    <string name="activity_kind_used">Comido</string>
+    <string name="activity_kind_wasted">Tirado</string>
+    <string name="activity_kind_freezer">Congelador</string>
+    <string name="activity_kind_shopping">Compra</string>
+    <string name="activity_kind_recipes">Recetas</string>
+    <string name="family_subtitle">Comparte una despensa con quienes viven contigo</string>
+    <string name="household_hero_title">Tu hogar</string>
+    <string name="household_members_count">%1$d / %2$d personas</string>
+    <string name="household_role_owner">Propietario</string>
+    <string name="household_role_member">Miembro</string>
+    <string name="household_alone_title">Por ahora solo estás tú</string>
+    <string name="household_members_title">Miembros</string>
+    <string name="household_you">Tú</string>
+    <string name="household_invite_title">Invitar</string>
+    <string name="household_invite_hint">Crea un código y envíalo; quien lo introduzca se une a tu despensa.</string>
+    <string name="household_join_title">Unirse a un hogar</string>
+    <string name="household_copy">Copiar</string>
+    <string name="household_remove_message">Se queda con lo que añadió; lo tuyo se queda contigo.</string>
+    <string name="household_remove_confirm">Quitar</string>
     <string name="activity_you">Tú</string>
     <string name="activity_added">Añadido</string>
     <string name="activity_used">Terminado</string>

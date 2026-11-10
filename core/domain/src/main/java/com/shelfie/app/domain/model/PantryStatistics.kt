@@ -7,7 +7,10 @@ data class PantryStatistics(
     val rescuedCount: Int,
     val wastedCount: Int,
     val cookedRecipeCount: Int,
-    /** [rescuedCount] × the user's average item value. */
+    /**
+     * Rough worth of the food eaten just in time ([savedCount] items: within the warning window
+     * or past the date), see `ItemValue`.
+     */
     val estimatedSavings: Double,
     /** Oldest week first; always [WEEKS_IN_CHART] entries. */
     val weekly: List<WeekStatistics>,
@@ -15,6 +18,16 @@ data class PantryStatistics(
     val topWastedCategories: List<Pair<Category, Int>>,
     /** Currency of [estimatedSavings], see [AppSettings.currencyCode]. */
     val currencyCode: String? = null,
+    /** Eaten items that were close to spoiling: what [estimatedSavings] adds up. */
+    val savedCount: Int = 0,
+    /** Rough worth of what was thrown away, same scale as [estimatedSavings]. */
+    val wastedValue: Double = 0.0,
+    /** What [estimatedSavings] is made of, most valuable first. */
+    val savedItems: List<ValuedItem> = emptyList(),
+    /** What [wastedValue] is made of, most valuable first. */
+    val wastedItems: List<ValuedItem> = emptyList(),
+    /** The user's "average product" value the amounts were worked out from. */
+    val averageItemValue: Double = AppSettings.DEFAULT_AVERAGE_ITEM_VALUE,
 ) {
     val totalCount: Int get() = rescuedCount + wastedCount
 
@@ -25,6 +38,9 @@ data class PantryStatistics(
         const val WEEKS_IN_CHART = 8
     }
 }
+
+/** A removed item and what it was estimated to be worth. */
+data class ValuedItem(val item: PantryItem, val value: Double)
 
 data class WeekStatistics(
     /** Monday of the week. */

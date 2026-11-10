@@ -90,6 +90,7 @@ export const PANEL_HTML = `<!doctype html>
 	dialog ol { padding-left: 22px; }
 	dialog li { margin-bottom: 8px; }
 	.fav { font-size: 1.15rem; }
+	select.author { padding: 5px 8px; font-size: 0.85rem; max-width: 140px; }
 	.toolbar { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
 	.toolbar .spacer { flex: 1; }
 	footer { margin-top: 32px; font-size: 0.85rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -119,6 +120,7 @@ export const PANEL_HTML = `<!doctype html>
 		<header>
 			<h1>Frizzy</h1>
 			<span class="muted" id="who"></span>
+			<span class="badge fresh" id="household" hidden></span>
 			<span class="spacer"></span>
 			<button type="button" id="reload">Yenile</button>
 			<button type="button" id="logout">Çıkış</button>
@@ -141,7 +143,17 @@ export const PANEL_HTML = `<!doctype html>
 				<input name="expiry" type="date" required aria-label="Son kullanma tarihi">
 				<button type="submit" class="primary">Ekle</button>
 			</form>
-			<div class="toolbar"><input type="search" id="pantry-search" placeholder="Kilerde ara" aria-label="Kilerde ara"></div>
+			<div class="toolbar">
+				<input type="search" id="pantry-search" placeholder="Kilerde ara" aria-label="Kilerde ara">
+				<select id="pantry-filter" aria-label="Duruma göre süz">
+					<option value="all">Hepsi</option>
+					<option value="soon">Tüketilmesi gereken</option>
+					<option value="fresh">Güvende</option>
+					<option value="expired">Süresi geçen</option>
+				</select>
+				<span class="spacer"></span>
+				<button type="button" id="discard-expired" hidden></button>
+			</div>
 			<div class="list" id="pantry-list"></div>
 			<h3 class="section-title" id="history-title" hidden>Son 30 günde kilerden çıkanlar</h3>
 			<div class="list" id="history-list"></div>
@@ -169,7 +181,7 @@ export const PANEL_HTML = `<!doctype html>
 		</div>
 
 		<footer>
-			<span>Değişiklikler uygulamaya bir sonraki senkronizasyonda geçer.</span>
+			<span id="sync-note">Değişiklikler telefonlara birkaç saniye içinde geçer; bu sayfa da kendini yeniler.</span>
 			<span class="spacer"></span>
 			<button type="button" class="link" id="delete-account">Hesabımı sil</button>
 		</footer>
@@ -182,7 +194,10 @@ export const PANEL_HTML = `<!doctype html>
 (() => {
 	const $ = (id) => document.getElementById(id);
 	const DAY = 86400000;
-	const CRITICAL_DAYS = 2, WARNING_DAYS = 5;
+	// The household's "critical" setting from the app (space_settings), else the app's default;
+	// the warning band is 3 more days, as in FreshnessThresholds.
+	const WARNING_BAND_DAYS = 3;
+	let CRITICAL_DAYS = 2, WARNING_DAYS = 5;
 	const CATEGORIES = { DAIRY: "Süt ürünleri", MEAT: "Et", SEAFOOD: "Deniz ürünleri", FRUITS: "Meyve", VEGETABLES: "Sebze", BAKERY: "Fırın", GRAINS: "Tahıl", CANNED: "Konserve", FROZEN: "Dondurulmuş", BEVERAGES: "İçecek", CONDIMENTS: "Sos ve baharat", SNACKS: "Atıştırmalık", OTHER: "Diğer" };
 	const SHELF_LIFE = { DAIRY: 7, MEAT: 3, SEAFOOD: 2, FRUITS: 7, VEGETABLES: 7, BAKERY: 4, GRAINS: 180, CANNED: 365, FROZEN: 90, BEVERAGES: 30, CONDIMENTS: 90, SNACKS: 60, OTHER: 14 };
 	const UNITS = { PIECE: "adet", PACKAGE: "paket", GRAM: "g", KILOGRAM: "kg", MILLILITER: "ml", LITER: "L" };
@@ -191,6 +206,26 @@ export const PANEL_HTML = `<!doctype html>
 	const DEFAULT_LOCATION = { DAIRY: "FRIDGE", MEAT: "FRIDGE", SEAFOOD: "FRIDGE", FRUITS: "FRIDGE", VEGETABLES: "FRIDGE", BAKERY: "PANTRY", GRAINS: "PANTRY", CANNED: "PANTRY", FROZEN: "FREEZER", BEVERAGES: "PANTRY", CONDIMENTS: "PANTRY", SNACKS: "PANTRY", OTHER: "FRIDGE" };
 	const MEALS = { BREAKFAST: "Kahvaltı", LUNCH: "Öğle", DINNER: "Akşam" };
 	let data = { pantry: [], shopping: [], recipes: [], mealplan: [] };
+	let me = "";
+	let shared = false;
+	let isOwner = false;
+	let members = [];
+	let loadedAt = 0;
+	const displayName = (email) => (email || "").split("@")[0];
+	/** "· ekleyen: ayse" in a household; nothing for a solo account. */
+	const addedBy = (r) => (shared && r.addedBy ? "ekleyen: " + (r.addedBy === me ? "sen" : displayName(r.addedBy)) : null);
+	/**
+	 * For the owner, who added a record is a small select they can correct (records from before
+	 * authors were kept may be credited to the owner); whoever it names takes it if they leave.
+	 */
+	function authorControl(collection, r) {
+		if (!isOwner) return null;
+		const select = el("select", { class: "author", "aria-label": "Ekleyen", title: "Ekleyen (hane ayrılırsa ürün onunla gider)" },
+			...members.map((email) => el("option", { value: email, selected: email === r.addedBy }, "👤 " + (email === me ? "sen" : displayName(email)))));
+		select.addEventListener("change", () => run(api("/api/web/author", { method: "POST", body: JSON.stringify({ collection, syncId: r.syncId, email: select.value }) })
+			.then(() => { r.addedBy = select.value; render(); })));
+		return select;
+	}
 	let mode = "login";
 	let tab = "pantry";
 	try { tab = localStorage.getItem("shelfie-panel-tab") || "pantry"; } catch {}
@@ -266,7 +301,19 @@ export const PANEL_HTML = `<!doctype html>
 	async function load() {
 		const body = await api("/api/web/data");
 		data = { pantry: body.pantry, shopping: body.shopping, recipes: body.recipes, mealplan: body.mealplan || [] };
+		me = body.user.email;
+		CRITICAL_DAYS = body.settings?.criticalDays ?? 2;
+		WARNING_DAYS = CRITICAL_DAYS + WARNING_BAND_DAYS;
 		$("who").textContent = body.user.email;
+		const household = body.household;
+		shared = !!household && household.role !== "none";
+		isOwner = shared && household.role === "owner";
+		members = shared ? household.members.map((m) => m.email) : [];
+		$("household").hidden = !shared;
+		if (shared) {
+			$("household").textContent = "👨‍👩‍👧 Hane: " + household.members.map((m) => displayName(m.email) + (m.isOwner ? " (sahibi)" : "")).join(", ");
+		}
+		loadedAt = Date.now();
 		$("auth").hidden = true;
 		$("app").hidden = false;
 		render();
@@ -275,14 +322,14 @@ export const PANEL_HTML = `<!doctype html>
 
 	/** Writes the whole record; the server stamps the change time. */
 	async function save(collection, record, deleted = false) {
-		const { syncId, changedAt, ...fields } = record;
+		const { syncId, changedAt, addedBy: author, ...fields } = record;
 		const body = deleted ? { collection, syncId, deleted: true } : { collection, syncId, data: fields };
 		const res = await api("/api/web/records", { method: "POST", body: JSON.stringify(body) });
 		const list = data[collection];
 		const i = list.findIndex((r) => r.syncId === res.syncId);
 		if (deleted) { if (i >= 0) list.splice(i, 1); }
-		else if (i >= 0) list[i] = { ...fields, syncId: res.syncId, changedAt: res.changedAt };
-		else list.push({ ...fields, syncId: res.syncId, changedAt: res.changedAt });
+		else if (i >= 0) list[i] = { ...fields, syncId: res.syncId, changedAt: res.changedAt, addedBy: author };
+		else list.push({ ...fields, syncId: res.syncId, changedAt: res.changedAt, addedBy: shared ? me : undefined });
 		render();
 	}
 	const run = (p) => p.catch((e) => e.message !== "unauthorized" && alert(e.message));
@@ -297,13 +344,16 @@ export const PANEL_HTML = `<!doctype html>
 
 	function render() {
 		const active = data.pantry.filter((p) => !p.isConsumed);
+		// Same groups as the app's two overview cards (default thresholds: 2 days critical, 5 warning).
 		const critical = active.filter((p) => daysUntil(p.expiryDate) <= CRITICAL_DAYS).length;
+		const soon = active.filter((p) => daysUntil(p.expiryDate) <= WARNING_DAYS).length;
+		const expired = active.filter((p) => daysUntil(p.expiryDate) < 0).length;
 		const toBuy = data.shopping.filter((s) => !s.isChecked).length;
 		const summary = [
-			[active.length, "kilerdeki ürün"],
-			[critical, "acil tüketilmeli"],
+			[active.length - soon, "güvende"],
+			[soon, "tüketilmesi gereken" + (critical ? " (" + critical + " kritik)" : "")],
+			[expired, "süresi geçen"],
 			[toBuy, "alınacak ürün"],
-			[data.recipes.length, "kayıtlı tarif"],
 		];
 		$("summary").replaceChildren(...summary.map(([v, l]) => el("div", { class: "card" }, el("div", { class: "value" }, v), el("div", { class: "label" }, l))));
 
@@ -326,7 +376,18 @@ export const PANEL_HTML = `<!doctype html>
 
 	function renderPantry(active) {
 		const query = $("pantry-search").value.trim().toLocaleLowerCase("tr");
+		const filter = $("pantry-filter").value;
+		const matchesFilter = (p) => {
+			const days = daysUntil(p.expiryDate);
+			return filter === "soon" ? days <= WARNING_DAYS : filter === "fresh" ? days > WARNING_DAYS : filter === "expired" ? days < 0 : true;
+		};
+		const expiredItems = active.filter((p) => daysUntil(p.expiryDate) < 0);
+		$("discard-expired").hidden = !expiredItems.length;
+		$("discard-expired").textContent = "🗑 Süresi geçenleri at (" + expiredItems.length + ")";
+		$("discard-expired").onclick = () => confirm(expiredItems.length + " ürün çöpe gitti olarak işaretlensin mi?") &&
+			run(Promise.all(expiredItems.map((p) => save("pantry", { ...p, isConsumed: true, isWasted: true, updatedAt: Date.now() }))));
 		const items = active
+			.filter(matchesFilter)
 			.filter((p) => !query || p.name.toLocaleLowerCase("tr").includes(query))
 			.sort((a, b) => a.expiryDate.localeCompare(b.expiryDate) || a.name.localeCompare(b.name, "tr"));
 		const change = (item, patch) => run(save("pantry", { ...item, ...patch, updatedAt: Date.now() }));
@@ -334,14 +395,15 @@ export const PANEL_HTML = `<!doctype html>
 			el("div", { class: "item" },
 				el("div", { class: "main" },
 					el("div", { class: "title" }, (p.emoji ? p.emoji + " " : "") + p.name),
-					el("div", { class: "meta" }, qty(p.quantity) + " " + (UNITS[p.unit] || "") + " · " + (CATEGORIES[p.category] || "Diğer") +
-						" · " + (LOCATIONS[p.location] || LOCATIONS[DEFAULT_LOCATION[p.category]] || ""))),
+					el("div", { class: "meta" }, [qty(p.quantity) + " " + (UNITS[p.unit] || ""), CATEGORIES[p.category] || "Diğer",
+						LOCATIONS[p.location] || LOCATIONS[DEFAULT_LOCATION[p.category]] || "", isOwner ? null : addedBy(p)].filter(Boolean).join(" · "))),
 				freshnessBadge(p.expiryDate, p.expiryEstimated),
 				el("div", { class: "actions" },
+					authorControl("pantry", p),
 					el("button", { type: "button", onclick: () => change(p, { isConsumed: true, isWasted: false }) }, "Yedim"),
 					el("button", { type: "button", onclick: () => change(p, { isConsumed: true, isWasted: true }) }, "Attım"),
 					el("button", { type: "button", class: "link", "aria-label": p.name + " sil", onclick: () => confirm(p.name + " silinsin mi?") && run(save("pantry", p, true)) }, "Sil"))))
-			: [el("div", { class: "empty" }, query ? "Aramana uyan ürün yok." : "Kilerin boş. Uygulamadan bir fotoğraf çek ya da buradan ekle.")]));
+			: [el("div", { class: "empty" }, query || filter !== "all" ? "Bu süzgece uyan ürün yok." : "Kilerin boş. Uygulamadan bir fotoğraf çek ya da buradan ekle.")]));
 
 		const since = Date.now() - 30 * DAY;
 		const removed = data.pantry.filter((p) => p.isConsumed && (p.updatedAt || 0) >= since).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
@@ -350,7 +412,7 @@ export const PANEL_HTML = `<!doctype html>
 			el("div", { class: "item" },
 				el("div", { class: "main" },
 					el("div", { class: "title" }, p.name),
-					el("div", { class: "meta" }, (p.isWasted ? "Atıldı" : "Yendi") + " · " + new Date(p.updatedAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long" }))),
+					el("div", { class: "meta" }, [(p.isWasted ? "Atıldı" : "Yendi"), new Date(p.updatedAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long" }), addedBy(p)].filter(Boolean).join(" · "))),
 				el("div", { class: "actions" },
 					el("button", { type: "button", onclick: () => change(p, { isConsumed: false, isWasted: false }) }, "Kilere geri koy")))));
 	}
@@ -361,7 +423,8 @@ export const PANEL_HTML = `<!doctype html>
 		$("shopping-list").replaceChildren(...(items.length ? items.map((s) =>
 			el("label", { class: "item" + (s.isChecked ? " checked" : "") },
 				el("input", { type: "checkbox", checked: s.isChecked, onchange: (e) => run(save("shopping", { ...s, isChecked: e.target.checked })) }),
-				el("div", { class: "main" }, el("div", { class: "title" }, s.name), s.amount ? el("div", { class: "meta" }, s.amount) : null),
+				el("div", { class: "main" }, el("div", { class: "title" }, s.name), (s.amount || addedBy(s)) ? el("div", { class: "meta" }, [s.amount, isOwner ? null : addedBy(s)].filter(Boolean).join(" · ")) : null),
+				authorControl("shopping", s),
 				el("button", { type: "button", class: "link", "aria-label": s.name + " sil", onclick: (e) => { e.preventDefault(); run(save("shopping", s, true)); } }, "Sil")))
 			: [el("div", { class: "empty" }, "Alışveriş listen boş.")]));
 	}
@@ -374,11 +437,12 @@ export const PANEL_HTML = `<!doctype html>
 		$("recipe-list").replaceChildren(...(items.length ? items.map((r) => {
 			const recipe = parseRecipe(r) || {};
 			const meta = [recipe.cooking_time_minutes ? recipe.cooking_time_minutes + " dk" : null, recipe.servings ? recipe.servings + " kişilik" : null,
-				new Date(r.createdAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long" }), r.cookedAt ? "Pişirildi ✓" : null].filter(Boolean).join(" · ");
+				new Date(r.createdAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long" }), r.cookedAt ? "Pişirildi ✓" : null, isOwner ? null : addedBy(r)].filter(Boolean).join(" · ");
 			return el("div", { class: "item" },
 				el("button", { type: "button", class: "link fav", "aria-label": r.isFavorite ? "Favorilerden çıkar" : "Favorilere ekle", "aria-pressed": String(!!r.isFavorite), onclick: () => run(save("recipes", { ...r, isFavorite: !r.isFavorite })) }, r.isFavorite ? "★" : "☆"),
 				el("div", { class: "main" }, el("div", { class: "title" }, r.title || recipe.title || "Tarif"), el("div", { class: "meta" }, meta)),
 				el("div", { class: "actions" },
+					authorControl("recipes", r),
 					el("button", { type: "button", onclick: () => openRecipe(r, recipe) }, "Tarifi aç"),
 					el("button", { type: "button", class: "link", onclick: () => confirm("Tarif silinsin mi?") && run(save("recipes", r, true)) }, "Sil")));
 		}) : [el("div", { class: "empty" }, onlyFavs ? "Favori tarifin yok." : "Henüz tarif yok. Uygulamadan bir kurtarma tarifi oluştur.")]));
@@ -448,6 +512,18 @@ export const PANEL_HTML = `<!doctype html>
 	});
 	$("clear-checked").addEventListener("click", () => run(Promise.all(data.shopping.filter((s) => s.isChecked).map((s) => save("shopping", s, true)))));
 	$("pantry-search").addEventListener("input", render);
+	$("pantry-filter").addEventListener("change", render);
+
+	// Live-ish: what the phones change shows up without pressing "Yenile". Skipped while a recipe
+	// is open or the user is typing, so nothing jumps under them.
+	const refresh = () => {
+		if (document.hidden || $("app").hidden || $("recipe-dialog").open) return;
+		const typing = document.activeElement && document.activeElement.closest && document.activeElement.closest(".add-form");
+		if (typing && document.activeElement.value) return;
+		load().catch(() => {});
+	};
+	setInterval(refresh, 20000);
+	document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - loadedAt > 5000) refresh(); });
 	$("only-favs").addEventListener("change", render);
 
 	// endregion

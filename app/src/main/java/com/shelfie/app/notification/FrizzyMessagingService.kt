@@ -2,6 +2,7 @@ package com.shelfie.app.notification
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.shelfie.app.data.sync.SyncScheduler
 import com.shelfie.app.di.ApplicationScope
 import com.shelfie.app.domain.repository.AccountRepository
 import com.shelfie.app.work.HouseholdActivityWorker
@@ -13,17 +14,23 @@ import javax.inject.Inject
 /**
  * Firebase Cloud Messaging. The server sends a data-only "household_activity" message when
  * someone else in the household changes something; the worker then fetches the feed, pulls the
- * changes and posts the notification in this phone's language.
+ * changes and posts the notification in this phone's language. Any other change to the data
+ * (from another device, the household or the web panel) comes as "sync", which just syncs now.
  */
 @AndroidEntryPoint
 class FrizzyMessagingService : FirebaseMessagingService() {
 
     @Inject lateinit var accountRepository: AccountRepository
 
+    @Inject lateinit var syncScheduler: SyncScheduler
+
     @Inject @ApplicationScope lateinit var applicationScope: CoroutineScope
 
     override fun onMessageReceived(message: RemoteMessage) {
-        if (message.data["type"] == TYPE_HOUSEHOLD_ACTIVITY) HouseholdActivityWorker.runNow(this)
+        when (message.data["type"]) {
+            TYPE_HOUSEHOLD_ACTIVITY -> HouseholdActivityWorker.runNow(this)
+            TYPE_SYNC -> syncScheduler.requestSync(delaySeconds = 0)
+        }
     }
 
     /** A new token replaces the old one on the server; signed out, it's sent at the next sign-in. */
@@ -33,5 +40,6 @@ class FrizzyMessagingService : FirebaseMessagingService() {
 
     private companion object {
         const val TYPE_HOUSEHOLD_ACTIVITY = "household_activity"
+        const val TYPE_SYNC = "sync"
     }
 }

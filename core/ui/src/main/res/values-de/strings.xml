@@ -39,6 +39,11 @@
     <string name="dashboard_action_wasted">Weggeworfen</string>
     <string name="dashboard_removed_consumed">%1$s als gegessen markiert</string>
     <string name="dashboard_removed_wasted">%1$s als weggeworfen markiert</string>
+    <string name="dashboard_discard_expired">Abgelaufene wegwerfen (%1$d)</string>
+    <string name="dashboard_discard_expired_title">Abgelaufene wegwerfen?</string>
+    <string name="dashboard_discard_expired_message">%1$d abgelaufene Produkte werden als weggeworfen markiert und aus dem Vorrat entfernt.</string>
+    <string name="dashboard_discard_expired_confirm">Wegwerfen</string>
+    <string name="dashboard_expired_discarded">Abgelaufene Produkte weggeworfen: %1$d</string>
     <string name="dashboard_action_scan">Scannen</string>
     <string name="dashboard_empty_title">Dein Vorrat ist leer</string>
     <string name="dashboard_empty_subtitle">Scanne deinen Kühlschrank oder Vorratsschrank, um zu sehen, was bald abläuft.</string>
@@ -49,6 +54,7 @@
     <string name="dashboard_subtitle">Kühlschrank, Gefrierfach und Vorrat an einem Ort</string>
     <string name="dashboard_use_soon">Bald verbrauchen</string>
     <string name="dashboard_quick_add">Schnell hinzufügen</string>
+    <string name="dashboard_show_all">Alle anzeigen</string>
     <!-- Unit shown next to a big count, so it carries no number itself. -->
     <plurals name="dashboard_product_count">
         <item quantity="one">Produkt</item>
@@ -184,6 +190,7 @@
     <!-- Bottom navigation -->
     <string name="tab_pantry">Vorrat</string>
     <string name="tab_recipes">Rezepte</string>
+    <string name="tab_family">Familie</string>
     <string name="tab_shopping">Einkauf</string>
     <string name="tab_statistics">Statistik</string>
 
@@ -221,6 +228,14 @@
     <string name="stats_tile_rescued">rechtzeitig gegessen</string>
     <string name="stats_tile_wasted">weggeworfen</string>
     <string name="stats_tile_savings">geschätzte Ersparnis</string>
+    <string name="stats_tile_savings_detail">geschätzte Ersparnis · %1$d gerade noch gerettet</string>
+    <string name="stats_tile_wasted_value">weggeworfen (Wert)</string>
+    <string name="stats_breakdown_open">Details anzeigen</string>
+    <string name="stats_breakdown_saved_hint">%1$d Produkte kurz vor oder nach dem Datum gegessen, die sonst im Müll gelandet wären.</string>
+    <string name="stats_breakdown_wasted_hint">%1$d Produkte in diesem Zeitraum weggeworfen.</string>
+    <string name="stats_breakdown_formula">Jedes Produkt = durchschnittlicher Produktwert (%1$s) × Kategorie (Fleisch ×2,5, Fisch ×3, Milch ×1, Gemüse ×0,6…) × Menge (pro kg/L oder Packung; weitere Stück zählen ein Viertel). Die ×-Zahl neben einem Produkt sind beide Faktoren zusammen.</string>
+    <string name="stats_breakdown_average">Was ein durchschnittliches Produkt dich kostet</string>
+    <string name="stats_breakdown_empty">Für diesen Zeitraum noch nichts.</string>
     <string name="stats_tile_cooked">Rettungsrezepte gekocht</string>
     <string name="stats_chart_title">Letzte 8 Wochen</string>
     <string name="stats_show_table">Tabelle</string>
@@ -234,7 +249,7 @@
         <item quantity="one">%d Produkt</item>
         <item quantity="other">%d Produkte</item>
     </plurals>
-    <string name="stats_footnote">Die Ersparnis ist eine Schätzung: gegessene Produkte × durchschnittlicher Produktwert aus den Einstellungen.</string>
+    <string name="stats_footnote">Als Ersparnis zählt nur, was kurz vor oder nach dem Datum gegessen wurde – sonst wäre es im Müll gelandet. Jedes Produkt wird ausgehend vom durchschnittlichen Produktwert in den Einstellungen bewertet, angepasst an Kategorie (Fleisch und Fisch mehr, Grünzeug weniger) und Menge (kg, Packungen, Stück).</string>
 
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
@@ -249,6 +264,7 @@
         <item quantity="other">%d Tagen</item>
     </plurals>
     <string name="settings_critical_hint">Kritisch: noch 0–%1$d Tage · Bald fällig: bis zu %2$d Tage</string>
+    <string name="settings_critical_shared">👨‍👩‍👧 Gilt für deinen ganzen Haushalt und das Web-Panel.</string>
     <string name="settings_section_statistics">Statistik</string>
     <string name="settings_average_value">Durchschnittlicher Produktwert</string>
     <string name="settings_average_value_hint">Wird nur zur Schätzung deiner Ersparnis verwendet.</string>
@@ -435,7 +451,7 @@
     <string name="household_join">Beitreten</string>
     <string name="household_leave">Haushalt verlassen</string>
     <string name="household_leave_title">Haushalt verlassen?</string>
-    <string name="household_leave_message">Du behältst eine Kopie von allem auf diesem Handy; neue Änderungen werden nicht mehr geteilt.</string>
+    <string name="household_leave_message">Du behältst, was du hinzugefügt hast; was die anderen hinzugefügt haben, bleibt bei ihnen. Neue Änderungen werden nicht mehr geteilt.</string>
     <string name="household_remove">%1$s entfernen</string>
     <string name="household_error_code">Der Code ist falsch oder abgelaufen.</string>
     <string name="household_error_full">Dieser Haushalt ist voll.</string>
@@ -553,6 +569,33 @@
     <string name="activity_title">Letzte Aktivitäten</string>
     <string name="activity_loading">Wird geladen…</string>
     <string name="activity_empty">Noch nichts. Wenn jemand etwas hinzufügt, aufbraucht oder wegwirft, erscheint es hier.</string>
+    <string name="notifications_title">Mitteilungen</string>
+    <string name="notifications_empty">Tritt einem Haushalt bei, dann siehst du hier alles, was die anderen hinzufügen, aufbrauchen oder wegwerfen.</string>
+    <string name="notifications_open_family">Zur Familie</string>
+    <string name="activity_see_all">Alle anzeigen</string>
+    <string name="activity_today">Heute</string>
+    <string name="activity_yesterday">Gestern</string>
+    <string name="activity_kind_all">Alle</string>
+    <string name="activity_kind_added">Hinzugefügt</string>
+    <string name="activity_kind_used">Gegessen</string>
+    <string name="activity_kind_wasted">Weggeworfen</string>
+    <string name="activity_kind_freezer">Gefrierfach</string>
+    <string name="activity_kind_shopping">Einkauf</string>
+    <string name="activity_kind_recipes">Rezepte</string>
+    <string name="family_subtitle">Teile einen Vorrat mit deinem Haushalt</string>
+    <string name="household_hero_title">Dein Haushalt</string>
+    <string name="household_members_count">%1$d / %2$d Personen</string>
+    <string name="household_role_owner">Besitzer</string>
+    <string name="household_role_member">Mitglied</string>
+    <string name="household_alone_title">Noch bist nur du hier</string>
+    <string name="household_members_title">Mitglieder</string>
+    <string name="household_you">Du</string>
+    <string name="household_invite_title">Einladen</string>
+    <string name="household_invite_hint">Erstelle einen Code und schick ihn; wer ihn eingibt, teilt deinen Vorrat.</string>
+    <string name="household_join_title">Einem Haushalt beitreten</string>
+    <string name="household_copy">Kopieren</string>
+    <string name="household_remove_message">Was die Person hinzugefügt hat, bleibt bei ihr; deines bleibt bei dir.</string>
+    <string name="household_remove_confirm">Entfernen</string>
     <string name="activity_you">Du</string>
     <string name="activity_added">Hinzugefügt</string>
     <string name="activity_used">Aufgebraucht</string>

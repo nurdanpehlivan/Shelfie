@@ -155,10 +155,12 @@ class DashboardViewModel @Inject constructor(
             is DashboardIntent.MarkConsumed -> removeItem(intent.itemId, RemovalReason.CONSUMED)
             is DashboardIntent.MarkWasted -> removeItem(intent.itemId, RemovalReason.WASTED)
             is DashboardIntent.UndoRemoval -> undoRemoval(intent.itemId)
+            DashboardIntent.DiscardExpired -> discardExpired()
+            is DashboardIntent.UndoDiscardExpired -> undoDiscardExpired(intent.itemIds)
             DashboardIntent.ScanNewPhoto -> sendEffect(DashboardEffect.NavigateToScanner)
             DashboardIntent.OpenRescueRecipe -> sendEffect(DashboardEffect.NavigateToRecipe)
             DashboardIntent.OpenSettings -> sendEffect(DashboardEffect.NavigateToSettings)
-            DashboardIntent.OpenAccount -> sendEffect(DashboardEffect.NavigateToAccount)
+            DashboardIntent.OpenNotifications -> sendEffect(DashboardEffect.NavigateToNotifications)
             DashboardIntent.OpenAddItem -> _addItem.value = AddItemState(draft = emptyDraft())
             DashboardIntent.DismissAddItem -> dismissAddItem()
             is DashboardIntent.BarcodeScanned -> lookUpBarcode(intent.barcode)
@@ -202,6 +204,38 @@ class DashboardViewModel @Inject constructor(
                 return@launch
             }
             pendingRemovals.update { it - itemId }
+        }
+    }
+
+    private fun discardExpired() {
+        val ids = uiState.value.expiredItems.map { it.item.id }.filterNot { it in pendingRemovals.value }
+        if (ids.isEmpty()) return
+        pendingRemovals.update { it + ids }
+
+        viewModelScope.launch {
+            try {
+                pantryRepository.markAllAsWasted(ids)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pendingRemovals.update { it - ids.toSet() }
+                _effects.send(DashboardEffect.ShowMessage(R.string.dashboard_error_update_failed))
+                return@launch
+            }
+            _effects.send(DashboardEffect.ShowExpiredDiscarded(ids))
+        }
+    }
+
+    private fun undoDiscardExpired(itemIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                itemIds.forEach { pantryRepository.restoreToPantry(it) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _effects.send(DashboardEffect.ShowMessage(R.string.dashboard_error_update_failed))
+            }
+            pendingRemovals.update { it - itemIds.toSet() }
         }
     }
 

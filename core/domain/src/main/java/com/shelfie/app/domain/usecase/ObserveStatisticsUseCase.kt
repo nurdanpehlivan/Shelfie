@@ -1,8 +1,10 @@
 package com.shelfie.app.domain.usecase
 
+import com.shelfie.app.domain.model.ItemValue
 import com.shelfie.app.domain.model.PantryItem
 import com.shelfie.app.domain.model.PantryStatistics
 import com.shelfie.app.domain.model.StatisticsPeriod
+import com.shelfie.app.domain.model.ValuedItem
 import com.shelfie.app.domain.model.WeekStatistics
 import com.shelfie.app.domain.repository.PantryRepository
 import com.shelfie.app.domain.repository.RecipeRepository
@@ -44,11 +46,22 @@ class ObserveStatisticsUseCase @Inject constructor(
         ) { removed, cookedCount, settings ->
             val inPeriod = removed.filter { periodStart == null || !it.removedOn().isBefore(periodStart) }
             val (wasted, rescued) = inPeriod.partition { it.isWasted }
+            val valued = { items: List<PantryItem> ->
+                items.map { ValuedItem(it, ItemValue.of(it, settings.averageItemValue)) }.sortedByDescending { it.value }
+            }
+            // Only food eaten close to (or past) its date was saved; the rest was never at risk.
+            val saved = valued(rescued.filter { ItemValue.wasAtRisk(it, it.removedOn(), settings.freshnessThresholds) })
+            val thrownAway = valued(wasted)
             PantryStatistics(
                 rescuedCount = rescued.size,
                 wastedCount = wasted.size,
                 cookedRecipeCount = cookedCount,
-                estimatedSavings = rescued.size * settings.averageItemValue,
+                estimatedSavings = saved.sumOf { it.value },
+                savedCount = saved.size,
+                wastedValue = thrownAway.sumOf { it.value },
+                savedItems = saved,
+                wastedItems = thrownAway,
+                averageItemValue = settings.averageItemValue,
                 currencyCode = settings.currencyCode,
                 weekly = weeklyChart(removed, chartStart),
                 topWastedCategories = wasted

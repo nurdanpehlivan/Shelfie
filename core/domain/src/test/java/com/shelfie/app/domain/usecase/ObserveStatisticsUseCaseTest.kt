@@ -35,6 +35,8 @@ class ObserveStatisticsUseCaseTest {
         every { pantry.observeRemovedItemsSince(any()) } returns flowOf(
             listOf(
                 removed(1, Category.DAIRY, wasted = false, on = LocalDate.of(2026, 10, 7)),
+                // Eaten a month before its date: never at risk, so not "saved".
+                removed(5, Category.MEAT, wasted = false, on = LocalDate.of(2026, 10, 7), expiresIn = 30),
                 removed(2, Category.VEGETABLES, wasted = true, on = LocalDate.of(2026, 10, 6)),
                 removed(3, Category.VEGETABLES, wasted = true, on = LocalDate.of(2026, 10, 5)),
                 // Last week: outside "this week", still in the chart.
@@ -44,17 +46,21 @@ class ObserveStatisticsUseCaseTest {
 
         val stats = useCase(StatisticsPeriod.WEEK).first()
 
-        assertEquals(1, stats.rescuedCount)
+        assertEquals(2, stats.rescuedCount)
         assertEquals(2, stats.wastedCount)
-        assertEquals(40.0, stats.estimatedSavings, 0.0)
+        // One dairy item (weight 1.0) eaten on its last day.
+        assertEquals(40.0, stats.estimatedSavings, 0.001)
+        assertEquals(1, stats.savedCount)
+        // Two vegetable items (weight 0.6).
+        assertEquals(48.0, stats.wastedValue, 0.001)
         assertEquals(2, stats.cookedRecipeCount)
-        assertEquals(1f / 3, stats.rescueRate!!, 0.001f)
+        assertEquals(2f / 4, stats.rescueRate!!, 0.001f)
         assertEquals(listOf(Category.VEGETABLES to 2), stats.topWastedCategories)
 
         assertEquals(8, stats.weekly.size)
         with(stats.weekly.last()) {
             assertEquals(LocalDate.of(2026, 10, 5), weekStart)
-            assertEquals(1, rescued)
+            assertEquals(2, rescued)
             assertEquals(2, wasted)
         }
         assertEquals(1, stats.weekly[6].rescued)
@@ -70,12 +76,12 @@ class ObserveStatisticsUseCaseTest {
         assertEquals(0, stats.totalCount)
     }
 
-    private fun removed(id: Long, category: Category, wasted: Boolean, on: LocalDate) = PantryItem(
+    private fun removed(id: Long, category: Category, wasted: Boolean, on: LocalDate, expiresIn: Long = 0) = PantryItem(
         id = id,
         name = "item$id",
         category = category,
         purchaseDate = on.minusDays(3),
-        expiryDate = on,
+        expiryDate = on.plusDays(expiresIn),
         isConsumed = true,
         isWasted = wasted,
         createdAt = Instant.EPOCH,

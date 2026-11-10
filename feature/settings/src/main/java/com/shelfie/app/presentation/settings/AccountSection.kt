@@ -75,6 +75,9 @@ fun ColumnScope.AccountSectionContent(
     }
 
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+    Avatar(email = account.email, size = 44)
+    Spacer(Modifier.width(12.dp))
     Column {
         Text(text = account.email, style = MaterialTheme.typography.titleSmall)
         Text(
@@ -87,6 +90,7 @@ fun ColumnScope.AccountSectionContent(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Button(onClick = onSyncNow, enabled = !isWorking, modifier = Modifier.weight(1f)) {

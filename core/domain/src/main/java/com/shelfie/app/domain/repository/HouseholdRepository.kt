@@ -2,13 +2,15 @@ package com.shelfie.app.domain.repository
 
 import com.shelfie.app.domain.model.Household
 import com.shelfie.app.domain.model.HouseholdActivity
+import com.shelfie.app.domain.model.HouseholdActivityPage
 import com.shelfie.app.domain.model.HouseholdInvite
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Family sharing, served by the Shelfie Worker. Household actions need an
  * account; failures carry a [com.shelfie.app.domain.model.HouseholdException]. Joining or leaving
- * syncs right away, which merges this phone's data into the new household (or back out of it).
+ * syncs right away: joining brings this account's data into the household, leaving splits it so
+ * each person keeps what they added.
  */
 interface HouseholdRepository {
 
@@ -19,14 +21,20 @@ interface HouseholdRepository {
 
     suspend fun join(code: String): Result<Household>
 
-    /** The member keeps a copy of the shared data. */
+    /** The member takes back what they added; the household keeps the rest. */
     suspend fun leave(): Result<Household>
 
     /** Owner only. */
     suspend fun removeMember(email: String): Result<Household>
 
     /** The newest events of the household, newest first; also refreshes [unseenActivityCount]. */
-    suspend fun activity(): Result<List<HouseholdActivity>>
+    suspend fun activity(): Result<List<HouseholdActivity>> = newestActivity().map { it.events }
+
+    /** The newest page of the feed, with whether there is more; refreshes [unseenActivityCount]. */
+    suspend fun newestActivity(): Result<HouseholdActivityPage>
+
+    /** The page of events older than [beforeId], for scrolling back through the history. */
+    suspend fun olderActivity(beforeId: Long): Result<HouseholdActivityPage>
 
     /** Events by other members since the user last opened the feed (as of the last fetch). */
     val unseenActivityCount: Flow<Int>

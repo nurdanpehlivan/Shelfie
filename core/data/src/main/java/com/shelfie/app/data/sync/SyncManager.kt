@@ -36,6 +36,7 @@ class SyncManager @Inject constructor(
     private val api: ShelfieApiService,
     private val accountStore: AccountStore,
     private val clock: Clock,
+    private val sharedSettings: SharedSettingsStore,
 ) {
 
     private val mutex = Mutex()
@@ -51,10 +52,13 @@ class SyncManager @Inject constructor(
             var space = session.space
             repeat(MAX_ROUNDS) {
                 val outbox = syncDao.getOutbox(PUSH_BATCH)
+                val sentSettings = sharedSettings.pending()
                 val response = api.sync(
                     bearer = ShelfieApiService.bearer(session.token),
-                    request = SyncRequest(cursor = cursor, changes = outbox.mapNotNull { it.toChange() }),
+                    request = SyncRequest(cursor = cursor, changes = outbox.mapNotNull { it.toChange() }, settings = sentSettings),
                 )
+                // The household's settings (or this phone's change, now on the server).
+                sharedSettings.reconcile(remote = response.settings, sent = sentSettings)
                 database.withTransaction {
                     syncDao.setApplying()
                     try {
@@ -68,14 +72,21 @@ class SyncManager @Inject constructor(
                 cursor = response.cursor
                 val newSpace = response.space
                 if (newSpace != null && newSpace != space) {
-                    // First sync since spaces existed: just remember it. Otherwise the account
-                    // joined or left a household: upload what this phone has (that merges it
-                    // into the new space) and pull the new space from the start.
-                    val moved = space != null
-                    accountStore.saveSpace(session.token, newSpace, restart = moved)
-                    space = newSpace
-                    if (moved) {
-                        syncDao.enqueueAll()
+                    if (space == null) {
+                        // First sync since spaces existed: just remember it.
+                        accountStore.saveSpace(session.token, newSpace, restart = false)
+                        space = newSpace
+                    } else {
+                        // Joined or left a household. The server already moved the data
+                        // (merged it in, or split each person's own records back out), so the
+                        // phone takes the new space as it is rather than uploading everything
+                        // it has, which would hand the other person's items over too. Changes
+                        // not sent yet go first; the space is saved only after the local reset,
+                        // so a run cut short in between starts the move over.
+                        if (syncDao.getOutbox(1).isNotEmpty()) return@repeat
+                        clearSyncedData()
+                        accountStore.saveSpace(session.token, newSpace, restart = true)
+                        space = newSpace
                         cursor = 0L
                         return@repeat
                     }
@@ -98,6 +109,22 @@ class SyncManager @Inject constructor(
             Result.failure(SyncException.Network(e))
         } catch (e: Exception) {
             Result.failure(SyncException.Server(null, e))
+        }
+    }
+
+    private suspend fun clearSyncedData() {
+        database.withTransaction {
+            syncDao.setApplying()
+            try {
+                syncDao.clearOutbox()
+                // Recipes and plans first: they may point at pantry items.
+                syncDao.clearRecipes()
+                syncDao.clearMealPlan()
+                syncDao.clearShoppingItems()
+                syncDao.clearPantryItems()
+            } finally {
+                syncDao.clearApplying()
+            }
         }
     }
 

@@ -58,6 +58,7 @@ import com.shelfie.app.presentation.recipe.RecipeRoute
 import com.shelfie.app.presentation.recipe.picker.IngredientPickerRoute
 import com.shelfie.app.presentation.scanner.ScannerRoute
 import com.shelfie.app.presentation.settings.AccountRoute
+import com.shelfie.app.presentation.settings.NotificationsRoute
 import com.shelfie.app.presentation.settings.SettingsRoute
 import com.shelfie.app.presentation.shopping.ShoppingListRoute
 import com.shelfie.app.presentation.statistics.StatisticsRoute
@@ -92,6 +93,10 @@ data object StatisticsDestination
 @Serializable
 data object SettingsDestination
 
+/** The household's activity feed: who added, used or threw away what. */
+@Serializable
+data object NotificationsDestination
+
 /**
  * Account, family sharing and its activity. [joinCode]: a family invite code from an invite
  * link, filled into "join" on arrival.
@@ -101,6 +106,9 @@ data class AccountDestination(val joinCode: String = "")
 
 /** Opens the account and family screen, e.g. from a household activity notification. */
 const val ACCOUNT_DEEP_LINK = "shelfie://account"
+
+/** Opens the household's activity feed, e.g. from a household activity notification. */
+const val NOTIFICATIONS_DEEP_LINK = "shelfie://notifications"
 
 /** Opens the rescue recipe, e.g. from the daily freshness notification. */
 const val RECIPE_DEEP_LINK = "shelfie://recipe"
@@ -124,6 +132,8 @@ private enum class TopLevelTab(
 ) {
     PANTRY(DashboardDestination, DashboardDestination::class, R.drawable.ic_home_outlined, R.drawable.ic_home, R.string.tab_pantry),
     RECIPES(RecipeHistoryDestination, RecipeHistoryDestination::class, R.drawable.ic_restaurant, R.drawable.ic_restaurant, R.string.tab_recipes),
+    // In the middle of the dock: sharing with the family is what sets the app apart.
+    FAMILY(AccountDestination(), AccountDestination::class, R.drawable.ic_group, R.drawable.ic_group, R.string.tab_family),
     SHOPPING(ShoppingListDestination, ShoppingListDestination::class, R.drawable.ic_shopping_cart_outlined, R.drawable.ic_shopping_cart, R.string.tab_shopping),
     STATISTICS(StatisticsDestination, StatisticsDestination::class, R.drawable.ic_bar_chart_outlined, R.drawable.ic_bar_chart, R.string.tab_statistics),
 }
@@ -144,6 +154,15 @@ fun ShelfieNavHost(
     val currentDestination = backStackEntry?.destination
     val showBottomBar = TopLevelTab.entries.any { currentDestination.isOn(it) }
 
+    fun navigateToTab(tab: TopLevelTab) {
+        navController.navigate(tab.route) {
+            // Standard tab behaviour: one copy of each tab, state kept.
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     fun navigateToRecipe(savedRecipeId: Long = RecipeDestination.NO_SAVED_RECIPE) {
         navController.navigate(RecipeDestination(savedRecipeId)) { launchSingleTop = true }
     }
@@ -156,14 +175,7 @@ fun ShelfieNavHost(
             if (showBottomBar) {
                 ShelfieNavigationBar(
                     isSelected = { tab -> currentDestination.isOn(tab) },
-                    onTabClick = { tab ->
-                        navController.navigate(tab.route) {
-                            // Standard tab behaviour: one copy of each tab, state kept.
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
+                    onTabClick = { tab -> navigateToTab(tab) },
                 )
             }
         },
@@ -188,8 +200,8 @@ fun ShelfieNavHost(
                     onNavigateToSettings = {
                         navController.navigate(SettingsDestination) { launchSingleTop = true }
                     },
-                    onNavigateToAccount = {
-                        navController.navigate(AccountDestination()) { launchSingleTop = true }
+                    onNavigateToNotifications = {
+                        navController.navigate(NotificationsDestination) { launchSingleTop = true }
                     },
                     savedItemsCount = savedItemsCount,
                     onSavedItemsMessageShown = {
@@ -253,9 +265,25 @@ fun ShelfieNavHost(
                     navDeepLink<AccountDestination>(basePath = ACCOUNT_DEEP_LINK),
                 ),
             ) {
+                // A tab of its own; the back arrow only when it was opened from settings or Premium.
+                val openedFromScreen = navController.previousBackStackEntry?.destination?.let {
+                    it.hasRoute(SettingsDestination::class) || it.hasRoute(PremiumDestination::class)
+                } == true
                 AccountRoute(
-                    onNavigateUp = { navController.navigateUp() },
+                    onNavigateUp = if (openedFromScreen) ({ navController.navigateUp() }) else null,
                     onOpenPremium = { navController.navigate(PremiumDestination) { launchSingleTop = true } },
+                    onOpenNotifications = { navController.navigate(NotificationsDestination) { launchSingleTop = true } },
+                )
+            }
+            composable<NotificationsDestination>(
+                deepLinks = listOf(navDeepLink<NotificationsDestination>(basePath = NOTIFICATIONS_DEEP_LINK)),
+            ) {
+                NotificationsRoute(
+                    onNavigateUp = { navController.navigateUp() },
+                    onOpenFamily = {
+                        navController.popBackStack()
+                        navigateToTab(TopLevelTab.FAMILY)
+                    },
                 )
             }
             composable<PremiumDestination> {

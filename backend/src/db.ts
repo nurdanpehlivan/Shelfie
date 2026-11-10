@@ -129,6 +129,69 @@ const SCHEMA = [
 		updated_at INTEGER NOT NULL
 	)`,
 	`CREATE INDEX IF NOT EXISTS push_tokens_user ON push_tokens (user_id)`,
+
+	// Who first wrote each record in a data space (household.ts), so a household can be split
+	// back up when someone leaves: each person takes what they added. No row means the space's owner.
+	`CREATE TABLE IF NOT EXISTS record_authors (
+		space TEXT NOT NULL,
+		collection TEXT NOT NULL,
+		sync_id TEXT NOT NULL,
+		author_id TEXT NOT NULL,
+		PRIMARY KEY (space, collection, sync_id)
+	)`,
+	`CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY, ran_at INTEGER NOT NULL)`,
+	// One-time backfill for households formed before authors were kept. A member's records that
+	// also sit in their own space were brought in when they joined.
+	`INSERT OR IGNORE INTO record_authors (space, collection, sync_id, author_id)
+	 SELECT r.user_id, r.collection, r.sync_id, m.member_id
+	 FROM household_members m
+	 JOIN sync_records r ON r.user_id = m.owner_id
+	 JOIN sync_records own ON own.user_id = m.member_id AND own.collection = r.collection AND own.sync_id = r.sync_id
+	 WHERE NOT EXISTS (SELECT 1 FROM migrations WHERE name = 'record_authors_v1')`,
+	// What a member added later shows in the activity feed by name; a name both people added stays with the owner.
+	`INSERT OR IGNORE INTO record_authors (space, collection, sync_id, author_id)
+	 SELECT r.user_id, r.collection, r.sync_id, a.actor_id
+	 FROM sync_records r
+	 JOIN household_members m ON m.owner_id = r.user_id
+	 JOIN household_activity a ON a.space = r.user_id AND a.actor_id = m.member_id
+	   AND a.action = CASE r.collection WHEN 'pantry' THEN 'added' WHEN 'shopping' THEN 'list_added' WHEN 'recipes' THEN 'recipe_saved' END
+	   AND a.name = substr(trim(COALESCE(json_extract(r.data, '$.name'), json_extract(r.data, '$.title'))), 1, 60)
+	 WHERE r.deleted = 0
+	   AND NOT EXISTS (
+	     SELECT 1 FROM household_activity o
+	     WHERE o.space = a.space AND o.action = a.action AND o.name = a.name AND o.actor_id <> a.actor_id
+	   )
+	   AND NOT EXISTS (SELECT 1 FROM migrations WHERE name = 'record_authors_v1')`,
+	`INSERT OR IGNORE INTO migrations (name, ran_at) VALUES ('record_authors_v1', CAST(strftime('%s', 'now') AS INTEGER) * 1000)`,
+	// Second pass for records v1 left with the owner: the "added" event of the same name closest
+	// to the record's own creation time (within 6 hours) names who added it, so a name both
+	// people added goes to the right one. Owners can still fix any record in the web panel.
+	`INSERT OR IGNORE INTO record_authors (space, collection, sync_id, author_id)
+	 SELECT space, collection, sync_id, actor FROM (
+	   SELECT r.user_id AS space, r.collection AS collection, r.sync_id AS sync_id,
+	     (SELECT actor_id FROM (
+	        SELECT a.actor_id AS actor_id, abs(a.ts - CAST(json_extract(r.data, '$.createdAt') AS INTEGER)) AS gap
+	        FROM household_activity a
+	        WHERE a.space = r.user_id
+	          AND a.action = CASE r.collection WHEN 'pantry' THEN 'added' WHEN 'shopping' THEN 'list_added' WHEN 'recipes' THEN 'recipe_saved' END
+	          AND a.name = substr(trim(COALESCE(json_extract(r.data, '$.name'), json_extract(r.data, '$.title'))), 1, 60))
+	      WHERE gap < 21600000 ORDER BY gap LIMIT 1) AS actor
+	   FROM sync_records r
+	   WHERE r.deleted = 0
+	     AND r.user_id IN (SELECT owner_id FROM household_members)
+	     AND NOT EXISTS (SELECT 1 FROM record_authors x WHERE x.space = r.user_id AND x.collection = r.collection AND x.sync_id = r.sync_id)
+	 )
+	 WHERE actor IS NOT NULL AND actor <> space
+	   AND NOT EXISTS (SELECT 1 FROM migrations WHERE name = 'record_authors_v2')`,
+	`INSERT OR IGNORE INTO migrations (name, ran_at) VALUES ('record_authors_v2', CAST(strftime('%s', 'now') AS INTEGER) * 1000)`,
+
+	// Settings a household shares, so everyone sees the same groups (sync.ts): when an item
+	// turns "critical". Last write wins on the writer's change time, like records.
+	`CREATE TABLE IF NOT EXISTS space_settings (
+		space TEXT PRIMARY KEY,
+		critical_days INTEGER NOT NULL,
+		changed_at INTEGER NOT NULL
+	)`,
 ];
 
 let ready: Promise<void> | undefined;

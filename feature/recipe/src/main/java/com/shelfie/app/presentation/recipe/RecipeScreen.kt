@@ -303,6 +303,7 @@ private fun RecipeOverview(
                     }
                 }
             }
+            item(key = "links") { RecipeLinksCard(title = recipe.title) }
             if (recipe.rescuedIngredients.isNotEmpty()) {
                 item(key = "rescuedTitle") { SectionTitle(stringResource(R.string.recipe_section_rescued)) }
                 item(key = "rescued") {
@@ -336,7 +337,6 @@ private fun RecipeOverview(
             itemsIndexed(recipe.steps, key = { index, _ -> "step_$index" }) { index, step ->
                 StepOverviewCard(number = index + 1, step = step)
             }
-            item(key = "links") { RecipeLinksCard(title = recipe.title) }
         }
         BottomActionBar {
                 OutlinedButton(

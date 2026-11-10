@@ -46,6 +46,9 @@ data class DashboardUiState(
     /** The pantry itself is empty (not just the current search or place filter). */
     val isEmpty: Boolean get() = !isLoading && allCount == 0
 
+    /** Shown items already past their date; what "throw away expired" removes. */
+    val expiredItems: List<DashboardItem> get() = critical.filter { it.daysLeft < 0 }
+
     /** Critical items that are not expired yet, i.e. what a rescue recipe can still use. */
     val hasRescuableItems: Boolean get() = critical.any { it.daysLeft >= 0 }
 
@@ -120,13 +123,18 @@ sealed interface DashboardIntent {
 
     data class UndoRemoval(val itemId: Long) : DashboardIntent
 
+    /** Throws away every expired item currently shown, in one tap. */
+    data object DiscardExpired : DashboardIntent
+
+    data class UndoDiscardExpired(val itemIds: List<Long>) : DashboardIntent
+
     data object ScanNewPhoto : DashboardIntent
 
     data object OpenRescueRecipe : DashboardIntent
 
     data object OpenSettings : DashboardIntent
 
-    data object OpenAccount : DashboardIntent
+    data object OpenNotifications : DashboardIntent
 
     data object OpenAddItem : DashboardIntent
 
@@ -155,7 +163,7 @@ sealed interface DashboardEffect {
 
     data object NavigateToSettings : DashboardEffect
 
-    data object NavigateToAccount : DashboardEffect
+    data object NavigateToNotifications : DashboardEffect
 
     data class ItemAdded(val itemName: String) : DashboardEffect
 
@@ -165,6 +173,9 @@ sealed interface DashboardEffect {
         val itemName: String,
         val reason: RemovalReason,
     ) : DashboardEffect
+
+    /** Several expired items were thrown away at once; the UI offers an undo. */
+    data class ShowExpiredDiscarded(val itemIds: List<Long>) : DashboardEffect
 
     data class ShowMessage(@param:StringRes val messageRes: Int) : DashboardEffect
 

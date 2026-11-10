@@ -52,6 +52,23 @@ interface SyncDao {
     )
     suspend fun enqueueAll()
 
+    /**
+     * Drops every synced record on the phone, for when the account moves to another data space
+     * (joined or left a household) and pulls that space from the start. Call with the applying
+     * flag set, so the deletions aren't queued for upload.
+     */
+    @Query("DELETE FROM saved_recipes")
+    suspend fun clearRecipes()
+
+    @Query("DELETE FROM meal_plan")
+    suspend fun clearMealPlan()
+
+    @Query("DELETE FROM shopping_items")
+    suspend fun clearShoppingItems()
+
+    @Query("DELETE FROM pantry_items")
+    suspend fun clearPantryItems()
+
     // endregion
 
     // region Applying flag

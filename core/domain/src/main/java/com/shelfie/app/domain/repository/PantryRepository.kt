@@ -49,6 +49,9 @@ interface PantryRepository {
     /** Marks the item as thrown away; it leaves the active lists like a consumed item. */
     suspend fun markAsWasted(id: Long)
 
+    /** Marks every item in [ids] as thrown away in one go; returns how many changed. */
+    suspend fun markAllAsWasted(ids: Collection<Long>): Int
+
     /** Undoes [markAsConsumed] / [markAsWasted]. */
     suspend fun restoreToPantry(id: Long)
 

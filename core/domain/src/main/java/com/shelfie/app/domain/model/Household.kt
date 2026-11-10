@@ -50,6 +50,9 @@ data class HouseholdActivity(
     val at: Instant,
 )
 
+/** One page of the feed, newest first; [hasMore] when older events can be loaded. */
+data class HouseholdActivityPage(val events: List<HouseholdActivity>, val hasMore: Boolean)
+
 enum class HouseholdAction {
     ADDED,
     USED,

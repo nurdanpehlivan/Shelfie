@@ -43,7 +43,8 @@ import com.shelfie.app.presentation.theme.freshnessPalette
 
 /**
  * The two overview widgets at the top of the pantry: what's safe, and what needs eating soon.
- * Each one filters the list below; tapping the selected card again shows everything.
+ * Each one filters the list below to its own groups, however often it is tapped; the
+ * "show all" link under them clears the filter.
  */
 @Composable
 fun PantryOverviewCards(
@@ -61,7 +62,7 @@ fun PantryOverviewCards(
             count = safeCount,
             accent = palette.fresh.accent,
             selected = selectedFilter == PantryFilter.SAFE,
-            onClick = { onFilterSelected(if (selectedFilter == PantryFilter.SAFE) null else PantryFilter.SAFE) },
+            onClick = { onFilterSelected(PantryFilter.SAFE) },
             modifier = Modifier.weight(1f),
         )
         OverviewCard(
@@ -69,9 +70,7 @@ fun PantryOverviewCards(
             count = criticalCount + warningCount,
             accent = palette.warning.accent,
             selected = selectedFilter == PantryFilter.USE_SOON,
-            onClick = {
-                onFilterSelected(if (selectedFilter == PantryFilter.USE_SOON) null else PantryFilter.USE_SOON)
-            },
+            onClick = { onFilterSelected(PantryFilter.USE_SOON) },
             // The critical share in red, so "use soon" never hides what's due today.
             footnote = if (criticalCount > 0) {
                 "$criticalCount ${stringResource(R.string.freshness_critical)}" to palette.critical.accent

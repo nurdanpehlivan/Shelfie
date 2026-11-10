@@ -14,6 +14,9 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.shelfie.app.domain.model.AppSettings
 import com.shelfie.app.domain.model.FreshnessThresholds
 import com.shelfie.app.domain.model.ThemeMode
+import com.shelfie.app.data.remote.shelfie.SpaceSettingsDto
+import com.shelfie.app.data.sync.SharedSettingsStore
+import com.shelfie.app.data.sync.SyncScheduler
 import com.shelfie.app.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -26,7 +29,9 @@ import javax.inject.Singleton
 @Singleton
 class SettingsRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-) : SettingsRepository {
+    private val syncScheduler: SyncScheduler,
+    private val clock: java.time.Clock,
+) : SettingsRepository, SharedSettingsStore {
 
     override val settings: Flow<AppSettings> = dataStore.data
         // A corrupt or unreadable file falls back to defaults instead of crashing every screen.
@@ -54,8 +59,36 @@ class SettingsRepositoryImpl @Inject constructor(
         dataStore.edit { it[REMINDER_HOUR] = hour.clampHour() }
     }
 
+    /** Shared with the household: remembered as a change to send, and synced shortly. */
     override suspend fun setCriticalDays(days: Long) {
-        dataStore.edit { it[CRITICAL_DAYS] = days.clampDays() }
+        dataStore.edit {
+            it[CRITICAL_DAYS] = days.clampDays()
+            it[CRITICAL_DAYS_CHANGED_AT] = clock.millis()
+            it[CRITICAL_DAYS_PENDING] = true
+        }
+        syncScheduler.requestSync()
+    }
+
+    override suspend fun pending(): SpaceSettingsDto? {
+        val prefs = dataStore.data.first()
+        if (prefs[CRITICAL_DAYS_PENDING] != true) return null
+        val days = prefs[CRITICAL_DAYS] ?: return null
+        return SpaceSettingsDto(criticalDays = days, changedAt = prefs[CRITICAL_DAYS_CHANGED_AT] ?: clock.millis())
+    }
+
+    override suspend fun reconcile(remote: SpaceSettingsDto?, sent: SpaceSettingsDto?) {
+        dataStore.edit { prefs ->
+            val localChangedAt = prefs[CRITICAL_DAYS_CHANGED_AT] ?: 0L
+            // What we sent arrived (and nothing newer was set meanwhile): no longer waiting.
+            if (sent != null && localChangedAt == sent.changedAt) prefs[CRITICAL_DAYS_PENDING] = false
+            if (remote == null) return@edit
+            val stillWaiting = prefs[CRITICAL_DAYS_PENDING] == true && localChangedAt > remote.changedAt
+            if (!stillWaiting) {
+                prefs[CRITICAL_DAYS] = remote.criticalDays.clampDays()
+                prefs[CRITICAL_DAYS_CHANGED_AT] = remote.changedAt
+                prefs[CRITICAL_DAYS_PENDING] = false
+            }
+        }
     }
 
     override suspend fun setAverageItemValue(value: Double) {
@@ -90,6 +123,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val REMINDER_HOUR = intPreferencesKey("reminder_hour")
         val CRITICAL_DAYS = longPreferencesKey("critical_days")
+        val CRITICAL_DAYS_CHANGED_AT = longPreferencesKey("critical_days_changed_at")
+        val CRITICAL_DAYS_PENDING = booleanPreferencesKey("critical_days_pending")
         val AVERAGE_ITEM_VALUE = doublePreferencesKey("average_item_value")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val THEME_MODE = stringPreferencesKey("theme_mode")

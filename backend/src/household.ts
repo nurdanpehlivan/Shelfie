@@ -1,6 +1,7 @@
 import { db } from "./db.ts";
 import type { User } from "./auth.ts";
 import { error, readJson } from "./http.ts";
+import { notifySpaceChanged } from "./push.ts";
 import { premiumUntil } from "./quota.ts";
 
 /**
@@ -8,8 +9,12 @@ import { premiumUntil } from "./quota.ts";
  *
  * A household is its owner's data space. Members' synced records are read from and written to
  * the owner's `user_id`, so every query in sync.ts goes through `spaceOf`. Joining or leaving
- * changes a user's space; the sync response reports it, and the app then re-uploads what it has
- * and pulls the new space from the start (see the app's SyncManager), which merges the data.
+ * changes a user's space; the sync response reports it, and the app then replaces its data with
+ * the new space's (see the app's SyncManager).
+ *
+ * Joining brings the member's own records into the household (`mergeInto`). Leaving or being
+ * removed splits it again (`splitOut`): every record keeps an author (`record_authors`), the
+ * member takes back what they added, and the owner keeps the rest.
  */
 
 /** People in a household, owner included: Premium (held by anyone in it) raises the limit. */
@@ -65,7 +70,7 @@ export async function handleHousehold(request: Request, action: string, user: Us
 	}
 }
 
-async function describe(user: User) {
+export async function describe(user: User) {
 	const d = await db();
 	const space = await spaceOf(user.id);
 	const { results } = await d
@@ -131,34 +136,102 @@ async function join(request: Request, user: User): Promise<Response> {
 		return error(409, limit < MAX_HOUSEHOLD_MEMBERS ? "Household is full on the free plan; Premium allows more" : "Household is full");
 	}
 
-	await d
-		.prepare(
-			`INSERT INTO household_members (member_id, owner_id, joined_at) VALUES (?, ?, ?)
-			 ON CONFLICT (member_id) DO UPDATE SET owner_id = excluded.owner_id, joined_at = excluded.joined_at`,
-		)
-		.bind(user.id, owner, Date.now())
-		.run();
+	await d.batch([
+		...mergeInto(d, owner, user.id),
+		d
+			.prepare(
+				`INSERT INTO household_members (member_id, owner_id, joined_at) VALUES (?, ?, ?)
+				 ON CONFLICT (member_id) DO UPDATE SET owner_id = excluded.owner_id, joined_at = excluded.joined_at`,
+			)
+			.bind(user.id, owner, Date.now()),
+	]);
+	await notifySpaceChanged(owner, user.id, null, false).catch((e) => console.error("push", e));
 	return Response.json(await describe(user));
 }
 
-/** The member keeps a copy: their app re-uploads it to their own space on the next sync. */
+/** The member takes back what they added; the owner keeps the rest. */
 async function leave(user: User): Promise<Response> {
-	const d = await db();
-	await d.prepare("DELETE FROM household_members WHERE member_id = ?").bind(user.id).run();
+	const owner = await spaceOf(user.id);
+	if (owner !== user.id) await splitOut(owner, user.id);
 	return Response.json(await describe(user));
+}
+
+/**
+ * Statements that copy [member]'s own live records into [owner]'s space, authored by the member.
+ * Revs are the owner's highest plus the member's own, so they are new to the owner's devices.
+ */
+function mergeInto(d: D1Database, owner: string, member: string): D1PreparedStatement[] {
+	return [
+		d
+			.prepare(
+				`INSERT OR IGNORE INTO record_authors (space, collection, sync_id, author_id)
+				 SELECT ?1, collection, sync_id, ?2 FROM sync_records m
+				 WHERE m.user_id = ?2 AND m.deleted = 0
+				   AND NOT EXISTS (SELECT 1 FROM sync_records o WHERE o.user_id = ?1 AND o.collection = m.collection AND o.sync_id = m.sync_id)`,
+			)
+			.bind(owner, member),
+		d
+			.prepare(
+				`INSERT INTO sync_records (user_id, collection, sync_id, data, deleted, changed_at, rev)
+				 SELECT ?1, collection, sync_id, data, 0, changed_at,
+				        (SELECT COALESCE(MAX(rev), 0) FROM sync_records WHERE user_id = ?1) + rev
+				 FROM sync_records WHERE user_id = ?2 AND deleted = 0
+				 ON CONFLICT (user_id, collection, sync_id) DO UPDATE SET
+				   data = excluded.data, deleted = 0, changed_at = excluded.changed_at, rev = excluded.rev
+				 WHERE excluded.changed_at >= sync_records.changed_at`,
+			)
+			.bind(owner, member),
+	];
+}
+
+/**
+ * Ends [member]'s membership in [owner]'s household and splits the data: the member's own space
+ * is rebuilt from the records they added, and those leave the owner's space as deletions, so the
+ * owner's devices drop them. Both sides' apps notice and pull their space again.
+ */
+export async function splitOut(owner: string, member: string): Promise<void> {
+	const d = await db();
+	const now = Date.now();
+	const authored = `SELECT collection, sync_id FROM record_authors WHERE space = ?1 AND author_id = ?2`;
+	await d.batch([
+		// What the member had before joining is already in the household; start their space afresh.
+		d.prepare("DELETE FROM sync_records WHERE user_id = ?").bind(member),
+		d.prepare("DELETE FROM record_authors WHERE space = ?").bind(member),
+		d
+			.prepare(
+				`INSERT INTO sync_records (user_id, collection, sync_id, data, deleted, changed_at, rev)
+				 SELECT ?2, collection, sync_id, data, 0, changed_at, rev FROM sync_records
+				 WHERE user_id = ?1 AND deleted = 0 AND (collection, sync_id) IN (${authored})`,
+			)
+			.bind(owner, member),
+		// Newer than any write still on its way, so an old edit can't bring a record back.
+		d
+			.prepare(
+				`UPDATE sync_records SET data = NULL, deleted = 1, changed_at = MAX(changed_at, ?3),
+				   rev = (SELECT COALESCE(MAX(rev), 0) FROM sync_records WHERE user_id = ?1) + rev
+				 WHERE user_id = ?1 AND deleted = 0 AND (collection, sync_id) IN (${authored})`,
+			)
+			.bind(owner, member, now),
+		d.prepare("DELETE FROM record_authors WHERE space = ? AND author_id = ?").bind(owner, member),
+		d.prepare("DELETE FROM household_members WHERE member_id = ? AND owner_id = ?").bind(member, owner),
+	]);
+	// Both sides' devices pull their new data now, not at their next scheduled sync.
+	await notifySpaceChanged(owner, null, null, false).catch((e) => console.error("push", e));
+	await notifySpaceChanged(member, null, null, false).catch((e) => console.error("push", e));
 }
 
 async function remove(request: Request, user: User): Promise<Response> {
 	const body = await readJson<{ email?: unknown }>(request, 1024);
 	const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
 	const d = await db();
-	await d
+	const member = await d
 		.prepare(
-			`DELETE FROM household_members
+			`SELECT member_id FROM household_members
 			 WHERE owner_id = ? AND member_id = (SELECT id FROM users WHERE email = ?)`,
 		)
 		.bind(user.id, email)
-		.run();
+		.first<{ member_id: string }>();
+	if (member) await splitOut(user.id, member.member_id);
 	return Response.json(await describe(user));
 }
 

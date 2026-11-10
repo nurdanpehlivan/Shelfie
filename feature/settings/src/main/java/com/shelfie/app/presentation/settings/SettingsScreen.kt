@@ -195,6 +195,14 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                // Synced with the household and the web panel, so everyone sees the same groups.
+                if (accountEmail != null) {
+                    Text(
+                        text = stringResource(R.string.settings_critical_shared),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
 
             SettingsCard(title = stringResource(R.string.settings_section_statistics)) {

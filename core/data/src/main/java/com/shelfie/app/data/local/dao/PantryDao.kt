@@ -150,6 +150,12 @@ interface PantryDao {
     )
     suspend fun markAsWasted(id: Long, updatedAt: Instant): Int
 
+    /** Marks every active item in [ids] as thrown away in one statement. */
+    @Query(
+        "UPDATE pantry_items SET is_consumed = 1, is_wasted = 1, updated_at = :updatedAt WHERE id IN (:ids) AND is_consumed = 0"
+    )
+    suspend fun markAllAsWasted(ids: List<Long>, updatedAt: Instant): Int
+
     /** Puts a consumed or wasted item back into the pantry (e.g. to undo a swipe). */
     @Query(
         "UPDATE pantry_items SET is_consumed = 0, is_wasted = 0, updated_at = :updatedAt WHERE id = :id"

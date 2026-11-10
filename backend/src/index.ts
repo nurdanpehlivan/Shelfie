@@ -14,7 +14,7 @@ import { PRIVACY_HTML } from "./pages/privacy.ts";
 import { handleProxy, PROXY_ROUTE } from "./proxy.ts";
 import { handleForgot } from "./reset.ts";
 import { handlePushToken } from "./push.ts";
-import { handleSync, handleWebData, handleWebWrite } from "./sync.ts";
+import { handleSetAuthor, handleSync, handleWebData, handleWebWrite } from "./sync.ts";
 
 /**
  * Routes:
@@ -73,7 +73,7 @@ async function route(request: Request, url: URL, path: string): Promise<Response
 	if (household || path === "/api/billing/verify") {
 		const user = await authenticate(request, "app");
 		if (!user) return error(401, "Unauthorized");
-		if (household?.[1] === "activity") return request.method === "GET" ? handleActivity(user) : error(405, "Method not allowed");
+		if (household?.[1] === "activity") return request.method === "GET" ? handleActivity(user, url) : error(405, "Method not allowed");
 		if (household) return handleHousehold(request, household[1] ?? "", user);
 		return handleBillingVerify(request, user);
 	}
@@ -100,6 +100,7 @@ async function route(request: Request, url: URL, path: string): Promise<Response
 		if (request.method !== "GET" && !isSameOrigin(request)) return error(403, "Forbidden");
 		if (path === "/api/web/data" && request.method === "GET") return handleWebData(user);
 		if (path === "/api/web/records") return handleWebWrite(request, user);
+		if (path === "/api/web/author") return handleSetAuthor(request, user);
 		if (path === "/api/web/account" && request.method === "DELETE") return deleteAccount(user);
 		return error(404, "Not found");
 	}

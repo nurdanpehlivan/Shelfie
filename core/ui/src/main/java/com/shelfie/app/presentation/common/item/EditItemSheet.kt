@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +45,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -117,18 +122,27 @@ fun EditItemSheet(
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
     }
 
+    val nameFocus = remember { FocusRequester() }
+    // A new item starts with the keyboard open on the name: that is always the first thing typed.
+    LaunchedEffect(Unit) {
+        if (item.name.isBlank()) runCatching { nameFocus.requestFocus() }
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        // Scrolling the form must not drag the whole sheet away; it closes with Cancel, back or a tap outside.
+        sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
+        Column(modifier = Modifier.fillMaxWidth().imePadding()) {
         Column(
             modifier = Modifier
+                .weight(1f, fill = false)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(
                 text = title,
@@ -156,7 +170,7 @@ fun EditItemSheet(
                     imeAction = ImeAction.Next,
                 ),
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusRequester(nameFocus),
             )
 
             OutlinedTextField(
@@ -174,7 +188,7 @@ fun EditItemSheet(
             )
 
             SectionLabel(R.string.scanner_edit_unit)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChipRow {
                 MeasurementUnit.entries.forEach { option ->
                     FilterChip(
                         selected = option == unit,
@@ -187,7 +201,7 @@ fun EditItemSheet(
             }
 
             SectionLabel(R.string.scanner_edit_category)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChipRow {
                 Category.entries.forEach { option ->
                     FilterChip(
                         selected = option == category,
@@ -205,7 +219,7 @@ fun EditItemSheet(
             }
 
             SectionLabel(R.string.edit_location)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChipRow {
                 StorageLocation.entries.forEach { option ->
                     FilterChip(
                         selected = option == location,
@@ -229,8 +243,16 @@ fun EditItemSheet(
                 },
                 isEstimate = !expiryTouched,
             )
+        }
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            // Outside the scrolling part, so saving never needs a scroll to the bottom.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.End,
+            ) {
                 TextButton(onClick = ::closeSheet, modifier = Modifier.height(52.dp)) {
                     Text(stringResource(R.string.action_cancel))
                 }
@@ -255,6 +277,15 @@ fun EditItemSheet(
             }
         }
     }
+}
+
+/** Options in one line that scrolls sideways, so long lists don't make the form tall. */
+@Composable
+private fun ChipRow(content: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) { content() }
 }
 
 @Composable
